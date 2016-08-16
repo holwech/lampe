@@ -49,8 +49,8 @@ void Lampe::updateAllTouch() {
 // Needs to be optimized
 void Lampe::updateTouch(int light) { 
 	unsigned long currentTime = millis();
-	unsigned int timeDiff = currentTime - touchTimer[light];
-	if ((timeDiff) > 100) {
+	unsigned long timeDiff = currentTime - touchTimer[light];
+	if ((timeDiff) > 50) {
 		int touchVal = CS[light].capacitiveSensor(50); 
 		if (touchVal > touchThreshold && !touchList[light]) {
 			touchList[light] = true;
@@ -60,27 +60,23 @@ void Lampe::updateTouch(int light) {
 			touchList[light] = false;
 			touchTimer[light] = currentTime; 
 			holdList[light] = false;	
-			if (timeDiff < 1500 && !clickList[light] && !holdList[light]) {
+			if (timeDiff < 1500) {
 				clickList[light] = true;
 				clickTimer[light] = currentTime;
-			} else if (timeDiff < 3000 && !longClickList[light] && !holdList[light]) {
+			} else if (timeDiff < 3000) {
 				longClickList[light] = true;
 				longClickTimer[light] = currentTime;
 			}
 		}
-	}
-	if (clickList[light] && (currentTime - clickTimer[light]) > 1500) {
-		clickList[light] = false;
-		clickTimer[light] = 0;
-	}
-	if (longClickList[light] && (currentTime - longClickTimer[light]) > 3000) {
-		longClickList[light] = false;
-		longClickTimer[light] = 0;
-	}
-	if (touchList[light] &&
-			!holdList[light] && 
-			(currentTime - holdTimer[light]) > 3000) {
-		holdList[light] = true;
+		if (clickList[light] && (currentTime - clickTimer[light]) > 1500) {
+			clickList[light] = false;
+		}
+		if (longClickList[light] && (currentTime - longClickTimer[light]) > 3000) {
+			longClickList[light] = false;
+		}
+		if (touchList[light] && (currentTime - holdTimer[light]) > 3000) {
+			holdList[light] = true;
+		}
 	}
 }
 
@@ -89,21 +85,21 @@ int Lampe::readCS(int light, int samples) {
 	return reading;
 }
 
-void Lampe::setLight(int light, int color, int value) {
-  if (color == 3) {
-    Tlc.set((light * 9), value);
-    Tlc.set((light * 9) + 1, value);
-    Tlc.set((light * 9) + 2, value);
-    Tlc.set((light * 9) + 3, value);
-    Tlc.set((light * 9) + 4, value);
-    Tlc.set((light * 9) + 5, value);
-    Tlc.set((light * 9) + 6, value);
-    Tlc.set((light * 9) + 7, value);
-    Tlc.set((light * 9) + 8, value);
-  } else {
-    Tlc.set((light * 9) + (color * 3), value);
-    Tlc.set((light * 9) + (color * 3) + 1, value);
-    Tlc.set((light * 9) + (color * 3) + 2, value);
-  }
+void Lampe::setLight(int light, int red, int green, int blue) {
+	if (red != -1){
+		Tlc.set((light * 9), red);
+		Tlc.set((light * 9) + 1, red);
+		Tlc.set((light * 9) + 2, red);
+	}
+	if (green != -1){
+		Tlc.set((light * 9) + 3, green);
+		Tlc.set((light * 9) + 4, green);
+		Tlc.set((light * 9) + 5, green);
+	}
+	if (blue != -1){
+		Tlc.set((light * 9) + 6, blue);
+		Tlc.set((light * 9) + 7, blue);
+		Tlc.set((light * 9) + 8, blue);
+	}
 }
 

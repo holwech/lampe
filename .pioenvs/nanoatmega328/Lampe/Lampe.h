@@ -10,7 +10,7 @@ class Lampe
 {
 	public:
 		Lampe();
-		void setLight(int light, int color, int value);
+		void setLight(int light, int red, int green, int blue);
 		bool touch(int light);
 		bool click(int light);
 		bool longClick(int light);

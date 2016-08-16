@@ -1,6 +1,6 @@
 #include "State.h"
 
-State::State() {
+State::State() : lightTimer{0, 0, 0, 0, 0} {
 	state = INIT;
 }
 
