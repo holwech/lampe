@@ -186,6 +186,28 @@ void loop() {
 		Lampe.setLight(light, 2, intensityBlue);
 		Tlc.update();
 		delay(200);
+	} else if (conf == 10) {
+		Tlc.clear()
+		int currLight = 0;
+		int currColor = rand() % 3;
+		int prevColor = currColor;
+		for(int i = 1; i < 4095; i++) {
+			if (currLight == 4){
+				Tlc.clear();
+				Lampe.setLight(0, currColor, i);
+				Lampe.setLight(5, currColor, i);
+				currLight = 0;
+				prevColor = currColor;
+				while(prevColor == currColor){
+					currColor = rand() % 3;
+				}
+				i += floor(i/4);
+			}
+			currLight ++;
+			Lampe.setLight(currLight, currColor, i);
+			Tlc.update();
+      		delay(513- floor(i/8));
+		}
 	}
 }
 
