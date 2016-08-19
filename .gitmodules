@@ -1,6 +1,0 @@
-[submodule "lib/Tlc5940"]
-	path = lib/Tlc5940
-	url = https://github.com/PaulStoffregen/Tlc5940
-[submodule "lib/CapacitiveSensor"]
-	path = lib/CapacitiveSensor
-	url = https://github.com/PaulStoffregen/CapacitiveSensor
