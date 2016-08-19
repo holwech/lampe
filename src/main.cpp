@@ -5,7 +5,7 @@
 #include <CapacitiveSensor.h>
 
 Lampe Lampe;
-const int conf = 9;
+const int conf = 10;
 int prevLight = -1;
 int average = 0;
 CapacitiveSensor cs_4_2 = CapacitiveSensor(2,4);
@@ -187,7 +187,7 @@ void loop() {
 		Tlc.update();
 		delay(200);
 	} else if (conf == 10) {
-		Tlc.clear()
+		Tlc.clear();
 		int currLight = 0;
 		int currColor = rand() % 3;
 		int prevColor = currColor;
