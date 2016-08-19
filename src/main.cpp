@@ -3,211 +3,125 @@
 #include <Lampe.h>
 #include <Arduino.h>
 #include <CapacitiveSensor.h>
+#include <State.h>
+
+#define DEBUG true
 
 Lampe Lampe;
-const int conf = 10;
-int prevLight = -1;
-int average = 0;
-CapacitiveSensor cs_4_2 = CapacitiveSensor(2,4);
-const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
-unsigned int sample;
+unsigned long printTimer = millis();
+unsigned long loopTimer;
+int max;
+State state;
+int option = 1;
+
+void printDebug() {
+	int temp = Lampe.readCS(0,50);
+	if (max < temp) {
+		max = temp;
+	}
+	if (DEBUG && millis() - printTimer > 500) {
+		Serial.println("-----");
+		Serial.println("Note click/longclick/hold can only be read once");
+		Serial.print("Loop time: ");
+		Serial.println(millis() - loopTimer);
+		Serial.print("Touch value: ");
+		Serial.println(temp);
+		Serial.print("Touch: ");
+		Serial.println(Lampe.touch(0));
+		Serial.print("Click: ");
+		Serial.println(Lampe.click(0));
+		Serial.print("Long click: ");
+		Serial.println(Lampe.longClick(0));
+		Serial.print("Hold: ");
+		Serial.println(Lampe.hold(0));
+		Serial.print("Max: ");
+		Serial.println(max);
+		Serial.print("State: ");
+		Serial.println(state.getState());
+		printTimer = millis();
+	}
+}
+
 void setup() {
   Tlc.init(0);
 	Serial.begin(115200);
 }
 
 
-
 void loop() {
-  if (conf == 1) {
-    for(int i = 0; i < 4095; i++) {
-      Lampe.setLight(0, 0, i);
-      Lampe.setLight(1, 1, i);
-      Lampe.setLight(2, 2, i);
-      Lampe.setLight(3, 1, i);
-      Lampe.setLight(4, 0, i);
-      Tlc.update();
-      delay(1);
-    }
-    for(int i = 4095; i > 0; i--) {
-      Lampe.setLight(0, 0, i);
-      Lampe.setLight(1, 1, i);
-      Lampe.setLight(2, 2, i);
-      Lampe.setLight(3, 1, i);
-      Lampe.setLight(4, 0, i);
-      Tlc.update();
-      delay(1);
-    }
-  } else if (conf == 2) {
-    Lampe.setLight(0, 4, 4095);
-    Tlc.update();
-    delay(500);
-    Lampe.setLight(0, 4, 0);
-    Lampe.setLight(2, 4, 4095);
-    Tlc.update();
-    delay(500);
-    Lampe.setLight(2, 4, 0);
-    Lampe.setLight(4, 4, 4095);
-    Tlc.update();
-    delay(500);
-    Lampe.setLight(4, 4, 0);
-    Lampe.setLight(3, 4, 4095);
-    Tlc.update();
-    delay(500);
-    Lampe.setLight(3, 4, 0);
-    Lampe.setLight(1, 4, 4095);
-    Tlc.update();
-    delay(500);
-    Lampe.setLight(1, 4, 0);
-	} else if (conf == 3) {
-		Lampe.setLight(0, 0, 4095);
-		Lampe.setLight(1, 2, 4095);
-		Lampe.setLight(2, 1, 4095);
-		Lampe.setLight(3, 1, 4095);
-		Lampe.setLight(4, 1, 4095);
+	loopTimer = millis();
+	Lampe.updateTouch(0);
+	printDebug();
+	switch (state.getState()) {
+	case INIT:
+		Lampe.setLight(0, 4095, -1, -1);
+		Lampe.setLight(1, -1, -1, 4095);
+		Lampe.setLight(2, -1, 4095, -1);
+		Lampe.setLight(3, -1, 4095, -1);
+		Lampe.setLight(4, -1, 4095, -1);
 		Tlc.update();
-		delay(200);
-		Tlc.clear();
-		Lampe.setLight(0, 0, 4095);
-		Lampe.setLight(1, 1, 4095);
-		Lampe.setLight(2, 2, 4095);
-		Lampe.setLight(3, 1, 4095);
-		Lampe.setLight(4, 1, 4095);
-		Tlc.update();
-		delay(200);
-		Tlc.clear();
-		Lampe.setLight(0, 0, 4095);
-		Lampe.setLight(1, 1, 4095);
-		Lampe.setLight(2, 1, 4095);
-		Lampe.setLight(3, 2, 4095);
-		Lampe.setLight(4, 1, 4095);
-		Tlc.update();
-		delay(200);
-		Tlc.clear();
-		Lampe.setLight(0, 0, 4095);
-		Lampe.setLight(1, 1, 4095);
-		Lampe.setLight(2, 1, 4095);
-		Lampe.setLight(3, 1, 4095);
-		Lampe.setLight(4, 2, 4095);
-		Tlc.update();
-		delay(200);
-		Tlc.clear();
-	} else if (conf == 4) {
-		Tlc.clear();
-		Lampe.setLight(0, 0, 4095);
-		Lampe.setLight(1, 2, 4095);
-		Lampe.setLight(2, 2, 4095);
-		Lampe.setLight(3, 2, 4095);
-		Lampe.setLight(4, 2, 4095);
-		Tlc.update();
-		delay(5000);
-		Tlc.clear();
-	} else if (conf == 5) {
-		int randNum = rand() % 5;
-		int randColor = rand() % 3;
-		while (randNum == prevLight) {
-			randNum = rand() % 5;
-		}	
-		prevLight = randNum;
-		Tlc.clear();
-		Lampe.setLight(randNum, randColor, 4095);
-		Tlc.update();
-		delay(11);
-	} else if (conf == 6) {
-	  long start = millis();
-    long total1 =  cs_4_2.capacitiveSensor(5);
-		int val = (total1 + average) / 2;
-		Lampe.setLight(0,3,val * 30);
-		Lampe.setLight(1,3,val * 30);
-		Lampe.setLight(2,3,val * 30);
-		Lampe.setLight(3,3,val * 30);
-		Lampe.setLight(4,3,val * 30);
-		Tlc.update();
-
-    Serial.println(millis() - start);
-    Serial.print(total1);
-    Serial.print("\n\n");
-	} else if (conf == 7) {
-	
-		unsigned long startMillis= millis();  // Start of sample window
-		unsigned int peakToPeak = 0;   // peak-to-peak level
-		
-		unsigned int signalMax = 0;
-		unsigned int signalMin = 1024;
-		
-		// collect data for 50 mS
-		while (millis() - startMillis < sampleWindow)
-		{
-			 sample = analogRead(0);
-			 if (sample < 3250)  // toss out spurious readings
-			 {
-					if (sample > signalMax)
-					{
-						 signalMax = sample;  // save just the max levels
-					}
-					else if (sample < signalMin)
-					{
-						 signalMin = sample;  // save just the min levels
-					}
-			 }
-		}
-		peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
-		Serial.println(peakToPeak);		
-		int intensity = peakToPeak * 10;
-		Serial.println(peakToPeak);
-	} else if (conf == 8) {
-    long total1 =  cs_4_2.capacitiveSensor(50);
-		Tlc.clear();
-		if (total1 > 150) {
-			Lampe.setLight(0,2,555);
-			Lampe.setLight(0,1,4095);
-			Lampe.setLight(1,2,4095);
-			Lampe.setLight(2,2,4095);
-			Lampe.setLight(3,2,4095);
-			Lampe.setLight(4,2,4095);
-		} else {
-			Lampe.setLight(0,0,4095);
-			Lampe.setLight(1,0,4095);
-			Lampe.setLight(2,0,4095);
-			Lampe.setLight(3,0,4095);
-			Lampe.setLight(4,0,4095);
-		}
-		Tlc.update();
-	} else if (conf == 9) {
-		int intensityRed = rand() % 4095;
-		int intensityGreen = rand() % 4095;
-		int intensityBlue = rand() % 4095;
-		int light = rand() % 5;
-		while (light == prevLight) {
-			light = rand() % 5;
-		}
-		Lampe.setLight(light, 0, intensityRed);
-		Lampe.setLight(light, 1, intensityGreen);
-		Lampe.setLight(light, 2, intensityBlue);
-		Tlc.update();
-		delay(200);
-	} else if (conf == 10) {
-		Tlc.clear();
-		int currLight = 0;
-		int currColor = rand() % 3;
-		int prevColor = currColor;
-		for(int i = 1; i < 4095; i++) {
-			if (currLight == 4){
-				Tlc.clear();
-				Lampe.setLight(0, currColor, i);
-				Lampe.setLight(5, currColor, i);
-				currLight = 0;
-				prevColor = currColor;
-				while(prevColor == currColor){
-					currColor = rand() % 3;
-				}
-				i += floor(i/4);
+		delay(100);
+		state.setState(MENU);
+		break;
+	case MENU:
+		if (Lampe.touch(0)) {
+			Lampe.setLight(0, 0, 4095, 0);
+			if (Lampe.hold(0)) {
+				state.setState(OFF);
+				break;
 			}
-			currLight ++;
-			Lampe.setLight(currLight, currColor, i);
-			Tlc.update();
-      		delay(513- floor(i/8));
+		} else {
+			Lampe.setLight(0, 4095, 0, 0);
 		}
+		if (Lampe.click(0)) {
+			Lampe.setLight(option, 0, 4095, 0);
+			option++;
+			if (option > 4) {
+				option = 1;
+			}
+			Lampe.setLight(option, 0, 0, 4095);
+		}	else if (Lampe.longClick(0)) {
+			Tlc.clear();
+			Tlc.update();
+			state.setState(COOL_LIGHTS);
+			break;
+		}
+		Tlc.update();
+		break;
+	case COOL_LIGHTS:
+		if (Lampe.click(0)) {
+			Lampe.setLight(0, 4095, 0, 0);
+			Lampe.setLight(1, 0, 0, 4095);
+			Lampe.setLight(2, 0, 4095, 0);
+			Lampe.setLight(3, 0, 4095, 0);
+			Lampe.setLight(4, 0, 4095, 0);
+			Tlc.update();
+			state.setState(MENU);
+			break;
+		}
+		if ((loopTimer - state.lightTimer[0]) > 500) {
+			int light	= rand() % 5;
+			int red = rand() % 4096;
+			int green = rand() % 4096;
+			int blue = rand() % 4096;
+			Lampe.setLight(light, red, green, blue); 
+			Tlc.update();
+			state.lightTimer[0] = loopTimer;
+		}
+		break;
+	case OFF:
+		if (Lampe.click(0)) {
+			state.setState(INIT);
+			break;
+		}
+		Tlc.clear();
+		Tlc.update();
+		break;
+	case DEB:
+		Serial.print(Lampe.click(0));
+		Serial.print(Lampe.longClick(0));
+		Serial.print(Lampe.hold(0));
+		Serial.println(Lampe.readCS(0,50));
+		break;
 	}
 }
-
