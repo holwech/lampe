@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <CapacitiveSensor.h>
 #include <State.h>
+#include <Programs.h>
 
 #define DEBUG true
 
@@ -11,7 +12,7 @@ Lampe Lampe;
 unsigned long printTimer = millis();
 unsigned long loopTimer;
 int max;
-State state;
+State State;
 int option = 1;
 
 void printDebug() {
@@ -37,7 +38,7 @@ void printDebug() {
 		Serial.print("Max: ");
 		Serial.println(max);
 		Serial.print("State: ");
-		Serial.println(state.getState());
+		Serial.println(State.getState());
 		printTimer = millis();
 	}
 }
@@ -50,74 +51,48 @@ void setup() {
 
 void loop() {
 	loopTimer = millis();
-	Lampe.updateTouch(0);
 	printDebug();
-	switch (state.getState()) {
+	switch (State.getState()) {
 	case INIT:
-		Lampe.setLight(0, 4095, -1, -1);
-		Lampe.setLight(1, -1, -1, 4095);
-		Lampe.setLight(2, -1, 4095, -1);
-		Lampe.setLight(3, -1, 4095, -1);
-		Lampe.setLight(4, -1, 4095, -1);
-		Tlc.update();
-		delay(100);
-		state.setState(MENU);
+		init(Lampe, Tlc);
+		State.setState(MAIN_MENU);
 		break;
-	case MENU:
-		if (Lampe.touch(0)) {
-			Lampe.setLight(0, 0, 4095, 0);
-			if (Lampe.hold(0)) {
-				state.setState(OFF);
-				break;
-			}
-		} else {
-			Lampe.setLight(0, 4095, 0, 0);
-		}
-		if (Lampe.click(0)) {
-			Lampe.setLight(option, 0, 4095, 0);
-			option++;
-			if (option > 4) {
-				option = 1;
-			}
-			Lampe.setLight(option, 0, 0, 4095);
-		}	else if (Lampe.longClick(0)) {
-			Tlc.clear();
-			Tlc.update();
-			state.setState(COOL_LIGHTS);
-			break;
-		}
-		Tlc.update();
+	case MAIN_MENU:
+		mainMenu(Lampe, Tlc, State);
 		break;
 	case COOL_LIGHTS:
+		Lampe.updateTouch(0);
 		if (Lampe.click(0)) {
-			Lampe.setLight(0, 4095, 0, 0);
-			Lampe.setLight(1, 0, 0, 4095);
-			Lampe.setLight(2, 0, 4095, 0);
-			Lampe.setLight(3, 0, 4095, 0);
-			Lampe.setLight(4, 0, 4095, 0);
+			Lampe.setLight(0, 255, 0, 0);
+			Lampe.setLight(1, 0, 0, 255);
+			Lampe.setLight(2, 0, 255, 0);
+			Lampe.setLight(3, 0, 255, 0);
+			Lampe.setLight(4, 0, 255, 0);
 			Tlc.update();
-			state.setState(MENU);
+			State.setState(MAIN_MENU);
 			break;
 		}
-		if ((loopTimer - state.lightTimer[0]) > 500) {
+		if ((loopTimer - State.lightTimer[0]) > 200) {
 			int light	= rand() % 5;
-			int red = rand() % 4096;
-			int green = rand() % 4096;
-			int blue = rand() % 4096;
+			int red = rand() % 256;
+			int green = rand() % 256;
+			int blue = rand() % 256;
 			Lampe.setLight(light, red, green, blue); 
 			Tlc.update();
-			state.lightTimer[0] = loopTimer;
+			State.lightTimer[0] = loopTimer;
 		}
 		break;
 	case OFF:
+		Lampe.updateTouch(0);
 		if (Lampe.click(0)) {
-			state.setState(INIT);
+			State.setState(INIT);
 			break;
 		}
 		Tlc.clear();
 		Tlc.update();
 		break;
 	case DEB:
+		Lampe.updateTouch(0);
 		Serial.print(Lampe.click(0));
 		Serial.print(Lampe.longClick(0));
 		Serial.print(Lampe.hold(0));

@@ -1,0 +1,6 @@
+[submodule "lib/CapacitiveSensor"]
+	path = lib/CapacitiveSensor
+	url = https://github.com/holwech/CapacitiveSensor
+[submodule "lib/Tlc5940"]
+	path = lib/Tlc5940
+	url = https://github.com/holwech/Tlc5940

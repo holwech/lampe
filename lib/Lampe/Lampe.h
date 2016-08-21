@@ -29,6 +29,7 @@ class Lampe
 		unsigned long touchTimer[NUM_LIGHTS];
 		int touchThreshold;
 		CapacitiveSensor CS[NUM_LIGHTS];
+		uint16_t brightnessLevel[256];
 };
 
 #endif
