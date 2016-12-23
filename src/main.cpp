@@ -64,27 +64,19 @@ void loop() {
 	case SECOND_MENU:
 		secondMenu(Lampe, Tlc, State);
 		break;
-	case COOL_LIGHTS:
+	case PROGRAMS:
 		Lampe.updateTouch(0);
 		if (Lampe.click(0)) {
-			Lampe.setLight(0, 255, 0, 0);
-			Lampe.setLight(1, 0, 0, 255);
-			Lampe.setLight(2, 0, 255, 0);
-			Lampe.setLight(3, 0, 255, 0);
-			Lampe.setLight(4, 0, 255, 0);
+			Lampe.setLight(0, mainTouchInactive);
+			Lampe.setLight(1, mainSelect);
+			Lampe.setLight(2, mainBase);
+			Lampe.setLight(3, mainBase);
+			Lampe.setLight(4, mainBase);
 			Tlc.update();
 			State.setState(MAIN_MENU);
 			break;
 		}
-		if ((loopTimer - State.lightTimer[0]) > 200) {
-			int light	= rand() % 5;
-			int red = rand() % 256;
-			int green = rand() % 256;
-			int blue = rand() % 256;
-			Lampe.setLight(light, red, green, blue); 
-			Tlc.update();
-			State.lightTimer[0] = loopTimer;
-		}
+		programs(Lampe, Tlc, State, loopTimer);
 		break;
 	case OFF:
 		Lampe.updateTouch(0);

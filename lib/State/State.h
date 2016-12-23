@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-enum States{INIT, MAIN_MENU, SECOND_MENU, OFF, DEB, COOL_LIGHTS, TEST};
+enum States{INIT, MAIN_MENU, SECOND_MENU, PROGRAMS, OFF, DEB, TEST};
 
 class State
 {
@@ -18,11 +18,14 @@ class State
 		void incrementMenu();
 		uint8_t getMenuOption();
 		bool menuRestarted();
+		int transitionCycle(int light, int color, int min, int max);
 	private:
 		uint8_t menuOption;
 		uint8_t lightMenuOption;
 		enum States state;
 		bool menuRestart;
+		int count[15];
+		int countDirection[15];
 };
 
 #endif

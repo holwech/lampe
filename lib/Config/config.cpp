@@ -2,12 +2,12 @@
 
 Color off(0, 0, 0);
 
-Color mainBase(0, 255, 0);
-Color mainSelect(0, 0, 255);
-Color mainTouchInactive(255, 0, 0);
-Color mainTouchActive(0, 255, 0);
+Color mainBase(0, 125, 0);
+Color mainSelect(0, 0, 125);
+Color mainTouchInactive(125, 0, 0);
+Color mainTouchActive(0, 125, 0);
 
-Color secondBase(0, 255, 255);
-Color secondSelect(255, 0, 255);
-Color secondTouchInactive(255, 150, 0);
-Color secondTouchActive(255, 255, 0);
+Color secondBase(0, 125, 125);
+Color secondSelect(125, 0, 125);
+Color secondTouchInactive(125, 150, 0);
+Color secondTouchActive(125, 125, 0);

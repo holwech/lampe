@@ -45,7 +45,7 @@ void mainMenu(Lampe& Lampe, Tlc5940&  Tlc, State& State) {
 	}	else if (Lampe.longClick(0)) {
 		Tlc.clear();
 		Tlc.update();
-		State.setState(COOL_LIGHTS);
+		State.setState(PROGRAMS);
 		return;
 	}
 	Tlc.update();
@@ -78,7 +78,7 @@ void secondMenu(Lampe& Lampe, Tlc5940&  Tlc, State& State) {
 	}	else if (Lampe.longClick(0)) {
 		Tlc.clear();
 		Tlc.update();
-		State.setState(COOL_LIGHTS);
+		State.setState(PROGRAMS);
 		return;
 	}
 	Tlc.update();
@@ -100,4 +100,29 @@ void menuTransitionOff(Lampe& Lampe, Tlc5940& Tlc, State& State) {
 	Lampe.setLight(0, off);
 	Tlc.update();
 	delay(200);
+}
+
+
+void programs(Lampe& Lampe, Tlc5940&  Tlc, State& State, unsigned int loopTimer) {
+	int option = State.getMenuOption(); 
+	if(option == 1) {
+		if ((loopTimer - State.lightTimer[0]) > 200) {
+			int light	= rand() % 5;
+			int red = rand() % 256;
+			int green = rand() % 256;
+			int blue = rand() % 256;
+			Lampe.setLight(light, red, green, blue); 
+			Tlc.update();
+			State.lightTimer[0] = loopTimer;
+		}
+	} else if (option == 2) {
+		if(loopTimer > 15) {
+			Lampe.setLight(0, State.transitionCycle(0, 0, 0, 255), 0, 0);				
+			Lampe.setLight(1, State.transitionCycle(0, 0, 0, 255), 0, 0);				
+			Lampe.setLight(2, State.transitionCycle(0, 0, 0, 255), 0, 0);				
+			Lampe.setLight(3, State.transitionCycle(0, 0, 0, 255), 0, 0);				
+			Lampe.setLight(4, State.transitionCycle(0, 0, 0, 255), 0, 0);				
+			Tlc.update();
+		}
+	}
 }
