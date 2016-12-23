@@ -87,6 +87,10 @@ int Lampe::readCS(int light, int samples) {
 	return reading;
 }
 
+void Lampe::setLight(int light, Color color) {
+	setLight(light, color.red, color.green, color.blue);
+}
+
 void Lampe::setLight(int light, int red, int green, int blue) {
 	if (red != -1){
 		Tlc.set((light * 9), brightnessLevel[red]);

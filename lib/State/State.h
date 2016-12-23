@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-enum States{INIT, MAIN_MENU, OFF, DEB, COOL_LIGHTS};
+enum States{INIT, MAIN_MENU, SECOND_MENU, OFF, DEB, COOL_LIGHTS, TEST};
 
 class State
 {
@@ -14,13 +14,15 @@ class State
 		void setState(enum States newState);
 		unsigned long lightTimer[5];
 		unsigned long loopTimer;
-		uint8_t nextMainMenuOption();
-		void incrementMainMenu();
-		uint8_t getMainMenuOption();
+		uint8_t nextMenuOption();
+		void incrementMenu();
+		uint8_t getMenuOption();
+		bool menuRestarted();
 	private:
-		uint8_t mainMenuOption;
+		uint8_t menuOption;
 		uint8_t lightMenuOption;
 		enum States state;
+		bool menuRestart;
 };
 
 #endif

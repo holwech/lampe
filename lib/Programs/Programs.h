@@ -8,6 +8,7 @@
 
 void init(Lampe& Lampe, Tlc5940& Tlc);
 void mainMenu(Lampe& Lampe, Tlc5940&  Tlc, State& state);
-void mainMenuTransistionOff(Lampe& Lampe, Tlc5940& Tlc, State& State);
+void menuTransitionOff(Lampe& Lampe, Tlc5940& Tlc, State& State);
+void secondMenu(Lampe& Lampe, Tlc5940&  Tlc, State& State);
 
 #endif

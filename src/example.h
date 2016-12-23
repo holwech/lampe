@@ -5,7 +5,7 @@
 #include <CapacitiveSensor.h>
 
 Lampe Lampe;
-const int conf = 9;
+const int conf = 1;
 int prevLight = -1;
 int average = 0;
 CapacitiveSensor cs_4_2 = CapacitiveSensor(2,4);

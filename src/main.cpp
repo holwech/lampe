@@ -5,6 +5,7 @@
 #include <CapacitiveSensor.h>
 #include <State.h>
 #include <Programs.h>
+#include <config.h>
 
 #define DEBUG true
 
@@ -60,6 +61,9 @@ void loop() {
 	case MAIN_MENU:
 		mainMenu(Lampe, Tlc, State);
 		break;
+	case SECOND_MENU:
+		secondMenu(Lampe, Tlc, State);
+		break;
 	case COOL_LIGHTS:
 		Lampe.updateTouch(0);
 		if (Lampe.click(0)) {
@@ -97,6 +101,14 @@ void loop() {
 		Serial.print(Lampe.longClick(0));
 		Serial.print(Lampe.hold(0));
 		Serial.println(Lampe.readCS(0,50));
+		break;
+	case TEST:
+		Lampe.setLight(0, 255, 0, 0);
+		Lampe.setLight(1, 255, 0, 0);
+		Lampe.setLight(2, 255, 0, 0);
+		Lampe.setLight(3, 255, 0, 0);
+		Lampe.setLight(4, 255, 0, 0);
+		Tlc.update();
 		break;
 	}
 }

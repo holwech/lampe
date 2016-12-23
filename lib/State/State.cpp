@@ -1,13 +1,14 @@
 #include "State.h"
 
 State::State() : lightTimer{0, 0, 0, 0, 0} { 
-	mainMenuOption = 1;
+	menuOption = 1;
 	lightMenuOption = 1;
 	state = INIT;
+	menuRestart = false;
 }
 
 void State::reset() {
-	mainMenuOption = 1;
+	menuOption = 1;
 	lightMenuOption = 1;
 	state = INIT;
 }
@@ -21,23 +22,25 @@ void State::setState(enum States newState) {
 } 
 
 
-uint8_t State::nextMainMenuOption() {
-	if (mainMenuOption >= 4) {
-		mainMenuOption = 1;
-	} else {
-		mainMenuOption++;
-	}
-	return mainMenuOption;
+uint8_t State::nextMenuOption() {
+	incrementMenu();
+	return menuOption;
 }
 
-void State::incrementMainMenu() {
-	if (mainMenuOption >= 4) {
-		mainMenuOption = 1;
+void State::incrementMenu() {
+	if (menuOption >= 4) {
+		menuOption = 1;
+		menuRestart = true;
 	} else {
-		mainMenuOption++;
+		menuOption++;
+		menuRestart = false;
 	}
 }
 
-uint8_t State::getMainMenuOption() {
-	return mainMenuOption;
+uint8_t State::getMenuOption() {
+	return menuOption;
+}
+
+bool State::menuRestarted() {
+	return menuRestart;
 }

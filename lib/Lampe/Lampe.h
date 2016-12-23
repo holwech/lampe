@@ -5,12 +5,14 @@
 #include <Arduino.h>
 #include <Tlc5940.h> 
 #include <CapacitiveSensor.h>
+#include <config.h>
 
 class Lampe
 {
 	public:
 		Lampe();
 		void setLight(int light, int red, int green, int blue);
+		void setLight(int light, Color color);
 		bool touch(int light);
 		bool click(int light);
 		bool longClick(int light);
