@@ -1,6 +1,7 @@
 #include "Lampe.h"
 
 Lampe::Lampe() : touchList{false, false, false, false, false},
+								 longTouchList{false, false, false, false, false},
 								 touchTimer{0, 0, 0, 0, 0},
 							 	 CS{
 									 CapacitiveSensor(2,4),
@@ -16,6 +17,10 @@ Lampe::Lampe() : touchList{false, false, false, false, false},
 
 bool Lampe::touch(int light) {
 	return touchList[light];
+}
+
+bool Lampe::longTouch(int light) {
+	return longTouchList[light];
 }
 
 
@@ -60,6 +65,7 @@ void Lampe::updateTouch(int light) {
 			holdTimer[light] = currentTime;
 		} else if (touchVal < (touchThreshold - 100) && touchList[light]) {
 			touchList[light] = false;
+			//longTouchList[light] = false;
 			touchTimer[light] = currentTime; 
 			holdList[light] = false;	
 			if (timeDiff < 1500) {
@@ -75,6 +81,7 @@ void Lampe::updateTouch(int light) {
 		}
 		if (longClickList[light] && (currentTime - longClickTimer[light]) > 3000) {
 			longClickList[light] = false;
+			//longTouchList[light] = false;
 		}
 		if (touchList[light] && (currentTime - holdTimer[light]) > 3000) {
 			holdList[light] = true;

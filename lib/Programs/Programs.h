@@ -5,13 +5,13 @@
 #include <Tlc5940.h>
 #include <Lampe.h>
 #include <State.h>
+#include <Config.h>
 
-enum Programs{COOL_LIGHTS};
 
 void init(Lampe& Lampe, Tlc5940& Tlc);
-void mainMenu(Lampe& Lampe, Tlc5940&  Tlc, State& state);
+void mainMenu(Lampe& Lampe, Tlc5940&  Tlc, State& State);
 void menuTransitionOff(Lampe& Lampe, Tlc5940& Tlc, State& State);
 void secondMenu(Lampe& Lampe, Tlc5940&  Tlc, State& State);
-void programs(Lampe& Lampe, Tlc5940&  Tlc, State& State, unsigned int loopTimer);
+void programs(Lampe& Lampe, Tlc5940&  Tlc, State& State);
 
 #endif

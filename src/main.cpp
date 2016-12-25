@@ -5,7 +5,7 @@
 #include <CapacitiveSensor.h>
 #include <State.h>
 #include <Programs.h>
-#include <config.h>
+#include <Config.h>
 
 #define DEBUG true
 
@@ -25,7 +25,7 @@ void printDebug() {
 		Serial.println("-----");
 		Serial.println("Note click/longclick/hold can only be read once");
 		Serial.print("Loop time: ");
-		Serial.println(millis() - loopTimer);
+		Serial.println(millis() - State.loopTimer);
 		Serial.print("Touch value: ");
 		Serial.println(temp);
 		Serial.print("Touch: ");
@@ -46,12 +46,13 @@ void printDebug() {
 
 void setup() {
   Tlc.init(0);
+	randomSeed(analogRead(0));
 	Serial.begin(115200);
 }
 
 
 void loop() {
-	loopTimer = millis();
+	State.loopTimer = millis();
 	printDebug();
 	switch (State.getState()) {
 	case INIT:
@@ -66,17 +67,7 @@ void loop() {
 		break;
 	case PROGRAMS:
 		Lampe.updateTouch(0);
-		if (Lampe.click(0)) {
-			Lampe.setLight(0, mainTouchInactive);
-			Lampe.setLight(1, mainSelect);
-			Lampe.setLight(2, mainBase);
-			Lampe.setLight(3, mainBase);
-			Lampe.setLight(4, mainBase);
-			Tlc.update();
-			State.setState(MAIN_MENU);
-			break;
-		}
-		programs(Lampe, Tlc, State, loopTimer);
+		programs(Lampe, Tlc, State);
 		break;
 	case OFF:
 		Lampe.updateTouch(0);
