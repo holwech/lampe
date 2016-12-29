@@ -21,6 +21,7 @@ class Lampe
 		void updateAllTouch();
 		void updateTouch(int light);
 		int readCS(int light, int samples);
+		void update();
 	private:
 		bool touchList[NUM_LIGHTS];
 		bool clickList[NUM_LIGHTS];

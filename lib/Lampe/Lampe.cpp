@@ -116,3 +116,6 @@ void Lampe::setLight(int light, int red, int green, int blue) {
 	}
 }
 
+void Lampe::update() {
+	Tlc.update();
+}

@@ -9,6 +9,8 @@
 
 #define DEBUG true
 
+
+
 Lampe Lampe;
 unsigned long printTimer = millis();
 unsigned long loopTimer;
@@ -16,31 +18,39 @@ int max;
 State State;
 int option = 1;
 
-void printDebug() {
+void printDebugTouch() {
 	int temp = Lampe.readCS(0,50);
 	if (max < temp) {
 		max = temp;
 	}
+	Serial.println(" + TOUCH");
+	Serial.println("Note click/longclick/hold can only be read once");
+	Serial.print("Touch value: ");
+	Serial.println(temp);
+	Serial.print("Touch: ");
+	Serial.println(Lampe.touch(0));
+	Serial.print("Click: ");
+	Serial.println(Lampe.click(0));
+	Serial.print("Long click: ");
+	Serial.println(Lampe.longClick(0));
+	Serial.print("Hold: ");
+	Serial.println(Lampe.hold(0));
+	Serial.print("Max: ");
+	Serial.println(max);
+}
+
+void printDebug(bool printTouch) {
 	if (DEBUG && millis() - printTimer > 500) {
 		Serial.println("-----");
-		Serial.println("Note click/longclick/hold can only be read once");
+		Serial.println(" + GENERAL");
 		Serial.print("Loop time: ");
 		Serial.println(millis() - State.loopTimer);
-		Serial.print("Touch value: ");
-		Serial.println(temp);
-		Serial.print("Touch: ");
-		Serial.println(Lampe.touch(0));
-		Serial.print("Click: ");
-		Serial.println(Lampe.click(0));
-		Serial.print("Long click: ");
-		Serial.println(Lampe.longClick(0));
-		Serial.print("Hold: ");
-		Serial.println(Lampe.hold(0));
-		Serial.print("Max: ");
-		Serial.println(max);
 		Serial.print("State: ");
 		Serial.println(State.getState());
 		printTimer = millis();
+		if (printTouch) {
+			printDebugTouch();
+		}
 	}
 }
 
@@ -48,12 +58,18 @@ void setup() {
   Tlc.init(0);
 	randomSeed(analogRead(0));
 	Serial.begin(115200);
+
+	// Set ADC to 77kHz, which is maximum frequency
+	sbi(ADCSRA,ADPS2);
+	cbi(ADCSRA,ADPS1);
+	cbi(ADCSRA,ADPS0);
 }
 
 
 void loop() {
+	//printDebug(false);
 	State.loopTimer = millis();
-	printDebug();
+	State.setState(MIC);
 	switch (State.getState()) {
 	case INIT:
 		init(Lampe, Tlc);
@@ -84,6 +100,9 @@ void loop() {
 		Serial.print(Lampe.longClick(0));
 		Serial.print(Lampe.hold(0));
 		Serial.println(Lampe.readCS(0,50));
+		break;
+	case MIC:
+		mic(Lampe, State);
 		break;
 	case TEST:
 		Lampe.setLight(0, 255, 0, 0);

@@ -5,7 +5,7 @@
 #include <Config.h>
 
 
-enum States{INIT, MAIN_MENU, SECOND_MENU, PROGRAMS, OFF, DEB, TEST};
+enum States{INIT, MAIN_MENU, SECOND_MENU, PROGRAMS, OFF, DEB, TEST, MIC};
 
 class State
 {
