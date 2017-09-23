@@ -32,8 +32,8 @@ void mainMenu(Lampe& Lampe, Tlc5940&  Tlc, State& State) {
 			Lampe.setLight(0, mainTouchActive);
 		}
 
-		if (Lampe.hold(0)) {
-			// If there is a hold click, turn of lamp
+		if (Lampe.hold(0) && State.getState() == MAIN_MENU) {
+			// If there is a hold click, turn off lamp
 			State.setState(OFF);
 			menuTransitionOff(Lampe, Tlc, State);
 			return;
@@ -159,12 +159,13 @@ void menuTransitionOff(Lampe& Lampe, Tlc5940& Tlc, State& State) {
 
 void programs(Lampe& Lampe, Tlc5940&  Tlc, State& State) {
 	switch(State.getProgram()) {
+  // Blinks in randoms colors. Color stays on for all sides after a change.
 	case COOL_LIGHTS:
-		if (Lampe.click(0)) {
+		if (Lampe.hold(0)) {
 			exitProgram(Lampe, State);
 			break;
 		}
-		if ((State.timer - State.lightTimer[0]) > 200) {
+		if ((State.getTimer() - State.lightTimer[0]) > 400) {
 			int light	= rand() % 5;
 			int red = rand() % 256;
 			int green = rand() % 256;
@@ -174,55 +175,58 @@ void programs(Lampe& Lampe, Tlc5940&  Tlc, State& State) {
 			State.lightTimer[0] = millis();
 		}
 		break;
+  // Transitions through colors on all sides.
 	case FLOW:
-		if (Lampe.click(0)) {
+		if (Lampe.hold(0)) {
 			exitProgram(Lampe, State);
 			break;
 		}
 		if (State.isFirstRun()) {
 			State.randomizeCount();
 		}
-		if (State.timer > 25) {
+		if (State.getTimer() > 25) {
 			Lampe.setLight(0, State.tc(0, 0, 0,	255), State.tc(0, 1, 0, 150), State.tc(0, 2, 150, 255));
 			Lampe.setLight(1, State.tc(1, 0, 0,	150), State.tc(1, 1, 0, 255), State.tc(1, 2, 100, 255));
 			Lampe.setLight(2, State.tc(2, 0, 150, 255), State.tc(2, 1, 0, 200), State.tc(2, 2, 0, 255));
 			Lampe.setLight(3, State.tc(3, 0, 200, 255), State.tc(3, 1, 0, 155), State.tc(3, 2, 0, 180));
 			Lampe.setLight(4, State.tc(4, 0, 0,	150), State.tc(4, 1, 0, 205), State.tc(4, 2, 0, 255));
 			Tlc.update();
-			State.timer = millis();
+      State.resetTimer();
 		}
 		break;
+  // Transitions through colors on all sides, but with slightly dimmed lights.
 	case FLOW_DIMMED:
-		if (Lampe.click(0)) {
+		if (Lampe.hold(0)) {
 			exitProgram(Lampe, State);
 			break;
 		}
 		if (State.isFirstRun()) {
 			State.randomizeCount();
 		}
-		if (State.timer > 25) {
+		if (State.getTimer() > 25) {
 			Lampe.setLight(0, State.tc(0, 0, 0,	100), State.tc(0, 1, 0, 100), State.tc(0, 2, 50, 100));
 			Lampe.setLight(1, State.tc(1, 0, 0,	50), State.tc(1, 1, 0, 100), State.tc(1, 2, 10, 100));
 			Lampe.setLight(2, State.tc(2, 0, 50, 100), State.tc(2, 1, 0, 20), State.tc(2, 2, 0, 100));
 			Lampe.setLight(3, State.tc(3, 0, 20, 100), State.tc(3, 1, 0, 55), State.tc(3, 2, 0, 180));
 			Lampe.setLight(4, State.tc(4, 0, 0,	50), State.tc(4, 1, 0, 100), State.tc(4, 2, 0, 100));
 			Tlc.update();
-			State.timer = millis();
+			State.resetTimer();
 		}
 		break;
+  // Turns on a single light with a random color on a random side in a random order.
 	case SINGLE_COLOR:
-		if (Lampe.longClick(0)) {
+		if (Lampe.hold(0)) {
 			exitProgram(Lampe, State);
 			break;
 		}
 		if (Lampe.click(0)) {
 			State.cycleBPM();
 		}
-		if ((millis() - State.timer) > (30000 / State.getBPM())) {
+		if (State.getTimer() > (60000 / State.getBPM())) {
 			Tlc.clear();
 			Lampe.setLight(State.nextShuffle(), random(256), random(256), random(256));
 			Tlc.update();
-			State.timer = millis();
+			State.resetTimer();
 		}
 		break;
 	}
@@ -237,77 +241,4 @@ void exitProgram(Lampe& Lampe, State& State) {
 	Tlc.update();
 	State.setState(MAIN_MENU);
 	State.reset();
-}
-
-
-
-// 20 - 200hz Single Pole Bandpass IIR Filter
-float bassFilter(float sample) {
-	static float xv[3] = {0,0,0}, yv[3] = {0,0,0};
-	xv[0] = xv[1]; xv[1] = xv[2]; 
-	xv[2] = sample / 9.1f;
-	yv[0] = yv[1]; yv[1] = yv[2]; 
-	yv[2] = (xv[2] - xv[0]) + (-0.7960060012f * yv[0]) + (1.7903124146f * yv[1]);
-	return yv[2];
-}
-
-// 10hz Single Pole Lowpass IIR Filter
-float envelopeFilter(float sample) { //10hz low pass
-	static float xv[2] = {0,0}, yv[2] = {0,0};
-	xv[0] = xv[1]; 
-	xv[1] = sample / 160.f;
-	yv[0] = yv[1]; 
-	yv[1] = (xv[0] + xv[1]) + (0.9875119299f * yv[0]);
-	return yv[1];
-}
-
-// 1.7 - 3.0hz Single Pole Bandpass IIR Filter
-float beatFilter(float sample) {
-	static float xv[3] = {0,0,0}, yv[3] = {0,0,0};
-	xv[0] = xv[1]; xv[1] = xv[2]; 
-	xv[2] = sample / 7.015f;
-	yv[0] = yv[1]; yv[1] = yv[2]; 
-	yv[2] = (xv[2] - xv[0]) + (-0.7169861741f * yv[0]) + (1.4453653501f * yv[1]);
-	return yv[2];
-}
-
-void mic(Lampe& Lampe, State& State) {
-	unsigned long time = micros(); // Used to track rate
-	float sample, value, envelope, beat, thresh;
-	unsigned char i;
-
-	for(i = 0;;++i){
-		// Read ADC and center so +-512
-		sample = (float)analogRead(0)-503.f;
-
-		// Filter only bass component
-		value = bassFilter(sample);
-
-		// Take signal amplitude and filter
-		if(value < 0)value=-value;
-		envelope = envelopeFilter(value);
-
-		// Every 200 samples (25hz) filter the envelope 
-		if(i == 200) {
-			// Filter out repeating bass sounds 100 - 180bpm
-			beat = beatFilter(envelope);
-
-			// Threshold it based on potentiometer on AN1
-			thresh = 0.02f * (float)analogRead(1);
-
-			// If we are above threshold, light up LED
-			if(beat > thresh) {
-				Lampe.setLight(1, 255, 0, 0);
-				Lampe.update();	
-			} else {
-				Lampe.setLight(1, 0, 0, 0);
-				Lampe.update();
-			}
-			//Reset sample counter
-			i = 0;
-		}
-
-		// Consume excess clock cycles, to keep at 5000 hz
-		for(unsigned long up = time+SAMPLEPERIODUS; time > 20 && time < up; time = micros());
-	}  
 }

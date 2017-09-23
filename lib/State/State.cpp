@@ -145,4 +145,10 @@ void State::randomizeCount() {
 	}
 }
 
+unsigned long State::getTimer() {
+  return millis() - timer;
+}
 
+void State::resetTimer() {
+  timer = millis();
+}

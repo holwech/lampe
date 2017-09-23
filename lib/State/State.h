@@ -16,7 +16,6 @@ class State
 		void setState(enum States newState);
 		unsigned long lightTimer[5];
 		unsigned long loopTimer;
-		unsigned long timer;
 		uint8_t nextMenuOption();
 		void incrementMenu();
 		uint8_t getMenuOption();
@@ -29,6 +28,8 @@ class State
 		void cycleBPM();
 		int getBPM();
 		int tc(int light, int color, int min, int max);
+    unsigned long getTimer();
+    void resetTimer();
 	private:
 		uint8_t menuOption;
 		uint8_t lightMenuOption;
@@ -42,6 +43,7 @@ class State
 		int prevRandLight;
 		int bpm;
 		bool firstRun;
+		unsigned long timer;
 };
 
 #endif

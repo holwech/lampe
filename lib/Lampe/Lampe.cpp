@@ -68,22 +68,22 @@ void Lampe::updateTouch(int light) {
 			//longTouchList[light] = false;
 			touchTimer[light] = currentTime; 
 			holdList[light] = false;	
-			if (timeDiff < 1500) {
+			if (timeDiff < 500) {
 				clickList[light] = true;
 				clickTimer[light] = currentTime;
-			} else if (timeDiff < 3000) {
+			} else if (timeDiff < 2000) {
 				longClickList[light] = true;
 				longClickTimer[light] = currentTime;
 			}
 		}
-		if (clickList[light] && (currentTime - clickTimer[light]) > 1500) {
+		if (clickList[light] && (currentTime - clickTimer[light]) > 500) {
 			clickList[light] = false;
 		}
-		if (longClickList[light] && (currentTime - longClickTimer[light]) > 3000) {
+		if (longClickList[light] && (currentTime - longClickTimer[light]) > 2000) {
 			longClickList[light] = false;
 			//longTouchList[light] = false;
 		}
-		if (touchList[light] && (currentTime - holdTimer[light]) > 3000) {
+		if (touchList[light] && (currentTime - holdTimer[light]) > 2000) {
 			holdList[light] = true;
 		}
 	}

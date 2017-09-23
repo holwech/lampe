@@ -6,6 +6,7 @@
 #include <State.h>
 #include <Programs.h>
 #include <Config.h>
+#include <Mic.h>
 
 #define DEBUG true
 
@@ -47,6 +48,8 @@ void printDebug(bool printTouch) {
 		Serial.println(millis() - State.loopTimer);
 		Serial.print("State: ");
 		Serial.println(State.getState());
+    Serial.print("Menu option: ");
+    Serial.println(State.getMenuOption());
 		printTimer = millis();
 		if (printTouch) {
 			printDebugTouch();
@@ -67,9 +70,9 @@ void setup() {
 
 
 void loop() {
-	//printDebug(false);
+	printDebug(false);
 	State.loopTimer = millis();
-	State.setState(MIC);
+  State.setState(MIC);
 	switch (State.getState()) {
 	case INIT:
 		init(Lampe, Tlc);
