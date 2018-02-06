@@ -28,13 +28,14 @@ float Mic::beatFilter(float sample) {
 	return yv[2];
 }
 
+/*
 unsigned int Mic::getBPM (Lampe& Lampe, State& State) {
   unsigned short* = sample();
-  :
   for (unsigned short i = 0; i < NUM_INTERVAL; i++) {
 
   }
 }
+*/
 
 unsigned short* Mic::sample() {
 	unsigned long time = micros(); // Used to track rate
@@ -80,7 +81,7 @@ unsigned short* Mic::sample() {
 
 		// Consume excess clock cycles, to keep at 5000 hz
 		for(unsigned long up = time+SAMPLEPERIODUS; time > 20 && time < up; time = micros());
-	}  
+	}
   return interval;
 }
 

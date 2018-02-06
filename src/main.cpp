@@ -6,7 +6,7 @@
 #include <State.h>
 #include <Programs.h>
 #include <Config.h>
-#include <Mic.h>
+//#include <Mic.h>
 
 #define DEBUG true
 
@@ -63,16 +63,16 @@ void setup() {
 	Serial.begin(115200);
 
 	// Set ADC to 77kHz, which is maximum frequency
-	sbi(ADCSRA,ADPS2);
-	cbi(ADCSRA,ADPS1);
-	cbi(ADCSRA,ADPS0);
+	//sbi(ADCSRA,ADPS2);
+	//cbi(ADCSRA,ADPS1);
+	//cbi(ADCSRA,ADPS0);
 }
 
 
 void loop() {
-	printDebug(false);
+	printDebug(true);
 	State.loopTimer = millis();
-  State.setState(MIC);
+  //State.setState(TEST);
 	switch (State.getState()) {
 	case INIT:
 		init(Lampe, Tlc);
@@ -105,7 +105,7 @@ void loop() {
 		Serial.println(Lampe.readCS(0,50));
 		break;
 	case MIC:
-		mic(Lampe, State);
+		//mic(Lampe, State);
 		break;
 	case TEST:
 		Lampe.setLight(0, 255, 0, 0);
