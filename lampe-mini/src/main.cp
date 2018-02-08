@@ -17,15 +17,16 @@ FASTLED_USING_NAMESPACE
 #endif
 
 #define DATA_PIN    3
-#define LED_TYPE    WS2812B
+//#define CLK_PIN   4
+#define LED_TYPE    WS2811
 #define COLOR_ORDER GRB
 #define NUM_LEDS    12
 CRGB leds[NUM_LEDS];
-#define BRIGHTNESS         200
+
+#define BRIGHTNESS          70
 #define FRAMES_PER_SECOND  120
 
 bool buttonClick();
-bool buttonClickSimple();
 void nextPattern();
 void rainbow();
 void rainbowWithGlitter();
@@ -37,53 +38,63 @@ void juggle();
 
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
+
+
 int prevButtonState = 0;
 
 void setup() {
-	Serial.begin(115200);
   delay(3000); // 3 second delay for recovery
+
   pinMode(2, INPUT);
+  
+  // tell FastLED about the LED strip configuration
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  //FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+
+  // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
 }
 
 
+// List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { rainbow, confetti, sinelon, bpm, juggle };
-uint8_t gCurrentPatternNumber = 0;
-uint8_t gHue = 0;
+SimplePatternList gPatterns = { rainbow, rainbowWithGlitter, confetti, sinelon, juggle, bpm };
+
+uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
+uint8_t gHue = 0; // rotating "base color" used by many of the patterns
   
 void loop()
 {
+  // Call the current pattern function once, updating the 'leds' array
   gPatterns[gCurrentPatternNumber]();
-	Serial.println(digitalRead(2));
+
+  // send the 'leds' array out to the actual LED strip
   FastLED.show();  
+  // insert a delay to keep the framerate modest
   FastLED.delay(1000/FRAMES_PER_SECOND); 
-  EVERY_N_MILLISECONDS( 20 ) { gHue++; }
+
+  // do some periodic updates
+  EVERY_N_MILLISECONDS( 60 ) { gHue++; } // slowly cycle the "base color" through the rainbow
   if (buttonClick()) {
     gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE( gPatterns);
   }
   //EVERY_N_SECONDS( 10 ) { nextPattern(); } // change patterns periodically
 }
 
-bool buttonClickSimple() {
-  int buttonState = digitalRead(2);
-  if (buttonState == HIGH) {
-    EVERY_N_MILLISECONDS( 10 ) { gHue++; }
-  }
-}
 
 bool buttonClick() {
+  // read the state of the pushbutton value:
   int buttonState = digitalRead(2);
-  if (buttonState == LOW && prevButtonState == HIGH) {
-    prevButtonState = LOW;
-    return true;
-  } else if (buttonState == HIGH) {
+
+  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
+  if (buttonState == HIGH && prevButtonState == LOW) {
     prevButtonState = HIGH;
+    return true;
+  } else if (buttonState == LOW) {
+    prevButtonState = LOW;
   }
   return false;
 }
-
 
 
 void nextPattern()
@@ -124,15 +135,6 @@ void sinelon()
 {
   // a colored dot sweeping back and forth, with fading trails
   fadeToBlackBy( leds, NUM_LEDS, 20);
-  int pos = beatsin16( 13, 0, NUM_LEDS-1 );
-  leds[pos] += CHSV( gHue, 255, 192);
-}
-
-
-void circular()
-{
-  // a colored dot sweeping back and forth, with fading trails
-  fadeToBlackBy( leds, NUM_LEDS, 50);
   int pos = beatsin16( 13, 0, NUM_LEDS-1 );
   leds[pos] += CHSV( gHue, 255, 192);
 }
