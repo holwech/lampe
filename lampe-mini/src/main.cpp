@@ -21,7 +21,7 @@ FASTLED_USING_NAMESPACE
 #define COLOR_ORDER GRB
 #define NUM_LEDS    12
 CRGB leds[NUM_LEDS];
-#define BRIGHTNESS         200
+#define BRIGHTNESS         100
 #define FRAMES_PER_SECOND  120
 
 bool buttonClick();
@@ -49,7 +49,7 @@ void setup() {
 
 
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { rainbow, confetti, sinelon, bpm, juggle };
+SimplePatternList gPatterns = { rainbow, confetti, sinelon, circular, bpm, juggle };
 uint8_t gCurrentPatternNumber = 0;
 uint8_t gHue = 0;
   
@@ -132,9 +132,10 @@ void sinelon()
 void circular()
 {
   // a colored dot sweeping back and forth, with fading trails
-  fadeToBlackBy( leds, NUM_LEDS, 50);
-  int pos = beatsin16( 13, 0, NUM_LEDS-1 );
-  leds[pos] += CHSV( gHue, 255, 192);
+  //fadeToBlackBy( leds, NUM_LEDS, 50);
+  int bn = beatsin16( 60, 50, 200 );
+  fill_rainbow( leds, NUM_LEDS, gHue, 7);
+  FastLED.setBrightness(bn);
 }
 
 void bpm()
