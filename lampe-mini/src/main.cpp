@@ -14,7 +14,7 @@ void setup() {
 
 
 void loop() {
-  rainbow(lampe);
-  //selectProgram(lampe.nextMenuOptionOnClick(), lampe);
+  //rainbow(lampe);
+  selectProgram(lampe.nextMenuOptionOnClick(), lampe);
   lampe.update();
 }

@@ -6,27 +6,41 @@ Lampe::Lampe() {
   timer = millis();
   menuOption = 0;
   menuRestart = false;
+  linearReduceTimer = millis();
+  linearValue = 0;
+
 
   pinMode(2, INPUT); // Button sensor
 
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
 
-  uint8_t gHue = 0;
-  uint8_t num_leds = NUM_LEDS;
-}
-
-uint8_t Lampe::testgHue() {
-  return gHue;
-}
-
-uint8_t Lampe::testnum_leds() {
-  return num_leds;
+  gHue = 0;
+  num_leds = NUM_LEDS;
 }
 
 void Lampe::update() {
   FastLED.show();  
   FastLED.delay(1000/FRAMES_PER_SECOND); 
+  updateLinearReduce();
+}
+
+void Lampe::updateLinearReduce() {
+  unsigned long currTime = millis();
+  if ((linearValue > 0) && ((currTime - linearReduceTimer) > 1)) {
+    uint8_t updateVal = (linearValue / 50) * (linearValue / 50);
+    linearValue -= (updateVal < 1) ? 1 : updateVal;
+    linearReduceTimer = currTime;
+  }
+}
+
+uint8_t Lampe::linearReduce(uint8_t peak) {
+  if (peak > 255) {
+    linearValue = 255;
+  } else if (peak > linearValue) {
+    linearValue = peak;
+  }
+  return linearValue;
 }
 
 uint8_t Lampe::nextMenuOptionOnClick() {
@@ -53,7 +67,7 @@ uint8_t Lampe::nextMenuOption() {
 }
 
 void Lampe::incrementMenu() {
-	if (menuOption >= 2) {
+	if (menuOption >= 3) {
 		menuOption = 0;
 		menuRestart = true;
 	} else {

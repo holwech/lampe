@@ -22,8 +22,7 @@ float bassFilter(float sample);
 float envelopeFilter(float sample);
 float beatFilter(float sample);
 unsigned int getBPM (Lampe);
-void mic(Lampe& Lampe, State& state);
-void sample(unsigned int beatInterval[10], unsigned long timer);
+void mic(Lampe& lampe);
 
 
 #endif

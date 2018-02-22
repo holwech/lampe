@@ -24,19 +24,21 @@ class Lampe
   public:
     Lampe();
     bool buttonClick();
+    void updateLinearReduce();
+    uint8_t Lampe::linearReduce(uint8_t peak);
     unsigned long getTimer();
     void resetTimer();
     uint8_t nextMenuOptionOnClick();
     uint8_t nextMenuOption();
     void incrementMenu();
     void update();
+    uint8_t gHue;
     uint8_t num_leds;
     CRGB leds[NUM_LEDS];
-    uint8_t gHue;
-    uint8_t testgHue();
-    uint8_t testnum_leds();
   private:
     unsigned long timer;
+    unsigned long linearReduceTimer;
+    uint8_t linearValue;
     uint8_t prevButtonState;
     uint8_t menuOption;
     bool menuRestart;
