@@ -66,11 +66,12 @@ void mic(Lampe& lampe) {
 			// If we are above threshold, light up LED. Timer constraint so that it doesn't activate more often
       // than 210 bpm.
       Serial.println(beat);
-			if((beat > 3) && lampe.getTimer() > 280) {
+			if((beat > 2) && lampe.getTimer() > 280) {
         int red = rand() % 256;
         int green = rand() % 256;
         int blue = rand() % 256;
         fill_solid(lampe.leds, lampe.num_leds, CRGB(red, green, blue));
+        lampe.update();
         lampe.resetTimer();
 			}
       //Reset sample counter
