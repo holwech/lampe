@@ -10,10 +10,11 @@ FASTLED_USING_NAMESPACE
 
 
 
-void selectProgram(uint8_t menuOption, Lampe& lampe);
+void selectProgram(uint8_t menuOption, Lampe& lampe, Mic& mic);
 void rainbow(Lampe& lampe);
-void solid_red(Lampe& lampe);
-void beat_blink(Lampe& lampe);
+void solid_color(Lampe& lampe);
+void beat_blink(Lampe& lampe, Mic& mic);
+void beat_blink2(Lampe& lampe, Mic& mic);
 void mic2(Lampe& lampe);
 
 #endif

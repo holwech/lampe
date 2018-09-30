@@ -6,6 +6,7 @@
 FASTLED_USING_NAMESPACE
 
 Lampe lampe;
+Mic mic;
 
 void setup() {
   Serial.begin(115200);
@@ -15,6 +16,6 @@ void setup() {
 
 void loop() {
   //rainbow(lampe);
-  selectProgram(lampe.nextMenuOptionOnClick(), lampe);
+  selectProgram(lampe.nextMenuOptionOnClick(), lampe, mic);
   lampe.update();
 }

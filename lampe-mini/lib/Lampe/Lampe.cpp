@@ -2,11 +2,15 @@
 
 
 Lampe::Lampe() {
+  uint32_t startupTime = millis();
+
   prevButtonState = LOW;
-  timer = millis();
+  timer = startupTime;
   menuOption = 0;
   menuRestart = false;
-  linearReduceTimer = millis();
+  linearReduceTimer = startupTime;
+  sampleTimer = startupTime;
+  sampleInit = true;
   linearValue = 0;
 
 
@@ -16,6 +20,9 @@ Lampe::Lampe() {
   FastLED.setBrightness(BRIGHTNESS);
 
   gHue = 0;
+  uint8_t red = 0;
+  uint8_t green = 0;
+  uint8_t blue = 0;
   num_leds = NUM_LEDS;
 }
 
@@ -27,9 +34,10 @@ void Lampe::update() {
 
 void Lampe::updateLinearReduce() {
   unsigned long currTime = millis();
-  if ((linearValue > 0) && ((currTime - linearReduceTimer) > 1)) {
-    uint8_t updateVal = (linearValue / 50) * (linearValue / 50);
-    linearValue -= (updateVal < 1) ? 1 : updateVal;
+  if ((linearValue > 0) && ((currTime - linearReduceTimer) > 5)) {
+    linearValue -= 1;
+    Serial.print("Linval: ");
+    Serial.print(linearValue);
     linearReduceTimer = currTime;
   }
 }
@@ -60,14 +68,18 @@ bool Lampe::buttonClick() {
   return false;
 }
 
-
 uint8_t Lampe::nextMenuOption() {
+  newStateVarReset();
 	incrementMenu();
 	return menuOption;
 }
 
+void Lampe::newStateVarReset() {
+  sampleInit = true;
+}
+
 void Lampe::incrementMenu() {
-	if (menuOption >= 3) {
+	if (menuOption >= 4) {
 		menuOption = 0;
 		menuRestart = true;
 	} else {
@@ -76,8 +88,15 @@ void Lampe::incrementMenu() {
 	}
 }
 
+uint32_t Lampe::getSampleTimer() {
+  return millis() - sampleTimer;
+}
 
-unsigned long Lampe::getTimer() {
+void Lampe::resetSampleTimer() {
+  sampleTimer = millis();
+}
+
+uint32_t Lampe::getTimer() {
   return millis() - timer;
 }
 
