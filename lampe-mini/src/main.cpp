@@ -1,21 +1,17 @@
 #include "FastLED.h"
 #include "Arduino.h"
-#include "Programs.h"
-#include "Lampe.h"
+#include "Test.h"
 
 FASTLED_USING_NAMESPACE
 
-Lampe lampe;
-Mic mic;
+Test test;
 
 void setup() {
-  Serial.begin(115200);
-  delay(1000); // 3 second delay for recovery
+    Serial.begin(115200);
+    delay(1000); // 3 second delay for recovery
 }
 
 
 void loop() {
-  //rainbow(lampe);
-  selectProgram(lampe.nextMenuOptionOnClick(), lampe, mic);
-  lampe.update();
+    test.blink_loop();    
 }
