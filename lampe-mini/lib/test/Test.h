@@ -13,7 +13,7 @@ FASTLED_USING_NAMESPACE
 #define DATA_PIN    3
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define NUM_LEDS    12
+#define NUM_LEDS    16
 #define BRIGHTNESS         100
 #define FRAMES_PER_SECOND  120
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))

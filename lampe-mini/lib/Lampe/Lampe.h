@@ -10,13 +10,15 @@ FASTLED_USING_NAMESPACE
 #warning "Requires FastLED 3.1 or later; check github for latest code."
 #endif
 
-#define DATA_PIN    3
-#define LED_TYPE    WS2812B
-#define COLOR_ORDER GRB
-#define NUM_LEDS    12
-#define BRIGHTNESS         100
-#define FRAMES_PER_SECOND  120
-#define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
+#define DATA_PIN            3
+#define LED_TYPE            WS2812B
+#define COLOR_ORDER         GRB
+#define NUM_LEDS            16
+#define BRIGHTNESS          100
+#define FRAMES_PER_SECOND   120
+#define ARRAY_SIZE(A)       (sizeof(A) / sizeof((A)[0]))
+#define NUM_MENU_OPTIONS    5
+#define BUTTON_PIN          2
 
 
 class Lampe
@@ -34,6 +36,7 @@ class Lampe
     uint8_t nextMenuOption();
     void incrementMenu();
     void update();
+    uint8_t cycleNumber(uint8_t i, uint8_t peak, uint8_t stepSize);
     bool sampleInit;
     uint8_t gHue;
     uint8_t num_leds;
@@ -41,6 +44,7 @@ class Lampe
     uint8_t green;
     uint8_t blue;
     CRGB leds[NUM_LEDS];
+    uint8_t stateValues[NUM_LEDS] = {};
   private:
     void newStateVarReset();
     uint32_t timer;

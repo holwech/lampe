@@ -13,7 +13,7 @@ Test::Test() {
 
 
 void Test::solid_color() {
-    fill_solid(leds, num_leds, CRGB(120, 120, 120));
+    fill_solid(leds, num_leds, CRGB(200, 120, 150));
     FastLED.show();  
 }
 
