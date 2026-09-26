@@ -1,0 +1,58 @@
+[
+  {
+    "file": "music-01.csv",
+    "source_capture": "windows-120-take2",
+    "windows": 5770,
+    "duration_ms": 57919,
+    "gaps": 0,
+    "reference_bpm": 120,
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 60,
+    "max_wrong_percent": 1
+  },
+  {
+    "file": "music-02.csv",
+    "source_capture": "windows-validation",
+    "windows": 5770,
+    "duration_ms": 57934,
+    "gaps": 1,
+    "reference_bpm": 120,
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 85,
+    "max_wrong_percent": 1
+  },
+  {
+    "file": "music-03.csv",
+    "source_capture": "optimized-live-take2",
+    "windows": 5770,
+    "duration_ms": 57915,
+    "gaps": 0,
+    "reference_bpm": 120,
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 60,
+    "max_wrong_percent": 1
+  },
+  {
+    "file": "music-04.csv",
+    "source_capture": "final-live",
+    "windows": 5770,
+    "duration_ms": 57925,
+    "gaps": 0,
+    "reference_bpm": 120,
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 30,
+    "max_wrong_percent": 1
+  },
+  {
+    "file": "room-noise.csv",
+    "source_capture": "room-noise",
+    "windows": 2780,
+    "duration_ms": 27904,
+    "gaps": 0,
+    "max_locked_percent": 0
+  }
+]

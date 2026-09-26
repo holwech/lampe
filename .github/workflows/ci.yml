@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/setup-firmware
-      - name: Test firmware logic and effect rendering
+      - name: Test firmware logic, rendering and recorded microphone input
         run: uv run --locked python scripts/test.py
       - name: Build AVR firmware
         run: uv run --locked pio run --environment nanoatmega328

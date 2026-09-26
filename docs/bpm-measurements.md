@@ -74,7 +74,11 @@ AVR compilation and the production dashboard build passed. Native regressions
 include noisy input at multiple tempos, ADC/replay parity, dropped windows,
 silence, tempo changes, full-scale input and timer rollover.
 
-Raw measurements remain local under Git-ignored `captures/`. Reproduce a new
+Full recordings remain local under Git-ignored `captures/`. The five window
+captures are now preserved as compact [regression fixtures](../tests/fixtures/microphone/)
+and replayed in CI; they contain timestamps and input peaks only. The original
+fresh validation recording is now part of the regression suite, so future accuracy
+evaluation needs new recordings. Reproduce a new
 capture with the recorder/replay commands in the [README](../README.md#recording-real-microphone-data-for-bpm-tuning).
 Future evaluation should use several known-tempo tracks and annotated beat times;
 the current approximate reference cannot establish absolute tempo or phase accuracy.

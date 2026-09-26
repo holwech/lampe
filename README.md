@@ -309,7 +309,13 @@ Omit `--windows` to record raw ADC samples in `raw.csv`. Raw capture is subsampl
 and drops batches when USB is busy, so it is useful for inspecting the sensor but
 must not be used as an exact replay of the detector's input. Window capture is only
 about 600 bytes/s and retries busy batches; its timestamps still expose any lost
-windows. All files under `captures/` are ignored by Git and stay local.
+windows. Full capture files under `captures/` are ignored by Git and stay local.
+Five curated [recording fixtures](tests/fixtures/microphone/) are checked in for
+regression tests: four music captures and one quiet-room capture, containing only
+timestamps and detector input peaks. `scripts/test.py` replays them in firmware
+CI and checks minimum time near the reference BPM, wrong-tempo locks and room-noise
+rejection. These complement the generated tests across 60–200 BPM; the real
+recordings currently cover only this session's approximate 120 BPM reference.
 
 Diagnostic command `LC` version 1, opcode 2, argument 2 selects window capture
 (argument 1 is raw capture; 0 disables either). Both use the existing three-second

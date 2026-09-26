@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run logic and real FastLED rendering tests without lamp hardware."""
+"""Run logic, rendering and recorded microphone tests without lamp hardware."""
 
 import argparse
 import os
@@ -58,3 +58,10 @@ with tempfile.TemporaryDirectory(prefix="lampe-tests-") as output:
             check=True,
         )
         subprocess.run([str(executable)], check=True)
+
+    replay = Path(output) / "beat_replay"
+    subprocess.run(
+        compiler + flags + [str(ROOT / "simulator/beat_replay.cpp"), "-o", str(replay)],
+        check=True,
+    )
+    subprocess.run([sys.executable, str(ROOT / "tests/test_recordings.py"), str(replay)], check=True)
