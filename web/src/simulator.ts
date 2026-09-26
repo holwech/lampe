@@ -27,7 +27,7 @@ export class Simulator {
       }),
     );
     this.interval = module._lamp_frame_interval_us() / 1000;
-    this.reset(1337);
+    this.module._lamp_reset(1337);
   }
   static async load() {
     // Load the generated Emscripten module as a static asset in both dev and
@@ -36,9 +36,6 @@ export class Simulator {
     const url = new URL("/generated/lamp.js", window.location.origin).href;
     const { default: createLamp } = await import(/* @vite-ignore */ url);
     return new Simulator(await createLamp());
-  }
-  reset(seed: number) {
-    this.module._lamp_reset(seed);
   }
   select(program: number) {
     this.module._lamp_select(program);

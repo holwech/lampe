@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("simulator controls, real rendering, pixel inspection and responsive layout", async ({
+test("automatic simulation, real rendering, pixel inspection and responsive layout", async ({
   page,
 }, testInfo) => {
   const errors = [];
@@ -14,23 +14,10 @@ test("simulator controls, real rendering, pixel inspection and responsive layout
     "data-ready",
     "true",
   );
-  await page
-    .getByRole("button", { name: "Pause simulation", exact: true })
-    .click();
-  await page
-    .getByRole("button", { name: "Restart simulation", exact: true })
-    .click();
-  await expect(page.locator("#clock")).toHaveAttribute("data-time", "0");
-  await page.waitForTimeout(150);
-  await expect(page.locator("#clock")).toHaveAttribute("data-time", "0");
-  await page.getByRole("button", { name: "Step one frame" }).click();
-  await expect(page.locator("#clock")).toHaveAttribute("data-time", "8");
   await page.locator('[data-program="2"]').click();
   await expect(page.locator("#audio-mode")).toBeEnabled();
   await page.selectOption("#audio-mode", "steady");
   await page.locator("#audio-level").fill("100");
-  for (let i = 0; i < 8; i++)
-    await page.getByRole("button", { name: "Step one frame" }).click();
   await expect(page.locator("#pixel-hex")).toHaveText("#FF0000");
   await page
     .getByRole("button", { name: "Inspect pixel 7", exact: true })
@@ -42,9 +29,6 @@ test("simulator controls, real rendering, pixel inspection and responsive layout
   ).toHaveAttribute("aria-pressed", "false");
   await page.getByRole("button", { name: "Diffuser off" }).click();
   await page.locator('[data-program="5"]').click();
-  await page
-    .getByRole("button", { name: "Play simulation", exact: true })
-    .click();
   await page.waitForTimeout(250);
   await page.screenshot({
     path: testInfo.outputPath("studio-desktop.png"),
@@ -61,6 +45,58 @@ test("simulator controls, real rendering, pixel inspection and responsive layout
     ),
   ).toBe(true);
   expect(errors).toEqual([]);
+});
+
+test("animation stays stopped in hidden tabs and resumes when visible", async ({
+  page,
+}) => {
+  // Override only the visibility signal: the browser still delivers real RAFs,
+  // so this catches a loop that keeps rendering in the background.
+  await page.addInitScript(() => {
+    window.simulationTest = { hidden: true, frames: 0 };
+    Object.defineProperty(document, "hidden", {
+      get: () => window.simulationTest.hidden,
+    });
+    Object.defineProperty(document, "visibilityState", {
+      get: () => (window.simulationTest.hidden ? "hidden" : "visible"),
+    });
+    const request = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = (callback) =>
+      request((time) => {
+        window.simulationTest.frames++;
+        callback(time);
+      });
+  });
+  const frames = () => page.evaluate(() => window.simulationTest.frames);
+  const colors = () =>
+    page
+      .locator(".pixel > span")
+      .evaluateAll((pixels) =>
+        pixels.map((pixel) => pixel.getAttribute("style")),
+      );
+  const visibility = (hidden) =>
+    page.evaluate((hidden) => {
+      window.simulationTest.hidden = hidden;
+      document.dispatchEvent(new Event("visibilitychange"));
+    }, hidden);
+
+  await page.goto("/");
+  await expect(page.locator(".program")).toHaveCount(8);
+  await page.waitForTimeout(200);
+  expect(await frames()).toBe(0);
+  await visibility(false);
+  await page.getByRole("button", { name: "Rainbow", exact: true }).click();
+  const initial = await colors();
+  await expect.poll(colors).not.toEqual(initial);
+  await visibility(true);
+  const stopped = await frames();
+  const held = await colors();
+  await page.waitForTimeout(500);
+  expect(await frames()).toBe(stopped);
+  expect(await colors()).toEqual(held);
+  await visibility(false);
+  await expect.poll(frames).toBeGreaterThan(stopped);
+  await expect.poll(colors).not.toEqual(held);
 });
 
 async function mockSerial(page, cancel = false) {
@@ -90,7 +126,8 @@ async function mockSerial(page, cancel = false) {
                 window.serialTest.options = options;
               },
               async close() {
-                if (stream.locked) throw new Error("Reader lock was not released");
+                if (stream.locked)
+                  throw new Error("Reader lock was not released");
                 window.serialTest.closed++;
               },
               async setSignals(signals) {
@@ -118,7 +155,7 @@ test("live frames, split serial packets, stale state, disconnect and return to s
     page.getByRole("button", { name: "Disconnect", exact: true }),
   ).toBeVisible();
   await expect(page.locator('[data-program="7"]')).toBeDisabled();
-  await page.evaluate(async () => {
+  const expectedHex = await page.evaluate(async () => {
     const { default: createLamp } = await import("/generated/lamp.js");
     const module = await createLamp();
     module._lamp_reset(42);
@@ -128,12 +165,20 @@ test("live frames, split serial packets, stale state, disconnect and return to s
     const bytes = module.HEAPU8.slice(p, p + 61);
     window.serialTest.controller.enqueue(bytes.slice(0, 17));
     window.serialTest.controller.enqueue(bytes.slice(17));
+    return (
+      "#" +
+      Array.from(bytes.slice(12, 15), (value) =>
+        value.toString(16).padStart(2, "0"),
+      )
+        .join("")
+        .toUpperCase()
+    );
   });
   await expect(page.locator('[data-program="7"]')).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  await expect(page.locator("#clock")).toHaveAttribute("data-time", "999");
+  await expect(page.locator("#pixel-hex")).toHaveText(expectedHex);
   await expect(page.locator("#stage-message")).toHaveText(
     "Signal paused · last frame held",
   );
@@ -141,15 +186,13 @@ test("live frames, split serial packets, stale state, disconnect and return to s
     window.serialTest.controller.error(new Error("Cable unplugged")),
   );
   await expect(page.locator("#notice")).toContainText("Cable unplugged");
-  await expect(page.locator("#clock")).toHaveAttribute("data-time", "999");
+  await expect(page.locator("#pixel-hex")).toHaveText(expectedHex);
   await expect(page.locator("#live-mode")).toHaveAttribute(
     "aria-pressed",
     "true",
   );
   await page.getByRole("button", { name: "Simulator", exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "Pause simulation", exact: true }),
-  ).toBeEnabled();
+  await expect(page.locator('[data-program="7"]')).toBeEnabled();
   expect(await page.evaluate(() => window.serialTest.options.baudRate)).toBe(
     115200,
   );
@@ -169,14 +212,17 @@ test("canceling the port picker leaves a usable dashboard", async ({
     page.getByRole("button", { name: "Connect lamp", exact: true }),
   ).toBeEnabled();
   await page.getByRole("button", { name: "Simulator", exact: true }).click();
-  await expect(page.locator("#play")).toBeEnabled();
+  await page.getByRole("button", { name: "Rainbow", exact: true }).click();
+  const initial = await page.locator("#pixel-hex").textContent();
+  await expect(page.locator("#pixel-hex")).not.toHaveText(initial);
 });
 
-test("manual disconnect releases the port and preserves simulation settings", async ({ page }, testInfo) => {
+test("manual disconnect releases the port and preserves simulation settings", async ({
+  page,
+}, testInfo) => {
   await mockSerial(page);
   await page.goto("/");
   await expect(page.locator(".program")).toHaveCount(8);
-  await page.getByRole("button", { name: "Pause simulation", exact: true }).click();
   await page.locator('[data-program="5"]').click();
   await page.getByRole("button", { name: "Live lamp", exact: true }).click();
   await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
@@ -190,7 +236,10 @@ test("manual disconnect releases the port and preserves simulation settings", as
     "aria-pressed",
     "true",
   );
-  await expect(page.getByRole("button", { name: "Play simulation", exact: true })).toBeVisible();
+  await expect(page.locator('[data-program="5"]')).toBeEnabled();
   await page.getByRole("button", { name: "Diffuser on", exact: true }).click();
-  await page.screenshot({ path: testInfo.outputPath("studio-led-ring.png"), fullPage: true });
+  await page.screenshot({
+    path: testInfo.outputPath("studio-led-ring.png"),
+    fullPage: true,
+  });
 });

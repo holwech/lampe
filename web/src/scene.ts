@@ -32,7 +32,9 @@ export class LampScene {
     this.controls.minDistance = 4;
     this.controls.maxDistance = 12;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.04;
-    this.resetView();
+    this.camera.position.set(3.5, 2.9, 5.6);
+    this.controls.target.set(0, 1.12, 0);
+    this.controls.update();
     this.scene.add(new THREE.HemisphereLight(0xcad7e6, 0x323940, 2));
     const key = new THREE.DirectionalLight(0xffffff, 3);
     key.position.set(-3, 6, 4);
@@ -221,11 +223,6 @@ export class LampScene {
       this.renderer.setSize(width, height, false);
     }).observe(canvas);
     canvas.dataset.ready = "true";
-  }
-  resetView() {
-    this.camera.position.set(3.5, 2.9, 5.6);
-    this.controls.target.set(0, 1.12, 0);
-    this.controls.update();
   }
   diffuser(visible: boolean) {
     this.shell.visible = visible;

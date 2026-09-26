@@ -22,20 +22,16 @@ let simulator: Simulator;
 let scene: LampScene | null = null;
 let frame: Frame;
 let mode: "sim" | "live" = "sim";
-let playing = true,
-  busy = false,
+let busy = false,
   connected = false,
   hasLiveFrame = false;
 let selectedPixel = 0,
-  simulatedProgram = 0,
   accumulator = 0;
+let animationFrame: number | null = null;
 let lastTick = performance.now(),
   lastReceived = 0,
   connectedAt = 0,
   lastUi = 0;
-let receivedTimes: number[] = [],
-  missed = 0,
-  previousLive: Frame | null = null;
 const pixelButtons: HTMLButtonElement[] = [];
 const programButtons: HTMLButtonElement[] = [];
 
@@ -56,14 +52,7 @@ const connection = new LampConnection(
   (value) => {
     if (mode !== "live") return;
     const now = performance.now();
-    if (previousLive && value.time >= previousLive.time)
-      missed += Math.max(
-        0,
-        ((value.sequence - previousLive.sequence + 256) % 256) - 1,
-      );
-    previousLive = value;
     lastReceived = now;
-    receivedTimes.push(now);
     if (!hasLiveFrame) {
       hasLiveFrame = true;
       notice("");
@@ -95,17 +84,6 @@ function updateControls() {
     : connected
       ? "Disconnect"
       : "Connect lamp";
-  for (const id of ["play", "restart", "step", "apply-seed"])
-    button(id).disabled = live;
-  input("seed").disabled = live;
-  select("speed").disabled = live;
-  button("play").innerHTML =
-    `<svg class="icon" aria-hidden="true"><use href="#icon-${playing ? "pause" : "play"}" /></svg>`;
-  button("play").title = playing ? "Pause simulation" : "Play simulation";
-  button("play").setAttribute(
-    "aria-label",
-    playing ? "Pause simulation" : "Play simulation",
-  );
   programButtons.forEach((b, i) => {
     b.disabled = live;
     b.setAttribute(
@@ -119,11 +97,6 @@ function updateControls() {
     live || !audio;
   $("audio-section").hidden = !audio;
   $("audio-source").hidden = $("audio-input").hidden = live;
-  $("seed-controls").hidden = live;
-  $("transport-actions").hidden = live;
-  $("live-help").hidden = !live;
-  $("clock-label").textContent = live ? "Lamp uptime" : "Simulation time";
-  $("clock").title = live ? "Lamp uptime" : "Simulation time";
   $("source-label").hidden = !live;
   $("source-label").dataset.connected = String(connected && hasLiveFrame);
   $("connection-status").textContent = busy
@@ -134,13 +107,6 @@ function updateControls() {
         : "Waiting"
       : "Offline";
   $("programs").title = live ? "Change programs with the lamp’s button" : "";
-  $("engine-status").textContent = live
-    ? connected
-      ? "Connected"
-      : "Disconnected"
-    : playing
-      ? "Running"
-      : "Paused";
 }
 
 async function setMode(value: "sim" | "live") {
@@ -153,9 +119,6 @@ async function setMode(value: "sim" | "live") {
   busy = false;
   hasLiveFrame = false;
   lastReceived = 0;
-  receivedTimes = [];
-  missed = 0;
-  previousLive = null;
   accumulator = 0;
   if (mode === "sim") {
     showFrame(simulator.frame());
@@ -172,28 +135,13 @@ async function setMode(value: "sim" | "live") {
     });
     stageMessage("");
     notice(
-      serialSupported()
-        ? ""
-        : "Open in Chrome or Edge to connect the lamp.",
+      serialSupported() ? "" : "Open in Chrome or Edge to connect the lamp.",
       !serialSupported(),
     );
   }
   updateControls();
 }
 
-function restart() {
-  const seed = Number(input("seed").value);
-  if (!Number.isInteger(seed) || seed < 0 || seed > 65535) {
-    notice("Choose a whole-number seed between 0 and 65535.", true);
-    return;
-  }
-  simulator.reset(seed);
-  simulator.select(simulatedProgram);
-  accumulator = 0;
-  showFrame(simulator.frame());
-  notice("");
-  updateControls();
-}
 function advance() {
   const time = simulator.frame().time;
   const audioMode = select("audio-mode").value;
@@ -215,12 +163,6 @@ function inspect(index: number) {
   );
 }
 function updateReadouts(now: number) {
-  const milliseconds = frame.time % 1000;
-  const seconds = Math.floor(frame.time / 1000) % 60;
-  const minutes = Math.floor(frame.time / 60000);
-  $("clock").textContent =
-    `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(3, "0")}`;
-  $("clock").dataset.time = String(frame.time);
   $("audio-level-value").textContent = `${input("audio-level").value}%`;
   $("audio-value").textContent = `${Math.round((frame.audio / 255) * 100)}%`;
   $("audio-meter").style.width = `${(frame.audio / 255) * 100}%`;
@@ -249,11 +191,7 @@ function updateReadouts(now: number) {
     .join("")
     .toUpperCase()}`;
   if (mode === "live") {
-    receivedTimes = receivedTimes.filter((t) => now - t < 1000);
     const age = now - lastReceived;
-    $("stream-status").textContent = hasLiveFrame
-      ? `${receivedTimes.length} frames/s · last ${Math.round(age)} ms ago · ${missed} missed · ${connection.parser.rejected} invalid`
-      : "Waiting for a valid lamp frame · 115200 baud";
     if (connected && hasLiveFrame && age > 500) {
       stageMessage("Signal paused · last frame held");
       $("source-label").dataset.connected = "false";
@@ -266,15 +204,22 @@ function updateReadouts(now: number) {
         true,
       );
     }
-  } else $("stream-status").textContent = "120 Hz";
+  }
+}
+
+function scheduleAnimation() {
+  if (!document.hidden && animationFrame === null)
+    animationFrame = requestAnimationFrame(animate);
 }
 
 function animate(now: number) {
-  // Discard time while hidden or after a long stall; never catch up a giant backlog.
+  animationFrame = null;
+  if (document.hidden) return;
+  // Cap long stalls; visibility changes reset the clock before resuming.
   const elapsed = Math.min(now - lastTick, 100);
   lastTick = now;
-  if (mode === "sim" && playing && !document.hidden) {
-    accumulator += elapsed * Number(select("speed").value);
+  if (mode === "sim") {
+    accumulator += elapsed;
     while (accumulator >= simulator.interval) {
       advance();
       accumulator -= simulator.interval;
@@ -286,16 +231,8 @@ function animate(now: number) {
     lastUi = now;
   }
   scene?.render();
-  requestAnimationFrame(animate);
+  scheduleAnimation();
 }
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") $("help").removeAttribute("open");
-});
-document.addEventListener("click", (event) => {
-  if (!$("help").contains(event.target as Node))
-    $("help").removeAttribute("open");
-});
 
 async function start() {
   try {
@@ -327,7 +264,6 @@ async function start() {
     label.textContent = program.name;
     b.append(top, label);
     b.addEventListener("click", () => {
-      simulatedProgram = i;
       simulator.select(i);
       showFrame(simulator.frame());
       accumulator = 0;
@@ -362,9 +298,6 @@ async function start() {
     }
     busy = true;
     hasLiveFrame = false;
-    previousLive = null;
-    receivedTimes = [];
-    missed = 0;
     updateControls();
     notice("");
     try {
@@ -384,23 +317,6 @@ async function start() {
       updateControls();
     }
   });
-  button("play").addEventListener("click", () => {
-    playing = !playing;
-    accumulator = 0;
-    updateControls();
-  });
-  button("restart").addEventListener("click", restart);
-  button("apply-seed").addEventListener("click", restart);
-  input("seed").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") restart();
-  });
-  button("step").addEventListener("click", () => {
-    playing = false;
-    accumulator = 0;
-    advance();
-    showFrame(simulator.frame());
-    updateControls();
-  });
   button("diffuser").addEventListener("click", () => {
     const visible = button("diffuser").getAttribute("aria-pressed") !== "true";
     button("diffuser").setAttribute("aria-pressed", String(visible));
@@ -410,18 +326,23 @@ async function start() {
     );
     scene?.diffuser(visible);
   });
-  button("reset-view").addEventListener("click", () => scene?.resetView());
   $("lamp-canvas").addEventListener("pixel-select", (event) =>
     inspect((event as CustomEvent<number>).detail),
   );
   document.addEventListener("visibilitychange", () => {
     accumulator = 0;
     lastTick = performance.now();
+    if (animationFrame !== null) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+    scheduleAnimation();
   });
   if (scene) notice("");
   updateControls();
   updateReadouts(performance.now());
-  requestAnimationFrame(animate);
+  lastTick = performance.now();
+  scheduleAnimation();
 }
 start().catch((error) => {
   notice(

@@ -72,9 +72,9 @@ common ground, and DTR connection before changing firmware settings.
 The dashboard has two sources for the same 3D view:
 
 - **Simulator** runs the actual C++ effects and FastLED color math in your browser
-  using WebAssembly. No lamp is needed. Choose a program, pause, step a frame,
-  change playback speed, and replay with a fixed random seed under
-  Advanced. Audio controls appear when Sound reactive is selected.
+  using WebAssembly. No lamp is needed. Choose a program and it runs automatically
+  while the tab is visible, pausing when you switch away. Audio controls appear
+  when Sound reactive is selected.
   Sound reactive accepts a simulated steady or pulsing input, or silence.
 - **Live lamp** reads LED snapshots from the FTDI through Web Serial. Use desktop
   Chrome or Edge on localhost, choose Live lamp → Connect lamp, and select the
@@ -337,11 +337,11 @@ time and a deterministic 1 kHz square-wave ADC source. Both compile the same
 `Programs.cpp` and the pinned FastLED color algorithms. Each engine preserves its
 own random seed, so simulations are reproducible and independent.
 
-The browser steps the engine at 8,333 µs intervals regardless of display refresh
-rate. Playback speed changes how much virtual time advances. Hidden tabs freeze
-the simulator; long browser stalls are capped instead of replaying a large
-backlog. Reset reinitializes the engine with the chosen seed and selected program;
-ordinary program changes preserve hue/pixels like the physical button. The
+The browser steps the engine at 8,333 µs intervals at normal speed regardless of
+display refresh rate. The simulator starts automatically in a visible tab. Hidden
+tabs stop both simulation and 3D rendering; returning resumes without catching up
+the time spent away. Long browser stalls are also capped. Each page load uses
+seed 1337; program changes preserve hue/pixels like the physical button. The
 simulator uses the firmware's fixed global brightness of 100/255.
 
 The live adapter and simulator both produce the same frame representation. The
@@ -367,7 +367,8 @@ instances, deterministic resets, arbitrary serial chunk boundaries, CRC rejectio
 and resynchronization after lost/corrupt bytes. A fake UART verifies that sending
 never starts unless the whole packet fits. Playwright tests exercise the actual
 WebGL dashboard on desktop/mobile and a browser serial mock, including stale
-frames, unplugging and a cancelled port picker. The same browser suite runs
+frames, unplugging, a cancelled port picker, and automatic pause/resume when the
+tab becomes hidden/visible. The same browser suite runs
 against both `npm run dev` and the production preview, including loading the
 generated WebAssembly module.
 

@@ -23,8 +23,7 @@ select {
   font: inherit;
 }
 button,
-select,
-summary {
+select {
   cursor: pointer;
 }
 button {
@@ -44,8 +43,7 @@ button:not(:disabled):hover {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-select:focus-visible,
-summary:focus-visible {
+select:focus-visible {
   outline: 2px solid #5b8135;
   outline-offset: 4px;
 }
@@ -53,9 +51,7 @@ a {
   color: inherit;
   text-decoration: none;
 }
-h1,
-h2,
-p {
+h2 {
   margin: 0;
 }
 button {
@@ -65,8 +61,7 @@ button {
 }
 button,
 input,
-select,
-summary {
+select {
   -webkit-tap-highlight-color: transparent;
 }
 [hidden] {
@@ -104,11 +99,6 @@ summary {
   font-weight: 650;
   letter-spacing: -1.2px;
 }
-.brand-mark {
-  color: #617850;
-  font-size: 29px;
-  margin-right: 3px;
-}
 .brand-studio {
   color: #819079;
   font-size: 19px;
@@ -136,53 +126,6 @@ summary {
   background: #fbfcf6;
   color: #29372c;
   box-shadow: 0 1px 4px #1b2b2012;
-}
-.help-menu {
-  position: relative;
-}
-summary {
-  list-style: none;
-}
-summary::-webkit-details-marker {
-  display: none;
-}
-.help-menu > summary {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  color: #7b8871;
-}
-.help-menu > summary:hover,
-.help-menu[open] > summary {
-  background: #dfe5d6;
-  color: #425735;
-}
-.help-popover {
-  position: absolute;
-  right: 0;
-  top: 48px;
-  z-index: 10;
-  width: 270px;
-  padding: 20px;
-  border: 1px solid #d2daca;
-  border-radius: 12px;
-  background: #fafbf5;
-  box-shadow: 0 12px 35px #28342e20;
-  font-size: 12px;
-  line-height: 1.6;
-  color: #6c7b60;
-}
-.help-popover p + p {
-  margin-top: 12px;
-}
-.help-popover a {
-  display: inline-block;
-  margin-top: 16px;
-  color: #3c5a2d;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 main {
   max-width: 1512px;
@@ -229,15 +172,9 @@ main {
   right: 24px;
   top: 23px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   pointer-events: none;
-}
-.stage h1 {
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-  color: #a7b4b8;
 }
 .source-label {
   display: flex;
@@ -275,10 +212,6 @@ main {
   font-size: 12px;
   color: #d7dfe0;
   backdrop-filter: blur(12px);
-}
-.stage-tools .icon {
-  width: 17px;
-  height: 17px;
 }
 .toggle-track {
   display: block;
@@ -320,40 +253,6 @@ main {
   line-height: 1.6;
   pointer-events: none;
 }
-.transport {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 22px;
-  border-bottom: 1px solid #e0e3d9;
-  gap: 12px;
-  min-height: 70px;
-}
-.transport-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.transport button {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 7px;
-  color: #627454;
-}
-.transport button:not(:disabled):hover {
-  background: #e9eee1;
-}
-.transport .play {
-  background: #2e3e32;
-  color: #ecf3e5;
-  width: 38px;
-  margin-right: 5px;
-}
-.transport .play:not(:disabled):hover {
-  background: #3f553b;
-}
 select {
   border: 1px solid #d7ddce;
   border-radius: 6px;
@@ -361,17 +260,6 @@ select {
   background: #f6f7f1;
   color: #526048;
   font-size: 12px;
-}
-.clock {
-  margin-left: auto;
-}
-.clock output {
-  font:
-    14px ui-monospace,
-    SFMono-Regular,
-    monospace;
-  color: #7c8b6e;
-  font-variant-numeric: tabular-nums;
 }
 .pixels {
   padding: 20px 22px;
@@ -428,7 +316,9 @@ select {
 }
 .controls > section {
   padding: 24px;
-  border-bottom: 1px solid #dfe4d5;
+}
+.controls > section + section {
+  border-top: 1px solid #dfe4d5;
 }
 h2 {
   font-size: 13px;
@@ -552,69 +442,6 @@ input[type="range"]::-moz-range-thumb {
 #audio-input {
   margin-top: 20px;
 }
-.advanced-controls > summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 18px 24px;
-  color: #839075;
-  font-size: 11px;
-}
-.advanced-controls > summary .icon {
-  width: 14px;
-  height: 14px;
-}
-.advanced-controls[open] > summary .icon {
-  transform: rotate(90deg);
-}
-.advanced-content {
-  padding: 0 24px 22px;
-}
-.seed-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  color: #758365;
-}
-.seed-row label {
-  margin-right: auto;
-}
-.seed-row input {
-  width: 80px;
-  padding: 7px 8px;
-  border: 1px solid #d7ddcb;
-  border-radius: 5px;
-  background: #f5f7ec;
-  font-size: 11px;
-  color: #70815b;
-}
-.seed-row button {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 32px;
-  color: #7b8a64;
-}
-.seed-row .icon {
-  width: 17px;
-  height: 17px;
-}
-.diagnostics {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px 15px;
-  font-size: 10px;
-  color: #89977b;
-  margin: 18px 0 0;
-  line-height: 1.6;
-}
-.diagnostics dd {
-  margin: 0;
-  color: #687b56;
-  overflow-wrap: anywhere;
-}
 .notice {
   padding: 12px 16px;
   border: 1px solid #d7deca;
@@ -685,12 +512,6 @@ input[type="range"]::-moz-range-thumb {
   .controls > section {
     padding: 20px;
   }
-  .advanced-controls > summary {
-    padding: 18px 20px;
-  }
-  .advanced-content {
-    padding: 0 20px 20px;
-  }
   .stage {
     height: 460px;
   }
@@ -718,12 +539,6 @@ input[type="range"]::-moz-range-thumb {
   .controls > section {
     padding: 22px;
   }
-  .advanced-controls > summary {
-    padding: 18px 22px;
-  }
-  .advanced-content {
-    padding: 0 22px 22px;
-  }
 }
 @media (max-width: 500px) {
   .topbar {
@@ -733,23 +548,12 @@ input[type="range"]::-moz-range-thumb {
     font-size: 23px;
     gap: 5px;
   }
-  .brand-mark {
-    font-size: 25px;
-    margin-right: 1px;
-  }
   .brand-studio {
     display: none;
   }
   .mode-switch button {
     padding: 8px 10px;
     font-size: 11px;
-  }
-  .help-menu > summary {
-    width: 30px;
-    height: 32px;
-  }
-  .help-popover {
-    width: min(270px, 88vw);
   }
   .stage-top {
     left: 18px;
@@ -759,15 +563,6 @@ input[type="range"]::-moz-range-thumb {
   .stage-tools {
     left: 16px;
     bottom: 16px;
-  }
-  .transport {
-    padding: 14px 16px;
-  }
-  .transport-actions {
-    gap: 4px;
-  }
-  .clock output {
-    font-size: 12px;
   }
   .pixels {
     padding: 18px 16px;
