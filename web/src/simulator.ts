@@ -31,7 +31,10 @@ export class Simulator {
     this.reset(1337);
   }
   static async load() {
-    const url = "/generated/lamp.js";
+    // Load the generated Emscripten module as a static asset in both dev and
+    // preview. A root-relative dynamic import gets Vite's ?import transform,
+    // which rejects JS served from public/.
+    const url = new URL("/generated/lamp.js", window.location.origin).href;
     const { default: createLamp } = await import(/* @vite-ignore */ url);
     return new Simulator(await createLamp());
   }

@@ -4,15 +4,25 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  projects: [
+    { name: "development", use: { baseURL: "http://127.0.0.1:5173" } },
+    { name: "production-preview", use: { baseURL: "http://127.0.0.1:4173" } },
+  ],
   use: {
-    baseURL: "http://127.0.0.1:4173",
     viewport: { width: 1440, height: 1100 },
     trace: "retain-on-failure",
     launchOptions: { args: ["--enable-unsafe-swiftshader"] },
   },
-  webServer: {
-    command: "npm run preview",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: "npm run dev",
+      url: "http://127.0.0.1:5173",
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: "npm run preview",
+      url: "http://127.0.0.1:4173",
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 });

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("simulator controls, real rendering, pixel inspection and responsive layout", async ({
   page,
-}) => {
+}, testInfo) => {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
@@ -47,12 +47,12 @@ test("simulator controls, real rendering, pixel inspection and responsive layout
     .click();
   await page.waitForTimeout(250);
   await page.screenshot({
-    path: "test-results/studio-desktop.png",
+    path: testInfo.outputPath("studio-desktop.png"),
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({
-    path: "test-results/studio-mobile.png",
+    path: testInfo.outputPath("studio-mobile.png"),
     fullPage: true,
   });
   expect(
@@ -171,7 +171,7 @@ test("canceling the port picker leaves a usable dashboard", async ({
   await expect(page.locator("#play")).toBeEnabled();
 });
 
-test("manual disconnect releases the port and preserves simulation settings", async ({ page }) => {
+test("manual disconnect releases the port and preserves simulation settings", async ({ page }, testInfo) => {
   await mockSerial(page);
   await page.goto("/");
   await expect(page.locator(".program")).toHaveCount(8);
@@ -188,5 +188,5 @@ test("manual disconnect releases the port and preserves simulation settings", as
   await expect(page.locator("#brightness")).toHaveValue("210");
   await expect(page.getByRole("button", { name: "Play simulation", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Diffuser on", exact: true }).click();
-  await page.screenshot({ path: "test-results/studio-led-ring.png", fullPage: true });
+  await page.screenshot({ path: testInfo.outputPath("studio-led-ring.png"), fullPage: true });
 });

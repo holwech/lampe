@@ -357,7 +357,9 @@ instances, deterministic resets, arbitrary serial chunk boundaries, CRC rejectio
 and resynchronization after lost/corrupt bytes. A fake UART verifies that sending
 never starts unless the whole packet fits. Playwright tests exercise the actual
 WebGL dashboard on desktop/mobile and a browser serial mock, including stale
-frames, unplugging and a cancelled port picker.
+frames, unplugging and a cancelled port picker. The same browser suite runs
+against both `npm run dev` and the production preview, including loading the
+generated WebAssembly module.
 
 CI builds AVR and WebAssembly, runs these suites, builds the static dashboard and
 checks AVRDUDE's simulated programmer. The JS dependency versions are pinned in
