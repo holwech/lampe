@@ -15,7 +15,7 @@ if not compiler:
     parser.error("em++ is missing. Install the SDK version in .emscripten-version and source emsdk_env.sh (see README).")
 fastled = args.fastled_dir.resolve() / "src"
 if not (fastled / "FastLED.h").is_file():
-    parser.error("FastLED is missing. Run: pio pkg install --environment nanoatmega328")
+    parser.error("FastLED is missing. Run: uv run --locked pio pkg install --environment nanoatmega328")
 output = ROOT / "web/public/generated"
 output.mkdir(parents=True, exist_ok=True)
 exports = ["reset", "select", "brightness", "button", "advance", "frame", "frame_size", "program_count", "frame_interval_us", "program_name", "program_uses_audio"]

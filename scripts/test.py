@@ -20,7 +20,7 @@ parser.add_argument(
 args = parser.parse_args()
 fastled = args.fastled_dir.resolve() / "src"
 if not (fastled / "FastLED.h").is_file():
-    parser.error("FastLED is missing; run 'pio pkg install --environment nanoatmega328' first")
+    parser.error("FastLED is missing; run 'uv run --locked pio pkg install --environment nanoatmega328' first")
 
 with tempfile.TemporaryDirectory(prefix="lampe-tests-") as output:
     compiler = shlex.split(os.environ.get("CXX", "c++"))

@@ -1,0 +1,12 @@
+[project]
+name = "lampe"
+version = "1.0.0"
+description = "Development tools for the Lampe Mini firmware and simulator"
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = ["platformio==6.2.0"]
+
+[tool.uv]
+package = false

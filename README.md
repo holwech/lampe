@@ -89,19 +89,21 @@ optical model. Raw pixel values are the actual effect output.
 
 ### Start locally
 
-Requirements: Node.js **22.12+** (24 LTS recommended), Python 3, a C++17 compiler,
-PlatformIO from `requirements-dev.txt`, and Emscripten **6.0.10**. Set up the Python
-virtual environment as described under Building and testing, then:
+Requirements: Node.js **22.12+** (24 LTS recommended),
+[uv](https://docs.astral.sh/uv/getting-started/installation/), a C++17 compiler,
+and Emscripten **6.0.10**. `uv` manages Python and PlatformIO for this repository:
 
 ```sh
-# From this repository. Installs the shared FastLED source without building AVR.
-pio pkg install --environment nanoatmega328
+# From this repository. Installs Python and the locked development tools.
+uv sync --locked
+# Install the shared FastLED source without building AVR.
+uv run --locked pio pkg install --environment nanoatmega328
 npm ci
 
 # One-time SDK installation in a sibling directory; skip the clone if installed.
 git clone --depth 1 https://github.com/emscripten-core/emsdk.git ../emsdk
-../emsdk/emsdk install "$(cat .emscripten-version)"
-../emsdk/emsdk activate "$(cat .emscripten-version)"
+uv run --locked python ../emsdk/emsdk.py install "$(cat .emscripten-version)"
+uv run --locked python ../emsdk/emsdk.py activate "$(cat .emscripten-version)"
 source ../emsdk/emsdk_env.sh
 
 npm run dev
@@ -175,6 +177,7 @@ bootloader. Check the actual controller before changing upload parameters.
 | [`tests/`](tests/) and [`web/tests/`](web/tests/) | Native regressions, C++/WASM parity, serial framing and browser interaction tests |
 | [`experiments/beat-detection/`](experiments/beat-detection/) | Archived, unfinished beat detector; excluded from the firmware build |
 | [`platformio.ini`](platformio.ini) | Pinned AVR platform, toolchain, Arduino core and FastLED dependency; downloaded libraries live under ignored `.pio/libdeps/` |
+| [`pyproject.toml`](pyproject.toml), [`uv.lock`](uv.lock) and [`.python-version`](.python-version) | Python development dependencies, their resolved versions, and the Python version used locally and in CI |
 
 The global `Lampe` object only initializes its data. Hardware calls happen in
 `begin()`, after Arduino has initialized its timers. Each loop polls the button
@@ -230,8 +233,9 @@ Beat detection is a separate archived experiment, not an available mode.
 
 ### Building and testing
 
-Build dependencies are pinned in [`requirements-dev.txt`](requirements-dev.txt)
-and `platformio.ini`:
+Python build tools are declared in [`pyproject.toml`](pyproject.toml) and locked,
+including transitive dependencies, in [`uv.lock`](uv.lock). Firmware dependencies
+are pinned in [`platformio.ini`](platformio.ini):
 
 | Dependency | Version |
 | --- | --- |
@@ -248,33 +252,36 @@ Ordinary `chain` dependency discovery avoids the expensive preprocessor scan
 of FastLED's optional modules. Files using FastLED directly should include
 `<FastLED.h>` themselves so each application library declares that dependency.
 
-Set up the build tool in a virtual environment from the repository root:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then set up
+the build environment from the repository root:
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements-dev.txt
+uv sync --locked
 ```
 
-CI uses Python **3.14**; this is also the recommended version for new development
-environments. To refresh an existing environment's compatible Python dependencies,
-run `python -m pip install --upgrade --upgrade-strategy eager -r requirements-dev.txt`,
-then `python -m pip check`.
+`uv` installs Python **3.14**, selected by [`.python-version`](.python-version),
+and creates the ignored `.venv/` directory. No activation is needed: `uv run`
+uses this environment, and the npm build, dev server and parity tests invoke it
+automatically. CI uses the same Python selection and lockfile with `uv` **0.11.21**.
+
+To refresh compatible Python dependencies, run `uv lock --upgrade`, then
+`uv sync --locked` and the checks below. Commit the updated `uv.lock`. Change the
+PlatformIO pin in `pyproject.toml` when upgrading PlatformIO itself.
 
 Run the tests and build:
 
 ```sh
 # Install the libraries used by both the tests and firmware.
-pio pkg install --environment nanoatmega328
+uv run --locked pio pkg install --environment nanoatmega328
 
-# Requires Python 3 and a C++17 compiler (Clang or GCC); no lamp is needed.
-python scripts/test.py
+# Requires a C++17 compiler (Clang or GCC); no lamp is needed.
+uv run --locked python scripts/test.py
 
 # Compile firmware for the existing bootloader target.
-pio run --environment nanoatmega328
+uv run --locked pio run --environment nanoatmega328
 
 # Find the FTDI serial port.
-pio device list
+uv run --locked pio device list
 ```
 
 The test runner uses the host C++ compiler with warnings treated as errors and
@@ -290,16 +297,16 @@ separately by the logic tests. These host checks do not exercise LED signal timi
 The shared adapter in `simulator/fastled_colors.cpp` includes a small set of upstream
 implementation files; review those paths and intentional color changes when
 upgrading FastLED. If using a custom PlatformIO library directory, pass
-`python scripts/test.py --fastled-dir /path/to/FastLED`.
+`uv run --locked python scripts/test.py --fastled-dir /path/to/FastLED`.
 Firmware compilation also checks representative brightness values using AVR's
 actual integer widths. The [CI workflow](.github/workflows/ci.yml) installs the
 pinned dependencies and runs both test suites and the AVR build on pushes and
-pull requests. It uses `actions/checkout` 7.0.1 and `actions/setup-python` 7.0.0.
+pull requests. It uses `actions/checkout` 7.0.1 and `astral-sh/setup-uv` 9.0.0.
 It also writes and verifies the generated HEX file through AVRDUDE's `dryrun`
 programmer, which simulates an ATmega328P without connecting to hardware:
 
 ```sh
-pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p m328p -c dryrun -U flash:w:.pio/build/nanoatmega328/firmware.hex:i
+uv run --locked pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p m328p -c dryrun -U flash:w:.pio/build/nanoatmega328/firmware.hex:i
 ```
 
 ### FastLED upgrade notes
@@ -374,7 +381,7 @@ Replace `YOUR_SERIAL_PORT` with the adapter's actual port (for example,
 described above before uploading:
 
 ```sh
-pio run --environment nanoatmega328 --target upload --upload-port YOUR_SERIAL_PORT
+uv run --locked pio run --environment nanoatmega328 --target upload --upload-port YOUR_SERIAL_PORT
 ```
 
 Disconnect the dashboard (and close any serial monitor) before uploading.

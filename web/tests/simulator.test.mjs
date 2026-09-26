@@ -14,8 +14,8 @@ const bytes = () => {
 };
 test("WebAssembly matches native C++ byte-for-byte across all programs, seeds, audio and button transitions", () => {
   const expected = execFileSync(
-    process.env.PYTHON || "python3",
-    ["scripts/native_trace.py"],
+    "uv",
+    ["run", "--locked", "python", "scripts/native_trace.py"],
     { encoding: "utf8", maxBuffer: 2 * 1024 * 1024 },
   )
     .trim()

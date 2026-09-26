@@ -12,22 +12,21 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-python@v7.0.0
+      - uses: astral-sh/setup-uv@v9.0.0
         with:
-          python-version: '3.14'
-          cache: pip
-          cache-dependency-path: requirements-dev.txt
-      - name: Install pinned build tool
-        run: python -m pip install -r requirements-dev.txt
+          version: '0.11.21'
+          enable-cache: true
+      - name: Install locked Python environment
+        run: uv sync --locked
       - name: Install pinned firmware dependencies
-        run: pio pkg install --environment nanoatmega328
+        run: uv run --locked pio pkg install --environment nanoatmega328
       - name: Test firmware logic and effect rendering
-        run: python scripts/test.py
+        run: uv run --locked python scripts/test.py
       - name: Build AVR firmware
-        run: pio run --environment nanoatmega328
+        run: uv run --locked pio run --environment nanoatmega328
       - name: Check uploader with a simulated ATmega328P
         run: >-
-          pio pkg exec --package platformio/tool-avrdude --
+          uv run --locked pio pkg exec --package platformio/tool-avrdude --
           avrdude -N -p m328p -c dryrun
           -U flash:w:.pio/build/nanoatmega328/firmware.hex:i
       - uses: actions/setup-node@v7.0.0
@@ -37,8 +36,8 @@ jobs:
       - name: Install pinned Emscripten SDK
         run: |
           git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
-          "$RUNNER_TEMP/emsdk/emsdk" install "$(cat .emscripten-version)"
-          "$RUNNER_TEMP/emsdk/emsdk" activate "$(cat .emscripten-version)"
+          uv run --locked python "$RUNNER_TEMP/emsdk/emsdk.py" install "$(cat .emscripten-version)"
+          uv run --locked python "$RUNNER_TEMP/emsdk/emsdk.py" activate "$(cat .emscripten-version)"
           echo "EMXX=$RUNNER_TEMP/emsdk/upstream/emscripten/em++" >> "$GITHUB_ENV"
       - name: Install dashboard dependencies
         run: npm ci

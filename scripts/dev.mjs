@@ -5,8 +5,8 @@ import { createServer } from "vite";
 function build() {
   return new Promise((resolve, reject) => {
     const child = spawn(
-      process.env.PYTHON || "python3",
-      ["scripts/build_simulator.py"],
+      "uv",
+      ["run", "--locked", "python", "scripts/build_simulator.py"],
       { stdio: "inherit" },
     );
     child.on("error", reject);

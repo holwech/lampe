@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "build:simulator": "python3 scripts/build_simulator.py",
+    "build:simulator": "uv run --locked python scripts/build_simulator.py",
     "build": "npm run build:simulator && tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test web/tests/*.test.mjs",
