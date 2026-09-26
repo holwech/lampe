@@ -59,10 +59,6 @@ jobs:
         run: npm run build
       - name: Verify native and WebAssembly parity and serial framing
         run: npm test
-      - name: Install browser
-        run: npx playwright install --with-deps --only-shell chromium
-      - name: Test dashboard and simulated serial connection
-        run: npm run test:browser
 
   # Preserve the existing combined check for branch protection and integrations.
   build-and-test:

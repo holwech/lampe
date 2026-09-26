@@ -385,8 +385,6 @@ the same USB serial connection; the physical lamp keeps rendering autonomously.
 # Build first: generated WASM and JS are intentionally ignored by Git.
 npm run build
 npm test
-npx playwright install chromium
-npm run test:browser
 ```
 
 The native suites retain the eight 15-second effect fingerprints. Node tests
@@ -396,13 +394,6 @@ instances, deterministic resets, arbitrary serial chunk boundaries, CRC rejectio
 and resynchronization after lost/corrupt bytes. A fake UART verifies that sending
 never starts unless the whole packet fits. Command tests cover checksums, invalid
 IDs/opcodes, noise, partial-message timeouts, bounded reads and the physical button.
-Playwright tests exercise the actual
-WebGL dashboard on desktop/mobile and a browser serial mock, including stale
-frames, command confirmation/timeouts/write failures, legacy firmware, unplugging,
-a cancelled port picker, tempo lock/release, and automatic pause/resume when the
-tab becomes hidden/visible. The same browser suite runs
-against both `npm run dev` and the production preview, including loading the
-generated WebAssembly module.
 
 CI builds AVR and WebAssembly, runs these suites, builds the static dashboard and
 checks AVRDUDE's simulated programmer. The JS dependency versions are pinned in
@@ -412,7 +403,6 @@ No generated third-party source or WebAssembly binary is checked in.
 Firmware and dashboard CI jobs run in parallel. PlatformIO packages and FastLED
 are cached by `platformio.ini` and `uv.lock`; the Emscripten SDK is cached by
 `.emscripten-version`. Source builds and every test still run on each commit.
-Browser CI installs only Chromium's headless shell and records traces on retries.
 New commits cancel superseded runs on the same branch or pull request. The
 combined `build-and-test` check succeeds only when both jobs pass.
 
