@@ -328,6 +328,13 @@ these cases must not be described as solved because CI is green. The approximate
 references are 120 and 136 BPM. These captures complement generated tests across
 60–200 BPM; see the [measured limitations](docs/bpm-measurements.md#third-round-radioactive-and-have-a-cigar).
 
+An isolated [BTrack and audio-feature benchmark](experiments/btrack-benchmark/)
+compares the current detector with a published tracker and preserves three newer
+feature recordings from regular 4 kHz ADC captures. It includes the newly exposed
+paused-music false positive and is research tooling, not the installed detector.
+The temporary [PCM diagnostic](experiments/microphone-pcm/) pauses LED updates
+during measurement and automatically restores a supplied normal firmware image.
+
 Diagnostic command `LC` version 1, opcode 2, argument 2 selects window capture
 (argument 1 is raw capture; 0 disables either). Both use the existing three-second
 lease. Window packets are `LA` version 2, 60 bytes, with ten five-byte records:

@@ -6,8 +6,9 @@ selectable in the lamp firmware. `BeatPrograms.cpp` preserves its old effect
 wrappers. They refer to the old `Lampe` API and are reference material, not a
 standalone build target.
 
-The active sound-reactive effect uses peak-to-peak amplitude, implemented in
-`lib/LampLogic/LampLogic.h`, independently of this experiment.
+The active sound-reactive effect uses `lib/LampLogic/BeatTracker.h`, independently
+of this archived experiment. Current research and physical-input comparisons are
+in [the BTrack benchmark](../btrack-benchmark/).
 
 Before reviving beat detection, address the existing problems:
 

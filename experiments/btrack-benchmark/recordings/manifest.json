@@ -1,0 +1,119 @@
+[
+  {
+    "name": "have-a-cigar-pcm-01",
+    "file": "have-a-cigar-pcm-01.csv.gz",
+    "sha256": "b5fc5d9ab46195d94bf5c3f12786a10f753793cf23f141d9b30acf098ebf5aae",
+    "source_adc_sha256": "5506766434138096e38e3c2369d889674f282824525844bc913a220dceccb9b4",
+    "source_capture": "captures/have-a-cigar-pcm-01",
+    "capture_metadata": {
+      "track": "Have a Cigar \u2014 Pink Floyd",
+      "source": "physical lamp ADC0, temporary timer-triggered diagnostic firmware",
+      "led_updates_during_capture": false,
+      "valid": true,
+      "firmware_restored": true,
+      "capture_firmware_sha256": "8bcdef7a1462c26f43459bd5a8f41d93cc189091cdf4697e8e7325def7018b47",
+      "restore_firmware_sha256": "c59be5f4a5fff08a915178e74e06f6820b6c572f3d8ce607ccba2852ecd6ec8c",
+      "sample_rate_hz": 4000,
+      "samples": 300048,
+      "duration_seconds": 75.012,
+      "packets": 12502,
+      "sample_gaps": 0,
+      "rejected_packets": 0,
+      "adc_range": [
+        373,
+        621
+      ],
+      "receive_span_seconds": 74.8987,
+      "host_rate_estimate_hz": 4005.7
+    },
+    "reference_bpm": 120,
+    "tolerance_bpm": 4,
+    "windows": 7501,
+    "methods": [
+      "lamp-onsets",
+      "bass",
+      "mid",
+      "high",
+      "three-band",
+      "complex-spectrum"
+    ]
+  },
+  {
+    "name": "have-a-cigar-pcm-02",
+    "file": "have-a-cigar-pcm-02.csv.gz",
+    "sha256": "089d3213e31849e641a2e01ba45a7e8550decfb8be28d90563949131bc0097c5",
+    "source_adc_sha256": "b14aaa2aaa2effb5e3ca0a5b9f33e9fbf62bc2fc07c50cbce14babf13f48f79f",
+    "source_capture": "captures/have-a-cigar-pcm-02",
+    "capture_metadata": {
+      "track": "Have a Cigar \u2014 Pink Floyd (fresh validation passage)",
+      "source": "physical lamp ADC0, temporary timer-triggered diagnostic firmware",
+      "led_updates_during_capture": false,
+      "valid": true,
+      "firmware_restored": true,
+      "capture_firmware_sha256": "8bcdef7a1462c26f43459bd5a8f41d93cc189091cdf4697e8e7325def7018b47",
+      "restore_firmware_sha256": "c59be5f4a5fff08a915178e74e06f6820b6c572f3d8ce607ccba2852ecd6ec8c",
+      "sample_rate_hz": 4000,
+      "samples": 300384,
+      "duration_seconds": 75.096,
+      "packets": 12516,
+      "sample_gaps": 0,
+      "rejected_packets": 0,
+      "adc_range": [
+        289,
+        684
+      ],
+      "receive_span_seconds": 74.9992,
+      "host_rate_estimate_hz": 4004.8
+    },
+    "reference_bpm": 120,
+    "tolerance_bpm": 4,
+    "windows": 7509,
+    "methods": [
+      "lamp-onsets",
+      "bass",
+      "mid",
+      "high",
+      "three-band",
+      "complex-spectrum"
+    ]
+  },
+  {
+    "name": "room-noise-pcm-01",
+    "file": "room-noise-pcm-01.csv.gz",
+    "sha256": "1f49e89b2b0a1fb40a7b35c0a49b1c09428c74abe549c25d0ece8dd6f290a67f",
+    "source_adc_sha256": "fe3758826cafb23e10608bc0e4692978323be6ad0f47906db6cd065563cc66fd",
+    "source_capture": "captures/room-noise-pcm-01",
+    "capture_metadata": {
+      "track": "Room noise, music paused",
+      "source": "physical lamp ADC0, temporary timer-triggered diagnostic firmware",
+      "led_updates_during_capture": false,
+      "valid": true,
+      "firmware_restored": true,
+      "capture_firmware_sha256": "8bcdef7a1462c26f43459bd5a8f41d93cc189091cdf4697e8e7325def7018b47",
+      "restore_firmware_sha256": "c59be5f4a5fff08a915178e74e06f6820b6c572f3d8ce607ccba2852ecd6ec8c",
+      "sample_rate_hz": 4000,
+      "samples": 120216,
+      "duration_seconds": 30.054,
+      "packets": 5009,
+      "sample_gaps": 0,
+      "rejected_packets": 0,
+      "adc_range": [
+        330,
+        631
+      ],
+      "receive_span_seconds": 29.9744,
+      "host_rate_estimate_hz": 4009.8
+    },
+    "reference_bpm": null,
+    "tolerance_bpm": 4,
+    "windows": 3005,
+    "methods": [
+      "lamp-onsets",
+      "bass",
+      "mid",
+      "high",
+      "three-band",
+      "complex-spectrum"
+    ]
+  }
+]

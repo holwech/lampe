@@ -1,0 +1,478 @@
+{
+  "capture": "captures/have-a-cigar-pcm-02",
+  "capture_metadata": {
+    "track": "Have a Cigar \u2014 Pink Floyd (fresh validation passage)",
+    "source": "physical lamp ADC0, temporary timer-triggered diagnostic firmware",
+    "led_updates_during_capture": false,
+    "valid": true,
+    "firmware_restored": true,
+    "capture_firmware_sha256": "8bcdef7a1462c26f43459bd5a8f41d93cc189091cdf4697e8e7325def7018b47",
+    "restore_firmware_sha256": "c59be5f4a5fff08a915178e74e06f6820b6c572f3d8ce607ccba2852ecd6ec8c",
+    "sample_rate_hz": 4000,
+    "samples": 300384,
+    "duration_seconds": 75.096,
+    "packets": 12516,
+    "sample_gaps": 0,
+    "rejected_packets": 0,
+    "adc_range": [
+      289,
+      684
+    ],
+    "receive_span_seconds": 74.9992,
+    "host_rate_estimate_hz": 4004.8
+  },
+  "versions": {
+    "lamp_header_sha256": "660d1129f23f89abb7c8b6445b25d4d5ab791f3676e7cc54b86368ee7a0d7321",
+    "btrack_commit": "9d6127618a5679e9caa74c594b88f1d74f0e035f",
+    "libsamplerate_commit": "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7"
+  },
+  "reference_bpm": 120.0,
+  "tolerance_bpm": 4,
+  "warmup_ms": 10000,
+  "methods": {
+    "lamp-onsets": {
+      "default": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            101.69,
+            157.89
+          ],
+          "beat_events_including_startup": 159,
+          "near_reference_percent": 26.01,
+          "outside_reference_percent": 73.99,
+          "near_reference_after_each_segment_warmup_percent": 26.01
+        }
+      },
+      "100": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            80.0,
+            146.34
+          ],
+          "beat_events_including_startup": 144,
+          "near_reference_percent": 26.01,
+          "outside_reference_percent": 73.99,
+          "near_reference_after_each_segment_warmup_percent": 26.01
+        }
+      },
+      "150": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            101.69,
+            157.89
+          ],
+          "beat_events_including_startup": 159,
+          "near_reference_percent": 26.01,
+          "outside_reference_percent": 73.99,
+          "near_reference_after_each_segment_warmup_percent": 26.01
+        }
+      }
+    },
+    "bass": {
+      "default": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            82.19,
+            150.0
+          ],
+          "beat_events_including_startup": 152,
+          "near_reference_percent": 46.67,
+          "outside_reference_percent": 53.33,
+          "near_reference_after_each_segment_warmup_percent": 46.67
+        }
+      },
+      "100": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            82.19,
+            150.0
+          ],
+          "beat_events_including_startup": 147,
+          "near_reference_percent": 42.91,
+          "outside_reference_percent": 57.09,
+          "near_reference_after_each_segment_warmup_percent": 42.91
+        }
+      },
+      "150": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            117.65,
+            157.89
+          ],
+          "beat_events_including_startup": 164,
+          "near_reference_percent": 43.97,
+          "outside_reference_percent": 56.03,
+          "near_reference_after_each_segment_warmup_percent": 43.97
+        }
+      }
+    },
+    "mid": {
+      "default": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            125.0,
+            157.89
+          ],
+          "beat_events_including_startup": 180,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 100.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        }
+      },
+      "100": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            125.0,
+            157.89
+          ],
+          "beat_events_including_startup": 176,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 100.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        }
+      },
+      "150": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            125.0,
+            157.89
+          ],
+          "beat_events_including_startup": 182,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 100.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        }
+      }
+    },
+    "high": {
+      "default": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            82.19,
+            150.0
+          ],
+          "beat_events_including_startup": 145,
+          "near_reference_percent": 15.38,
+          "outside_reference_percent": 84.62,
+          "near_reference_after_each_segment_warmup_percent": 15.38
+        }
+      },
+      "100": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            82.19,
+            150.0
+          ],
+          "beat_events_including_startup": 141,
+          "near_reference_percent": 15.39,
+          "outside_reference_percent": 84.61,
+          "near_reference_after_each_segment_warmup_percent": 15.39
+        }
+      },
+      "150": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            82.19,
+            157.89
+          ],
+          "beat_events_including_startup": 149,
+          "near_reference_percent": 16.58,
+          "outside_reference_percent": 83.42,
+          "near_reference_after_each_segment_warmup_percent": 16.58
+        }
+      }
+    },
+    "three-band": {
+      "default": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            89.55,
+            157.89
+          ],
+          "beat_events_including_startup": 167,
+          "near_reference_percent": 18.99,
+          "outside_reference_percent": 81.01,
+          "near_reference_after_each_segment_warmup_percent": 18.99
+        }
+      },
+      "100": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            89.55,
+            157.89
+          ],
+          "beat_events_including_startup": 165,
+          "near_reference_percent": 18.99,
+          "outside_reference_percent": 81.01,
+          "near_reference_after_each_segment_warmup_percent": 18.99
+        }
+      },
+      "150": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            89.55,
+            157.89
+          ],
+          "beat_events_including_startup": 172,
+          "near_reference_percent": 18.99,
+          "outside_reference_percent": 81.01,
+          "near_reference_after_each_segment_warmup_percent": 18.99
+        }
+      }
+    },
+    "complex-spectrum": {
+      "default": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            115.38,
+            139.53
+          ],
+          "beat_events_including_startup": 156,
+          "near_reference_percent": 47.38,
+          "outside_reference_percent": 52.62,
+          "near_reference_after_each_segment_warmup_percent": 47.38
+        }
+      },
+      "100": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            115.38,
+            139.53
+          ],
+          "beat_events_including_startup": 150,
+          "near_reference_percent": 49.04,
+          "outside_reference_percent": 50.96,
+          "near_reference_after_each_segment_warmup_percent": 49.04
+        }
+      },
+      "150": {
+        "windows": 7509,
+        "segments": 1,
+        "evaluated_windows": 6509,
+        "lamp": {
+          "nonzero_tempo_percent": 0.0,
+          "tempo_range": null,
+          "beat_events_including_startup": 0,
+          "near_reference_percent": 0.0,
+          "outside_reference_percent": 0.0,
+          "near_reference_after_each_segment_warmup_percent": 0.0
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            115.38,
+            139.53
+          ],
+          "beat_events_including_startup": 158,
+          "near_reference_percent": 46.15,
+          "outside_reference_percent": 53.85,
+          "near_reference_after_each_segment_warmup_percent": 46.15
+        }
+      }
+    }
+  }
+}

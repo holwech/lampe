@@ -1,0 +1,424 @@
+{
+  "capture": "captures/room-noise-pcm-01",
+  "capture_metadata": {
+    "track": "Room noise, music paused",
+    "source": "physical lamp ADC0, temporary timer-triggered diagnostic firmware",
+    "led_updates_during_capture": false,
+    "valid": true,
+    "firmware_restored": true,
+    "capture_firmware_sha256": "8bcdef7a1462c26f43459bd5a8f41d93cc189091cdf4697e8e7325def7018b47",
+    "restore_firmware_sha256": "c59be5f4a5fff08a915178e74e06f6820b6c572f3d8ce607ccba2852ecd6ec8c",
+    "sample_rate_hz": 4000,
+    "samples": 120216,
+    "duration_seconds": 30.054,
+    "packets": 5009,
+    "sample_gaps": 0,
+    "rejected_packets": 0,
+    "adc_range": [
+      330,
+      631
+    ],
+    "receive_span_seconds": 29.9744,
+    "host_rate_estimate_hz": 4009.8
+  },
+  "versions": {
+    "lamp_header_sha256": "660d1129f23f89abb7c8b6445b25d4d5ab791f3676e7cc54b86368ee7a0d7321",
+    "btrack_commit": "9d6127618a5679e9caa74c594b88f1d74f0e035f",
+    "libsamplerate_commit": "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7"
+  },
+  "reference_bpm": null,
+  "tolerance_bpm": 4,
+  "warmup_ms": 10000,
+  "methods": {
+    "lamp-onsets": {
+      "default": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            92.31,
+            115.38
+          ],
+          "beat_events_including_startup": 57
+        }
+      },
+      "100": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            92.31,
+            115.38
+          ],
+          "beat_events_including_startup": 51
+        }
+      },
+      "150": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            92.31,
+            150.0
+          ],
+          "beat_events_including_startup": 60
+        }
+      }
+    },
+    "bass": {
+      "default": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            101.69,
+            150.0
+          ],
+          "beat_events_including_startup": 66
+        }
+      },
+      "100": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            85.71,
+            150.0
+          ],
+          "beat_events_including_startup": 62
+        }
+      },
+      "150": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            133.33,
+            150.0
+          ],
+          "beat_events_including_startup": 72
+        }
+      }
+    },
+    "mid": {
+      "default": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            92.31,
+            157.89
+          ],
+          "beat_events_including_startup": 65
+        }
+      },
+      "100": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            92.31,
+            150.0
+          ],
+          "beat_events_including_startup": 56
+        }
+      },
+      "150": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            92.31,
+            150.0
+          ],
+          "beat_events_including_startup": 68
+        }
+      }
+    },
+    "high": {
+      "default": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            100.0,
+            146.34
+          ],
+          "beat_events_including_startup": 57
+        }
+      },
+      "100": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            92.31,
+            139.53
+          ],
+          "beat_events_including_startup": 55
+        }
+      },
+      "150": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            85.71,
+            146.34
+          ],
+          "beat_events_including_startup": 68
+        }
+      }
+    },
+    "three-band": {
+      "default": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            85.71,
+            157.89
+          ],
+          "beat_events_including_startup": 60
+        }
+      },
+      "100": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            85.71,
+            157.89
+          ],
+          "beat_events_including_startup": 57
+        }
+      },
+      "150": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            89.55,
+            157.89
+          ],
+          "beat_events_including_startup": 65
+        }
+      }
+    },
+    "complex-spectrum": {
+      "default": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            85.71,
+            146.34
+          ],
+          "beat_events_including_startup": 61
+        }
+      },
+      "100": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            85.71,
+            157.89
+          ],
+          "beat_events_including_startup": 56
+        }
+      },
+      "150": {
+        "windows": 3005,
+        "segments": 1,
+        "evaluated_windows": 2005,
+        "lamp": {
+          "nonzero_tempo_percent": 69.78,
+          "tempo_range": [
+            103.0,
+            103.0
+          ],
+          "beat_events_including_startup": 29
+        },
+        "btrack": {
+          "nonzero_tempo_percent": 100.0,
+          "tempo_range": [
+            95.24,
+            157.89
+          ],
+          "beat_events_including_startup": 63
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,3145 @@
+{
+  "lamp_header_sha256": "660d1129f23f89abb7c8b6445b25d4d5ab791f3676e7cc54b86368ee7a0d7321",
+  "btrack_commit": "9d6127618a5679e9caa74c594b88f1d74f0e035f",
+  "libsamplerate_commit": "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7",
+  "lamp_commit": "3f344682da00b00b2ba80ae77a2f5a3f627f091b",
+  "onset_hz": 100,
+  "resampling": "causal zero-order hold; reset both trackers at gaps >15ms",
+  "warmup_ms": 10000,
+  "initializations": [
+    "default",
+    "100",
+    "150"
+  ],
+  "cases": [
+    {
+      "name": "music-01",
+      "kind": "recording",
+      "reference_bpm": 120,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4774,
+          "lamp": {
+            "nonzero_tempo_percent": 70.26,
+            "tempo_range": [
+              119.0,
+              120.0
+            ],
+            "beat_events_including_startup": 73,
+            "near_reference_percent": 70.26,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 70.26
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 113,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4774,
+          "lamp": {
+            "nonzero_tempo_percent": 70.26,
+            "tempo_range": [
+              119.0,
+              120.0
+            ],
+            "beat_events_including_startup": 73,
+            "near_reference_percent": 70.26,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 70.26
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 112,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4774,
+          "lamp": {
+            "nonzero_tempo_percent": 70.26,
+            "tempo_range": [
+              119.0,
+              120.0
+            ],
+            "beat_events_including_startup": 73,
+            "near_reference_percent": 70.26,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 70.26
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 117,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        }
+      }
+    },
+    {
+      "name": "music-02",
+      "kind": "recording",
+      "reference_bpm": 120,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 2,
+          "evaluated_windows": 4775,
+          "lamp": {
+            "nonzero_tempo_percent": 94.51,
+            "tempo_range": [
+              119.0,
+              122.0
+            ],
+            "beat_events_including_startup": 92,
+            "near_reference_percent": 94.51,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              120.0
+            ],
+            "beat_events_including_startup": 115,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 2,
+          "evaluated_windows": 4775,
+          "lamp": {
+            "nonzero_tempo_percent": 94.51,
+            "tempo_range": [
+              119.0,
+              122.0
+            ],
+            "beat_events_including_startup": 92,
+            "near_reference_percent": 94.51,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              113.21,
+              120.0
+            ],
+            "beat_events_including_startup": 113,
+            "near_reference_percent": 99.75,
+            "outside_reference_percent": 0.25,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 2,
+          "evaluated_windows": 4775,
+          "lamp": {
+            "nonzero_tempo_percent": 94.51,
+            "tempo_range": [
+              119.0,
+              122.0
+            ],
+            "beat_events_including_startup": 92,
+            "near_reference_percent": 94.51,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              157.89
+            ],
+            "beat_events_including_startup": 120,
+            "near_reference_percent": 99.23,
+            "outside_reference_percent": 0.77,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        }
+      }
+    },
+    {
+      "name": "music-03",
+      "kind": "recording",
+      "reference_bpm": 120,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4773,
+          "lamp": {
+            "nonzero_tempo_percent": 95.91,
+            "tempo_range": [
+              120.0,
+              120.0
+            ],
+            "beat_events_including_startup": 92,
+            "near_reference_percent": 95.91,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 95.91
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 116,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4773,
+          "lamp": {
+            "nonzero_tempo_percent": 95.91,
+            "tempo_range": [
+              120.0,
+              120.0
+            ],
+            "beat_events_including_startup": 92,
+            "near_reference_percent": 95.91,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 95.91
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 113,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4773,
+          "lamp": {
+            "nonzero_tempo_percent": 95.91,
+            "tempo_range": [
+              120.0,
+              120.0
+            ],
+            "beat_events_including_startup": 92,
+            "near_reference_percent": 95.91,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 95.91
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 118,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        }
+      }
+    },
+    {
+      "name": "music-04",
+      "kind": "recording",
+      "reference_bpm": 120,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4774,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              122.0,
+              124.0
+            ],
+            "beat_events_including_startup": 104,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              122.45
+            ],
+            "beat_events_including_startup": 118,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4774,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              122.0,
+              124.0
+            ],
+            "beat_events_including_startup": 104,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              122.45
+            ],
+            "beat_events_including_startup": 116,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4774,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              122.0,
+              124.0
+            ],
+            "beat_events_including_startup": 104,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              122.45
+            ],
+            "beat_events_including_startup": 120,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0
+          }
+        }
+      }
+    },
+    {
+      "name": "room-noise",
+      "kind": "recording",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 2780,
+          "segments": 1,
+          "evaluated_windows": 1784,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              92.31,
+              139.53
+            ],
+            "beat_events_including_startup": 53
+          }
+        },
+        "100": {
+          "windows": 2780,
+          "segments": 1,
+          "evaluated_windows": 1784,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              92.31,
+              139.53
+            ],
+            "beat_events_including_startup": 51
+          }
+        },
+        "150": {
+          "windows": 2780,
+          "segments": 1,
+          "evaluated_windows": 1784,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              92.31,
+              139.53
+            ],
+            "beat_events_including_startup": 56
+          }
+        }
+      }
+    },
+    {
+      "name": "isnt-she-lovely-01",
+      "kind": "recording",
+      "reference_bpm": 120,
+      "runs": {
+        "default": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 59.98,
+            "tempo_range": [
+              119.0,
+              121.0
+            ],
+            "beat_events_including_startup": 75,
+            "near_reference_percent": 59.98,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 59.98
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              88.24,
+              120.0
+            ],
+            "beat_events_including_startup": 139,
+            "near_reference_percent": 84.92,
+            "outside_reference_percent": 15.08,
+            "near_reference_after_each_segment_warmup_percent": 84.92
+          }
+        },
+        "100": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 59.98,
+            "tempo_range": [
+              119.0,
+              121.0
+            ],
+            "beat_events_including_startup": 75,
+            "near_reference_percent": 59.98,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 59.98
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              88.24,
+              117.65
+            ],
+            "beat_events_including_startup": 127,
+            "near_reference_percent": 58.43,
+            "outside_reference_percent": 41.57,
+            "near_reference_after_each_segment_warmup_percent": 58.43
+          }
+        },
+        "150": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 59.98,
+            "tempo_range": [
+              119.0,
+              121.0
+            ],
+            "beat_events_including_startup": 75,
+            "near_reference_percent": 59.98,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 59.98
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              120.0
+            ],
+            "beat_events_including_startup": 143,
+            "near_reference_percent": 93.24,
+            "outside_reference_percent": 6.76,
+            "near_reference_after_each_segment_warmup_percent": 93.24
+          }
+        }
+      }
+    },
+    {
+      "name": "isnt-she-lovely-02",
+      "kind": "recording",
+      "reference_bpm": 120,
+      "runs": {
+        "default": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 83.74,
+            "tempo_range": [
+              119.0,
+              122.0
+            ],
+            "beat_events_including_startup": 106,
+            "near_reference_percent": 83.74,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 83.74
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              117.65
+            ],
+            "beat_events_including_startup": 131,
+            "near_reference_percent": 67.37,
+            "outside_reference_percent": 32.63,
+            "near_reference_after_each_segment_warmup_percent": 67.37
+          }
+        },
+        "100": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 83.74,
+            "tempo_range": [
+              119.0,
+              122.0
+            ],
+            "beat_events_including_startup": 106,
+            "near_reference_percent": 83.74,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 83.74
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              120.0
+            ],
+            "beat_events_including_startup": 131,
+            "near_reference_percent": 72.89,
+            "outside_reference_percent": 27.11,
+            "near_reference_after_each_segment_warmup_percent": 72.89
+          }
+        },
+        "150": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 83.74,
+            "tempo_range": [
+              119.0,
+              122.0
+            ],
+            "beat_events_including_startup": 106,
+            "near_reference_percent": 83.74,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 83.74
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              120.0
+            ],
+            "beat_events_including_startup": 141,
+            "near_reference_percent": 80.95,
+            "outside_reference_percent": 19.05,
+            "near_reference_after_each_segment_warmup_percent": 80.95
+          }
+        }
+      }
+    },
+    {
+      "name": "radioactive-01",
+      "kind": "recording",
+      "reference_bpm": 136,
+      "runs": {
+        "default": {
+          "windows": 8760,
+          "segments": 1,
+          "evaluated_windows": 7764,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              88.24,
+              157.89
+            ],
+            "beat_events_including_startup": 197,
+            "near_reference_percent": 75.81,
+            "outside_reference_percent": 24.19,
+            "near_reference_after_each_segment_warmup_percent": 75.81
+          }
+        },
+        "100": {
+          "windows": 8760,
+          "segments": 1,
+          "evaluated_windows": 7764,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              88.24,
+              157.89
+            ],
+            "beat_events_including_startup": 187,
+            "near_reference_percent": 74.18,
+            "outside_reference_percent": 25.82,
+            "near_reference_after_each_segment_warmup_percent": 74.18
+          }
+        },
+        "150": {
+          "windows": 8760,
+          "segments": 1,
+          "evaluated_windows": 7764,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              88.24,
+              157.89
+            ],
+            "beat_events_including_startup": 195,
+            "near_reference_percent": 75.81,
+            "outside_reference_percent": 24.19,
+            "near_reference_after_each_segment_warmup_percent": 75.81
+          }
+        }
+      }
+    },
+    {
+      "name": "radioactive-02",
+      "kind": "recording",
+      "reference_bpm": 136,
+      "runs": {
+        "default": {
+          "windows": 8630,
+          "segments": 3,
+          "evaluated_windows": 7634,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              150.0
+            ],
+            "beat_events_including_startup": 177,
+            "near_reference_percent": 37.18,
+            "outside_reference_percent": 62.82,
+            "near_reference_after_each_segment_warmup_percent": 40.09
+          }
+        },
+        "100": {
+          "windows": 8630,
+          "segments": 3,
+          "evaluated_windows": 7634,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              139.53
+            ],
+            "beat_events_including_startup": 162,
+            "near_reference_percent": 26.38,
+            "outside_reference_percent": 73.62,
+            "near_reference_after_each_segment_warmup_percent": 35.71
+          }
+        },
+        "150": {
+          "windows": 8630,
+          "segments": 3,
+          "evaluated_windows": 7634,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              146.34
+            ],
+            "beat_events_including_startup": 183,
+            "near_reference_percent": 31.5,
+            "outside_reference_percent": 68.5,
+            "near_reference_after_each_segment_warmup_percent": 38.05
+          }
+        }
+      }
+    },
+    {
+      "name": "have-a-cigar-01",
+      "kind": "recording",
+      "reference_bpm": 120,
+      "runs": {
+        "default": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              101.69,
+              125.0
+            ],
+            "beat_events_including_startup": 142,
+            "near_reference_percent": 40.42,
+            "outside_reference_percent": 59.58,
+            "near_reference_after_each_segment_warmup_percent": 40.42
+          }
+        },
+        "100": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              101.69,
+              125.0
+            ],
+            "beat_events_including_startup": 140,
+            "near_reference_percent": 40.4,
+            "outside_reference_percent": 59.6,
+            "near_reference_after_each_segment_warmup_percent": 40.4
+          }
+        },
+        "150": {
+          "windows": 7270,
+          "segments": 1,
+          "evaluated_windows": 6274,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              101.69,
+              125.0
+            ],
+            "beat_events_including_startup": 146,
+            "near_reference_percent": 40.42,
+            "outside_reference_percent": 59.58,
+            "near_reference_after_each_segment_warmup_percent": 40.42
+          }
+        }
+      }
+    },
+    {
+      "name": "constant-0",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              153.85,
+              153.85
+            ],
+            "beat_events_including_startup": 145
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              82.19,
+              150.0
+            ],
+            "beat_events_including_startup": 138
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              153.85,
+              153.85
+            ],
+            "beat_events_including_startup": 153
+          }
+        }
+      }
+    },
+    {
+      "name": "constant-4",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              150.0,
+              150.0
+            ],
+            "beat_events_including_startup": 148
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              82.19,
+              150.0
+            ],
+            "beat_events_including_startup": 138
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              153.85,
+              153.85
+            ],
+            "beat_events_including_startup": 153
+          }
+        }
+      }
+    },
+    {
+      "name": "constant-100",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              150.0,
+              150.0
+            ],
+            "beat_events_including_startup": 148
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              82.19,
+              150.0
+            ],
+            "beat_events_including_startup": 138
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              153.85,
+              153.85
+            ],
+            "beat_events_including_startup": 153
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-00",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 111
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 102
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 111
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-01",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              157.89
+            ],
+            "beat_events_including_startup": 122
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              107.14,
+              157.89
+            ],
+            "beat_events_including_startup": 124
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              107.14,
+              157.89
+            ],
+            "beat_events_including_startup": 133
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-02",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              92.31,
+              150.0
+            ],
+            "beat_events_including_startup": 128
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              89.55,
+              150.0
+            ],
+            "beat_events_including_startup": 114
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              92.31,
+              150.0
+            ],
+            "beat_events_including_startup": 128
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-03",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              146.34
+            ],
+            "beat_events_including_startup": 105
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              146.34
+            ],
+            "beat_events_including_startup": 98
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              146.34
+            ],
+            "beat_events_including_startup": 112
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-04",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              139.53
+            ],
+            "beat_events_including_startup": 104
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              113.21
+            ],
+            "beat_events_including_startup": 90
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              139.53
+            ],
+            "beat_events_including_startup": 104
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-05",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              107.14,
+              146.34
+            ],
+            "beat_events_including_startup": 112
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              107.14,
+              146.34
+            ],
+            "beat_events_including_startup": 111
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 120
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-06",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              82.19,
+              146.34
+            ],
+            "beat_events_including_startup": 101
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              82.19,
+              146.34
+            ],
+            "beat_events_including_startup": 95
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              150.0
+            ],
+            "beat_events_including_startup": 108
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-07",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 114
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 105
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 118
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-08",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              133.33
+            ],
+            "beat_events_including_startup": 112
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              133.33
+            ],
+            "beat_events_including_startup": 107
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              133.33
+            ],
+            "beat_events_including_startup": 112
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-09",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              146.34
+            ],
+            "beat_events_including_startup": 100
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              146.34
+            ],
+            "beat_events_including_startup": 100
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              146.34
+            ],
+            "beat_events_including_startup": 105
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-10",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              89.55,
+              150.0
+            ],
+            "beat_events_including_startup": 120
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              117.65
+            ],
+            "beat_events_including_startup": 102
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              150.0
+            ],
+            "beat_events_including_startup": 118
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-11",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              157.89
+            ],
+            "beat_events_including_startup": 114
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              157.89
+            ],
+            "beat_events_including_startup": 116
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              82.19,
+              157.89
+            ],
+            "beat_events_including_startup": 134
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-12",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              89.55,
+              157.89
+            ],
+            "beat_events_including_startup": 119
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              89.55,
+              157.89
+            ],
+            "beat_events_including_startup": 111
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              89.55,
+              157.89
+            ],
+            "beat_events_including_startup": 119
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-13",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              127.66
+            ],
+            "beat_events_including_startup": 99
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              127.66
+            ],
+            "beat_events_including_startup": 95
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              127.66
+            ],
+            "beat_events_including_startup": 103
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-14",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 117
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 106
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 119
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-15",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              157.89
+            ],
+            "beat_events_including_startup": 116
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              157.89
+            ],
+            "beat_events_including_startup": 105
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              157.89
+            ],
+            "beat_events_including_startup": 119
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-16",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 114
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 108
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              95.24,
+              146.34
+            ],
+            "beat_events_including_startup": 120
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-17",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 112
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              146.34
+            ],
+            "beat_events_including_startup": 89
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 116
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-18",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 107
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 104
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 113
+          }
+        }
+      }
+    },
+    {
+      "name": "shuffle-19",
+      "kind": "negative",
+      "reference_bpm": null,
+      "runs": {
+        "default": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 105
+          }
+        },
+        "100": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 99
+          }
+        },
+        "150": {
+          "windows": 5770,
+          "segments": 1,
+          "evaluated_windows": 4770,
+          "lamp": {
+            "nonzero_tempo_percent": 0.0,
+            "tempo_range": null,
+            "beat_events_including_startup": 0
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              84.51,
+              146.34
+            ],
+            "beat_events_including_startup": 107
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-60",
+      "kind": "synthetic",
+      "reference_bpm": 60,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              60.0,
+              60.0
+            ],
+            "beat_events_including_startup": 53,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 50
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 119,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 490.0,
+            "beats_after_10s": 100
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              60.0,
+              60.0
+            ],
+            "beat_events_including_startup": 53,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 50
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 117,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 490.0,
+            "beats_after_10s": 100
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              60.0,
+              60.0
+            ],
+            "beat_events_including_startup": 53,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 50
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 121,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 490.0,
+            "beats_after_10s": 100
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-80",
+      "kind": "synthetic",
+      "reference_bpm": 80,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              80.0
+            ],
+            "beat_events_including_startup": 71,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 67
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              80.0
+            ],
+            "beat_events_including_startup": 82,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 67
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              80.0
+            ],
+            "beat_events_including_startup": 71,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 67
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              80.0
+            ],
+            "beat_events_including_startup": 81,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 67
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              80.0
+            ],
+            "beat_events_including_startup": 71,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 67
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              157.89
+            ],
+            "beat_events_including_startup": 92,
+            "near_reference_percent": 99.26,
+            "outside_reference_percent": 0.74,
+            "near_reference_after_each_segment_warmup_percent": 99.26,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 68
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-100",
+      "kind": "synthetic",
+      "reference_bpm": 100,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 89,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 84
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 100,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 84
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 89,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 84
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 100,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 84
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 89,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 84
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 105,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 84
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-120",
+      "kind": "synthetic",
+      "reference_bpm": 120,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              120.0,
+              120.0
+            ],
+            "beat_events_including_startup": 106,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 100
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 119,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 100
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              120.0,
+              120.0
+            ],
+            "beat_events_including_startup": 106,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 100
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 118,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 100
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              120.0,
+              120.0
+            ],
+            "beat_events_including_startup": 106,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 100
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              117.65,
+              117.65
+            ],
+            "beat_events_including_startup": 121,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 100
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-136",
+      "kind": "synthetic",
+      "reference_bpm": 136,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              136.0,
+              136.0
+            ],
+            "beat_events_including_startup": 120,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 2.94,
+            "beats_after_10s": 113
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              133.33,
+              133.33
+            ],
+            "beat_events_including_startup": 135,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 14.12,
+            "beats_after_10s": 113
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              136.0,
+              136.0
+            ],
+            "beat_events_including_startup": 120,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 2.94,
+            "beats_after_10s": 113
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              133.33,
+              133.33
+            ],
+            "beat_events_including_startup": 130,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 14.12,
+            "beats_after_10s": 113
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              136.0,
+              136.0
+            ],
+            "beat_events_including_startup": 120,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 2.94,
+            "beats_after_10s": 113
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              133.33,
+              133.33
+            ],
+            "beat_events_including_startup": 136,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 14.12,
+            "beats_after_10s": 113
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-150",
+      "kind": "synthetic",
+      "reference_bpm": 150,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              150.0,
+              150.0
+            ],
+            "beat_events_including_startup": 133,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 125
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              146.34,
+              146.34
+            ],
+            "beat_events_including_startup": 149,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 125
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              150.0,
+              150.0
+            ],
+            "beat_events_including_startup": 133,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 125
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              146.34,
+              146.34
+            ],
+            "beat_events_including_startup": 142,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 125
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              150.0,
+              150.0
+            ],
+            "beat_events_including_startup": 133,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 125
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              146.34,
+              146.34
+            ],
+            "beat_events_including_startup": 149,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 125
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-160",
+      "kind": "synthetic",
+      "reference_bpm": 160,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              160.0,
+              160.0
+            ],
+            "beat_events_including_startup": 142,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 5.0,
+            "beats_after_10s": 134
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              157.89
+            ],
+            "beat_events_including_startup": 108,
+            "near_reference_percent": 24.74,
+            "outside_reference_percent": 75.26,
+            "near_reference_after_each_segment_warmup_percent": 24.74,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 84
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              160.0,
+              160.0
+            ],
+            "beat_events_including_startup": 142,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 5.0,
+            "beats_after_10s": 134
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              80.0,
+              80.0
+            ],
+            "beat_events_including_startup": 81,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 67
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              160.0,
+              160.0
+            ],
+            "beat_events_including_startup": 142,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 5.0,
+            "beats_after_10s": 134
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              157.89,
+              157.89
+            ],
+            "beat_events_including_startup": 159,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 134
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-173",
+      "kind": "synthetic",
+      "reference_bpm": 173,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              172.0,
+              172.0
+            ],
+            "beat_events_including_startup": 154,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 14.91,
+            "beats_after_10s": 145
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              85.71
+            ],
+            "beat_events_including_startup": 87,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 11.56,
+            "beats_after_10s": 73
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              172.0,
+              172.0
+            ],
+            "beat_events_including_startup": 154,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 14.91,
+            "beats_after_10s": 145
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              85.71
+            ],
+            "beat_events_including_startup": 87,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 11.16,
+            "beats_after_10s": 72
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              172.0,
+              172.0
+            ],
+            "beat_events_including_startup": 154,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 14.91,
+            "beats_after_10s": 145
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              85.71,
+              85.71
+            ],
+            "beat_events_including_startup": 92,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 11.16,
+            "beats_after_10s": 72
+          }
+        }
+      }
+    },
+    {
+      "name": "synthetic-200",
+      "kind": "synthetic",
+      "reference_bpm": 200,
+      "runs": {
+        "default": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              200.0,
+              200.0
+            ],
+            "beat_events_including_startup": 177,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 167
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 100,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 84
+          }
+        },
+        "100": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              200.0,
+              200.0
+            ],
+            "beat_events_including_startup": 177,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 167
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 100,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 84
+          }
+        },
+        "150": {
+          "windows": 6000,
+          "segments": 1,
+          "evaluated_windows": 5000,
+          "lamp": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              200.0,
+              200.0
+            ],
+            "beat_events_including_startup": 177,
+            "near_reference_percent": 100.0,
+            "outside_reference_percent": 0.0,
+            "near_reference_after_each_segment_warmup_percent": 100.0,
+            "median_beat_error_ms": 10.0,
+            "beats_after_10s": 167
+          },
+          "btrack": {
+            "nonzero_tempo_percent": 100.0,
+            "tempo_range": [
+              100.0,
+              100.0
+            ],
+            "beat_events_including_startup": 104,
+            "near_reference_percent": 0.0,
+            "outside_reference_percent": 100.0,
+            "near_reference_after_each_segment_warmup_percent": 0.0,
+            "median_beat_error_ms": 0.0,
+            "beats_after_10s": 83
+          }
+        }
+      }
+    }
+  ]
+}
