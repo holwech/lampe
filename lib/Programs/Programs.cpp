@@ -1,4 +1,5 @@
 #include "Programs.h"
+#include <FastLED.h>
 #include <Lampe.h>
 
 namespace Programs {
