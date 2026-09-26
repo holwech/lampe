@@ -7,19 +7,17 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-and-test:
+  firmware:
+    name: Firmware
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: astral-sh/setup-uv@v9.0.0
-        with:
-          version: '0.11.21'
-          enable-cache: true
-      - name: Install locked Python environment
-        run: uv sync --locked
-      - name: Install pinned firmware dependencies
-        run: uv run --locked pio pkg install --environment nanoatmega328
+      - uses: ./.github/actions/setup-firmware
       - name: Test firmware logic and effect rendering
         run: uv run --locked python scripts/test.py
       - name: Build AVR firmware
@@ -29,14 +27,30 @@ jobs:
           uv run --locked pio pkg exec --package platformio/tool-avrdude --
           avrdude -N -p m328p -c dryrun
           -U flash:w:.pio/build/nanoatmega328/firmware.hex:i
+
+  dashboard:
+    name: Dashboard
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: ./.github/actions/setup-firmware
       - uses: actions/setup-node@v7.0.0
         with:
           node-version: '24'
           cache: npm
+      - name: Cache Emscripten SDK
+        id: emsdk
+        uses: actions/cache@v6.1.0
+        with:
+          path: ${{ runner.temp }}/emsdk
+          key: emsdk-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.emscripten-version') }}
       - name: Install pinned Emscripten SDK
+        if: steps.emsdk.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
           uv run --locked python "$RUNNER_TEMP/emsdk/emsdk.py" install "$(cat .emscripten-version)"
+      - name: Activate Emscripten SDK
+        run: |
           uv run --locked python "$RUNNER_TEMP/emsdk/emsdk.py" activate "$(cat .emscripten-version)"
           echo "EMXX=$RUNNER_TEMP/emsdk/upstream/emscripten/em++" >> "$GITHUB_ENV"
       - name: Install dashboard dependencies
@@ -46,6 +60,17 @@ jobs:
       - name: Verify native and WebAssembly parity and serial framing
         run: npm test
       - name: Install browser
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps --only-shell chromium
       - name: Test dashboard and simulated serial connection
         run: npm run test:browser
+
+  # Preserve the existing combined check for branch protection and integrations.
+  build-and-test:
+    needs: [firmware, dashboard]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require all checks to pass
+        run: |
+          test "${{ needs.firmware.result }}" = success
+          test "${{ needs.dashboard.result }}" = success

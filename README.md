@@ -374,6 +374,13 @@ checks AVRDUDE's simulated programmer. The JS dependency versions are pinned in
 `package.json`/`package-lock.json`; Emscripten is pinned in `.emscripten-version`.
 No generated third-party source or WebAssembly binary is checked in.
 
+Firmware and dashboard CI jobs run in parallel. PlatformIO packages and FastLED
+are cached by `platformio.ini` and `uv.lock`; the Emscripten SDK is cached by
+`.emscripten-version`. Source builds and every test still run on each commit.
+Browser CI installs only Chromium's headless shell and records traces on retries.
+New commits cancel superseded runs on the same branch or pull request. The
+combined `build-and-test` check succeeds only when both jobs pass.
+
 ### Uploading
 
 Replace `YOUR_SERIAL_PORT` with the adapter's actual port (for example,

@@ -10,7 +10,8 @@ export default defineConfig({
   ],
   use: {
     viewport: { width: 1440, height: 1100 },
-    trace: "retain-on-failure",
+    // Capturing every passing WebGL interaction adds significant CI overhead.
+    trace: process.env.CI ? "on-first-retry" : "retain-on-failure",
     launchOptions: { args: ["--enable-unsafe-swiftshader"] },
   },
   webServer: [

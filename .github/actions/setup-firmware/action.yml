@@ -1,0 +1,23 @@
+name: Set up lamp build tools
+description: Restore locked Python tools and pinned PlatformIO dependencies
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v9.0.0
+      with:
+        version: '0.11.21'
+        enable-cache: true
+    - name: Install locked Python environment
+      shell: bash
+      run: uv sync --locked
+    - name: Cache firmware dependencies
+      uses: actions/cache@v6.1.0
+      with:
+        path: |
+          ~/.platformio/packages
+          ~/.platformio/platforms
+          ${{ github.workspace }}/.pio/libdeps
+        key: platformio-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('platformio.ini', 'uv.lock') }}
+    - name: Install pinned firmware dependencies
+      shell: bash
+      run: uv run --locked pio pkg install --environment nanoatmega328
