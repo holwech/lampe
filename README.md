@@ -3,7 +3,8 @@
 A hobby RGB lamp project with Arduino firmware for animated colors and experiments
 with sound-reactive lighting. The lamp in the photos is **Lampe Mini**: a ring of
 addressable LEDs inside a rounded, frosted diffuser, with a Pro Mini controller in
-the base. Its firmware lives in [`lampe-mini/`](lampe-mini/).
+the base. This is the repository's sole firmware project, maintained at the root
+in [`src/`](src/) and [`lib/`](lib/).
 
 ## For humans: connecting the lamp
 
@@ -39,8 +40,8 @@ shows the programming header's ground connections and capacitive reset circuit.
    the board as a Pro Mini/ATmega328P, but do not establish its voltage variant.
 3. Plug the FTDI adapter's USB cable into the computer and connect the lamp's
    **separate 5 V supply**. Keep FTDI VCC disconnected with this arrangement.
-4. Select the adapter's serial port for uploads or serial monitoring. Both
-   firmware variants use **115200 baud** for debug output.
+4. Select the adapter's serial port for uploads or serial monitoring. The
+   firmware uses **115200 baud** for debug output.
 
 <a href="docs/images/ftdi-wiring.jpg"><img src="docs/images/ftdi-wiring.jpg" alt="Close-up of the Pro Mini programming header and FTDI adapter, showing the disconnected VCC pin" width="600"></a>
 
@@ -68,38 +69,35 @@ common ground, and DTR connection before changing firmware settings.
 
 ## Project context for developers and agents
 
-This repository contains **two separate PlatformIO projects** targeting Arduino
-on AVR. Choose the source tree for the hardware being worked on; each has its own
-`platformio.ini`, `src/`, and `lib/`, including different classes named `Lampe`.
+This is a single PlatformIO project targeting Arduino on AVR. It controls 16
+WS2812B addressable RGB LEDs through the bundled FastLED 3.1.8 library. A digital
+button/sensor on D2 cycles through lighting effects; A0 supplies analog audio for
+sound-reactive brightness. The entry point, project libraries and build
+configuration are all at the repository root.
 
-| | Lampe Mini: `lampe-mini/` | Original Lampe: repository root |
-| --- | --- | --- |
-| Hardware model in the code | 16 WS2812B addressable RGB LEDs | Five RGB light groups driven through TLC5940 |
-| LED library | Vendored FastLED 3.1.8 | `Tlc5940` Git submodule |
-| Input | Digital button/sensor on D2; analog audio on A0 | Capacitive touch inputs, using `CapacitiveSensor` submodule |
-| Program control | Numeric menu, advanced on button release | Explicit startup, menus, programs and off states |
-| Relation to the photos | Matches the pictured LED-strip lamp | Separate design; not the photographed LED-strip wiring |
+The unused original TLC5940/capacitive-touch implementation has been removed;
+its source remains available in Git history. No Git submodules are required.
 
-Both configuration files currently say `platform = atmelavr`,
+[`platformio.ini`](platformio.ini) currently says `platform = atmelavr`,
 `framework = arduino`, and `board = nanoatmega328`. **The photographed controller
 is marked Pro Mini.** The Nano build target is the repository's existing setting,
 not proof of the fitted board or its bootloader. Verify the controller's clock,
 voltage variant and bootloader before changing that target or upload parameters.
 
-### Lampe Mini: where to make changes
+### Where to make changes
 
 | File or directory | Responsibility |
 | --- | --- |
-| [`lampe-mini/src/main.cpp`](lampe-mini/src/main.cpp) | Arduino `setup()` / `loop()`; initializes serial, selects the current effect, then updates the LEDs |
-| [`lampe-mini/lib/Lampe/`](lampe-mini/lib/Lampe/) | LED buffer, FastLED setup, button handling, menu index, timing and amplitude decay |
-| [`lampe-mini/lib/Programs/`](lampe-mini/lib/Programs/) | Effect implementations and the `selectProgram()` dispatch switch |
-| [`lampe-mini/lib/Mic/`](lampe-mini/lib/Mic/) | Experimental filtering and beat detection |
-| [`lampe-mini/lib/Config/`](lampe-mini/lib/Config/) | Older color/menu definitions; the active Mini loop uses the numeric dispatch in `Programs.cpp` |
-| [`lampe-mini/lib/test/`](lampe-mini/lib/test/) | Manual LED demo helpers; not an automated test suite and not called by the current entry point |
-| [`lampe-mini/lib/FastLED-3.1.8/`](lampe-mini/lib/FastLED-3.1.8/) | Bundled third-party library; application effects belong in `Programs`, not here |
+| [`src/main.cpp`](src/main.cpp) | Arduino `setup()` / `loop()`; initializes serial, selects the current effect, then updates the LEDs |
+| [`lib/Lampe/`](lib/Lampe/) | LED buffer, FastLED setup, button handling, menu index, timing and amplitude decay |
+| [`lib/Programs/`](lib/Programs/) | Effect implementations and the `selectProgram()` dispatch switch |
+| [`lib/Mic/`](lib/Mic/) | Experimental filtering and beat detection |
+| [`lib/Config/`](lib/Config/) | Older color/menu definitions; the active loop uses the numeric dispatch in `Programs.cpp` |
+| [`lib/test/`](lib/test/) | Manual LED demo helpers; not an automated test suite and not called by the current entry point |
+| [`lib/FastLED-3.1.8/`](lib/FastLED-3.1.8/) | Bundled third-party library; application effects belong in `Programs`, not here |
 
 Hardware constants are in
-[`lampe-mini/lib/Lampe/Lampe.h`](lampe-mini/lib/Lampe/Lampe.h):
+[`lib/Lampe/Lampe.h`](lib/Lampe/Lampe.h):
 
 | Setting | Current value |
 | --- | --- |
@@ -123,75 +121,48 @@ peak-to-peak signal with a decay helper. Beat detection is experimental and is
 not selected by the current menu. A0 and D2 are firmware expectations; the photos
 do not expose enough internal wiring to serve as a complete sensor schematic.
 
-### Original Lampe
-
-The root [`src/main.cpp`](src/main.cpp) initializes the TLC5940 and dispatches
-states from [`lib/State/`](lib/State/). [`lib/Programs/`](lib/Programs/) implements
-the touch menus, random colors, flowing colors, a dimmed flow, and a single-light
-program with adjustable tempo. Touch input 0 controls the active menus: a short
-click cycles options, a longer click selects, and a hold exits a program or turns
-the lamp off from a menu.
-
-[`lib/Lampe/`](lib/Lampe/) defines five light groups and capacitive sensors with
-D2 as the shared send pin and D4–D8 as receive pins. Each RGB group occupies nine
-TLC channels: three red, three green and three blue. `setLight()` maps 0–255 color
-values through a 12-bit brightness lookup table; the five groups span channels
-0–44. Preserve that mapping and check the TLC library's chain configuration when
-working on this hardware. Root microphone integration is unfinished and disabled
-in the entry point.
-
 ### Building, uploading and observing
 
-Use PlatformIO Core (`pio`). From the repository root, these commands select the
-two projects explicitly:
+Use PlatformIO Core (`pio`). Run these commands from the repository root:
 
 ```sh
-# Build Lampe Mini (the pictured lamp).
-pio run --project-dir lampe-mini --environment nanoatmega328
-
-# Initialize the original lamp's library submodules, then build it.
-git submodule update --init --recursive
-pio run --project-dir . --environment nanoatmega328
+# Build the firmware.
+pio run --environment nanoatmega328
 
 # Find the FTDI serial port.
 pio device list
 ```
 
-Once the selected firmware builds, replace `YOUR_SERIAL_PORT` below with the
+Once the firmware builds, replace `YOUR_SERIAL_PORT` below with the
 adapter's actual port (for example, `/dev/cu.usbserial-...` on macOS). Connect the
 lamp as described above before uploading:
 
 ```sh
-pio run --project-dir lampe-mini --environment nanoatmega328 --target upload --upload-port YOUR_SERIAL_PORT
+pio run --environment nanoatmega328 --target upload --upload-port YOUR_SERIAL_PORT
 pio device monitor --port YOUR_SERIAL_PORT --baud 115200
 ```
 
-For original Lampe hardware, use `--project-dir .` in the upload command. Close
-the serial monitor before uploading. The monitor baud rate comes from
+Close the serial monitor before uploading. The monitor baud rate comes from
 `Serial.begin(115200)` and is separate from the bootloader's upload speed. See the
 PlatformIO references for [`pio run`](https://docs.platformio.org/en/latest/core/userguide/cmd_run.html)
 and [serial monitoring](https://docs.platformio.org/en/latest/core/userguide/device/cmd_monitor.html).
 
 ### Current limitations and useful checks
 
-This is experimental firmware, and a successful build on a current toolchain has
-not been established by this documentation update. In particular:
+This is experimental firmware; builds with a current toolchain have not yet been
+verified. In particular:
 
-- The root libraries `lib/CapacitiveSensor` and `lib/Tlc5940` are submodules and
-  need initialization after cloning. Platform/toolchain versions are not pinned.
-- Mini's `Mic::detectBeat()` passes the `beat_times` array to `getBPM(uint32_t)`,
+- Platform/toolchain versions are not pinned. FastLED 3.1.8 is vendored in `lib/`.
+- `Mic::detectBeat()` passes the `beat_times` array to `getBPM(uint32_t)`,
   which expects one period value. This is an existing type mismatch to investigate
   if the build fails in the microphone code, even though beat detection is not
   selected at runtime.
-- The `.travis.yml` files are commented-out templates. There is no active
-  automated test suite in this repository.
-- Root debug output calls the consuming `click()` / `longClick()` accessors;
-  account for that when investigating missed touch events.
+- There is no active CI configuration or automated test suite in this repository.
 
-For firmware changes, build the affected project first, then verify on the actual
+For firmware changes, build the project first, then verify on the actual
 lamp with its separate 5 V supply: startup lighting, the available menu effects,
-button/touch behavior, and serial output at 115200 baud. Check sound response when
-changing the audio code. Record which hardware and firmware tree were tested;
+button/sensor behavior, and serial output at 115200 baud. Check sound response when
+changing the audio code. Record which hardware and firmware revision were tested;
 compilation alone does not validate wiring or light output.
 
 The photos in [`docs/images/`](docs/images/) are JPEG copies of the six reference

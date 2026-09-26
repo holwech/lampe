@@ -31,3 +31,9 @@
 # Debug files
 *.dSYM/
 *.su
+
+# PlatformIO build output and local editor settings
+.pio/
+.pioenvs/
+.piolibdeps/
+.vscode/

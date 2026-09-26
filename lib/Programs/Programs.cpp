@@ -1,244 +1,185 @@
 #include "Programs.h"
 
-
-void exitProgram(Lampe&, State&);
-
-void init(Lampe& Lampe, Tlc5940& Tlc) {
-	Lampe.setLight(2, mainBase);
-	Tlc.update();
-	delay(200);
-	Lampe.setLight(3, mainBase);
-	Tlc.update();
-	delay(200);
-	Lampe.setLight(4, mainBase);
-	Tlc.update();
-	delay(200);
-	Lampe.setLight(1, mainSelect);
-	Tlc.update();
-	delay(200);
-	Lampe.setLight(0, mainTouchInactive);
-	Tlc.update();
-	delay(200);
+void selectProgram(uint8_t menuOption, Lampe &lampe, Mic &mic)
+{
+    //Serial.print("Menu option: ");
+    //Serial.println(menuOption);
+    switch (menuOption)
+    {
+    case 0:
+        quarter_blink(lampe);
+        break;
+    case 1:
+        flow(lampe);
+        break;
+    case 2:
+        amplitude_sensor(lampe);
+        break;
+    case 3:
+        ambulance(lampe);
+        break;
+    case 4:
+        ambulance_hue(lampe);
+        break;
+    case 5:
+        fire_place(lampe);
+        break;
+    case 6:
+        northern_lights(lampe);
+        break;
+    case 7:
+        rainbow(lampe);
+        break;
+    default:
+        Serial.print("No menuOption with this value in programs ");
+        Serial.println(menuOption);
+        break;
+    }
 }
 
-// This function controls the first page of the lamp menu
-void mainMenu(Lampe& Lampe, Tlc5940&  Tlc, State& State) {
-	Lampe.updateTouch(0);
-	if (Lampe.touch(0)) {
-		// Change color of the top light if being touched
-		if (Lampe.longTouch(0)) {
-			Lampe.setLight(0, mainTouchSelected);
-		} else {
-			Lampe.setLight(0, mainTouchActive);
-		}
-
-		if (Lampe.hold(0) && State.getState() == MAIN_MENU) {
-			// If there is a hold click, turn off lamp
-			State.setState(OFF);
-			menuTransitionOff(Lampe, Tlc, State);
-			return;
-		}
-	} else {
-		// If not touched, set to inactive color on top
-		Lampe.setLight(0, mainTouchInactive);
-	}
-	if (Lampe.click(0)) {
-		// Cycle through menu with a click
-		Lampe.setLight(State.getMenuOption(), mainBase);
-		Lampe.setLight(State.nextMenuOption(), mainSelect);
-		if (State.menuRestarted()) {
-			// If the menu has been cycled through, go to second menu
-			State.setState(SECOND_MENU);
-			Lampe.setLight(0, secondTouchInactive);
-			Lampe.setLight(1, secondSelect);
-			Lampe.setLight(2, secondBase);
-			Lampe.setLight(3, secondBase);
-			Lampe.setLight(4, secondBase);
-			return;
-		}
-	}	else if (Lampe.longClick(0)) {
-		// Long click menu selection
-		Tlc.clear();
-		Tlc.update();
-		State.setState(PROGRAMS);
-		switch(State.getMenuOption()) {
-		case 1:
-			State.setProgram(COOL_LIGHTS);
-			break;
-		case 2:
-			State.setProgram(FLOW);
-			break;
-		case 3:
-			State.setProgram(FLOW_DIMMED);
-			break;
-		case 4:
-			State.setProgram(SINGLE_COLOR);
-			break;
-		}
-		return;
-	}
-	Tlc.update();
+void quarter_blink(Lampe &lampe)
+{
+    EVERY_N_MILLISECONDS(200)  
+    {
+        //fill_solid(lampe.leds, lampe.num_leds, CRGB(0, 0, 0));
+        CHSV color = CHSV(random8(255), 255, 255);
+        for (uint8_t i = lampe.stateValues[0]; i < (lampe.stateValues[0] + 8); i++)
+        {
+            int ledPos = i % lampe.num_leds;
+            lampe.leds[ledPos] = color;
+        }
+        lampe.stateValues[0] = lampe.cycleNumber(lampe.stateValues[0], lampe.num_leds, random8(lampe.num_leds));
+    }
 }
 
-// This function controls the second page of the lampe menu
-void secondMenu(Lampe& Lampe, Tlc5940&  Tlc, State& State) {
-	Lampe.updateTouch(0);
-	if (Lampe.touch(0)) {
-		// Change color of the top light if being touched
-		if (Lampe.longTouch(0)) {
-			Lampe.setLight(0, secondTouchSelected);
-		} else {
-			Lampe.setLight(0, secondTouchActive);
-		}
-		if (Lampe.hold(0)) {
-			// If there is a hold click, turn of lamp
-			State.setState(OFF);
-			menuTransitionOff(Lampe, Tlc, State);
-			return;
-		}
-	} else {
-		// If not touched, set to inactive color on top
-		Lampe.setLight(0, secondTouchInactive);
-	}
-	if (Lampe.click(0)) {
-		// Cycle through menu with a click
-		Lampe.setLight(State.getMenuOption(), secondBase);
-		Lampe.setLight(State.nextMenuOption(), secondSelect);
-		if (State.menuRestarted()) {
-			// If the menu has been cycled through, go to main menu
-			State.setState(MAIN_MENU);
-			Lampe.setLight(0, mainTouchInactive);
-			Lampe.setLight(1, mainSelect);
-			Lampe.setLight(2, mainBase);
-			Lampe.setLight(3, mainBase);
-			Lampe.setLight(4, mainBase);
-			return;
-		}
-	}	else if (Lampe.longClick(0)) {
-		// Long click menu selection
-		Tlc.clear();
-		Tlc.update();
-		State.setState(PROGRAMS);
-		switch(State.getMenuOption()) {
-		case 1:
-			State.setProgram(COOL_LIGHTS);
-			break;
-		case 2:
-			State.setProgram(FLOW);
-			break;
-		case 3:
-			State.setProgram(FLOW);
-			break;
-		case 4:
-			State.setProgram(FLOW);
-			break;
-		}
-		return;
-	}
-	Tlc.update();
+void ambulance_hue(Lampe &lampe)
+{
+    EVERY_N_MILLISECONDS(2000) { 
+        lampe.stateValues[1] = random8(255);
+        lampe.stateValues[2] = random8(255);
+    }
+    EVERY_N_MILLISECONDS(50) { 
+        CHSV color1 = CHSV(lampe.stateValues[1], 255, 255);
+        CHSV color2 = CHSV(lampe.stateValues[2], 255, 255);
+        lampe.leds[lampe.stateValues[0]] = color1;
+        lampe.leds[(lampe.stateValues[0] + NUM_LEDS / 2) % NUM_LEDS] = color2;
+        lampe.stateValues[0] = lampe.cycleNumber(lampe.stateValues[0], NUM_LEDS, 1);
+    }
 }
 
-void menuTransitionOff(Lampe& Lampe, Tlc5940& Tlc, State& State) {
-	Lampe.setLight(State.nextMenuOption(), off);
-	Tlc.update();
-	delay(200);
-	Lampe.setLight(State.nextMenuOption(), off);
-	Tlc.update();
-	delay(200);
-	Lampe.setLight(State.nextMenuOption(), off);
-	Tlc.update();
-	delay(200);
-	Lampe.setLight(State.nextMenuOption(), off);
-	Tlc.update();
-	delay(200);
-	Lampe.setLight(0, off);
-	Tlc.update();
-	delay(200);
+void rainbow(Lampe &lampe)
+{
+    fill_rainbow(lampe.leds, lampe.num_leds, lampe.gHue, 5);
+    EVERY_N_MILLISECONDS(40) { lampe.gHue++; }
 }
 
-
-void programs(Lampe& Lampe, Tlc5940&  Tlc, State& State) {
-	switch(State.getProgram()) {
-  // Blinks in randoms colors. Color stays on for all sides after a change.
-	case COOL_LIGHTS:
-		if (Lampe.hold(0)) {
-			exitProgram(Lampe, State);
-			break;
-		}
-		if ((State.getTimer() - State.lightTimer[0]) > 400) {
-			int light	= rand() % 5;
-			int red = rand() % 256;
-			int green = rand() % 256;
-			int blue = rand() % 256;
-			Lampe.setLight(light, red, green, blue); 
-			Tlc.update();
-			State.lightTimer[0] = millis();
-		}
-		break;
-  // Transitions through colors on all sides.
-	case FLOW:
-		if (Lampe.hold(0)) {
-			exitProgram(Lampe, State);
-			break;
-		}
-		if (State.isFirstRun()) {
-			State.randomizeCount();
-		}
-		if (State.getTimer() > 25) {
-			Lampe.setLight(0, State.tc(0, 0, 0,	255), State.tc(0, 1, 0, 150), State.tc(0, 2, 150, 255));
-			Lampe.setLight(1, State.tc(1, 0, 0,	150), State.tc(1, 1, 0, 255), State.tc(1, 2, 100, 255));
-			Lampe.setLight(2, State.tc(2, 0, 150, 255), State.tc(2, 1, 0, 200), State.tc(2, 2, 0, 255));
-			Lampe.setLight(3, State.tc(3, 0, 200, 255), State.tc(3, 1, 0, 155), State.tc(3, 2, 0, 180));
-			Lampe.setLight(4, State.tc(4, 0, 0,	150), State.tc(4, 1, 0, 205), State.tc(4, 2, 0, 255));
-			Tlc.update();
-      State.resetTimer();
-		}
-		break;
-  // Transitions through colors on all sides, but with slightly dimmed lights.
-	case FLOW_DIMMED:
-		if (Lampe.hold(0)) {
-			exitProgram(Lampe, State);
-			break;
-		}
-		if (State.isFirstRun()) {
-			State.randomizeCount();
-		}
-		if (State.getTimer() > 25) {
-			Lampe.setLight(0, State.tc(0, 0, 0,	100), State.tc(0, 1, 0, 100), State.tc(0, 2, 50, 100));
-			Lampe.setLight(1, State.tc(1, 0, 0,	50), State.tc(1, 1, 0, 100), State.tc(1, 2, 10, 100));
-			Lampe.setLight(2, State.tc(2, 0, 50, 100), State.tc(2, 1, 0, 20), State.tc(2, 2, 0, 100));
-			Lampe.setLight(3, State.tc(3, 0, 20, 100), State.tc(3, 1, 0, 55), State.tc(3, 2, 0, 180));
-			Lampe.setLight(4, State.tc(4, 0, 0,	50), State.tc(4, 1, 0, 100), State.tc(4, 2, 0, 100));
-			Tlc.update();
-			State.resetTimer();
-		}
-		break;
-  // Turns on a single light with a random color on a random side in a random order.
-	case SINGLE_COLOR:
-		if (Lampe.hold(0)) {
-			exitProgram(Lampe, State);
-			break;
-		}
-		if (Lampe.click(0)) {
-			State.cycleBPM();
-		}
-		if (State.getTimer() > (60000 / State.getBPM())) {
-			Tlc.clear();
-			Lampe.setLight(State.nextShuffle(), random(256), random(256), random(256));
-			Tlc.update();
-			State.resetTimer();
-		}
-		break;
-	}
+void flow(Lampe &lampe)
+{
+    for (int i = 0; i < lampe.num_leds / 2; i++)
+    {
+        int ledPosFirst = (FLOW_START - i - 1) % lampe.num_leds;
+        int ledPosSecond = (FLOW_START + i) % lampe.num_leds;
+        lampe.leds[ledPosFirst] = CHSV(lampe.gHue + HUE_STEP_SIZE * i, 255, 255);
+        lampe.leds[ledPosSecond] = CHSV(lampe.gHue + HUE_STEP_SIZE * i, 255, 255);
+    }
+    EVERY_N_MILLISECONDS(20) { lampe.gHue++; }
 }
 
-void exitProgram(Lampe& Lampe, State& State) {
-	Lampe.setLight(0, mainTouchInactive);
-	Lampe.setLight(1, mainSelect);
-	Lampe.setLight(2, mainBase);
-	Lampe.setLight(3, mainBase);
-	Lampe.setLight(4, mainBase);
-	Tlc.update();
-	State.setState(MAIN_MENU);
-	State.reset();
+void ambulance(Lampe &lampe)
+{
+    EVERY_N_MILLISECONDS(30) { 
+        lampe.leds[lampe.stateValues[0]] = CRGB(255, 0, 0);
+        lampe.leds[(lampe.stateValues[0] + NUM_LEDS / 2) % NUM_LEDS] = CRGB(0, 0, 255);
+        lampe.stateValues[0] = lampe.cycleNumber(lampe.stateValues[0], NUM_LEDS, 1);
+    }
+}
+
+void fire_place(Lampe &lampe)
+{
+    fadeToBlackBy( lampe.leds, NUM_LEDS, 1);
+    EVERY_N_MILLISECONDS(401)
+    { 
+        int pos = random16(NUM_LEDS);
+        lampe.leds[pos] += CHSV( -10 + random8(60), 255, 255);
+    }
+    EVERY_N_MILLISECONDS(300)
+    { 
+        int pos = random16(NUM_LEDS);
+        lampe.leds[pos] += CHSV( -10 + random8(60), 255, 255);
+    }
+    EVERY_N_MILLISECONDS(152)
+    { 
+        int pos = random16(NUM_LEDS);
+        lampe.leds[pos] += CHSV( -10 + random8(60), 255, 255);
+    }
+}
+
+void northern_lights(Lampe &lampe) 
+{
+    fadeToBlackBy( lampe.leds, NUM_LEDS, 2);
+    EVERY_N_MILLISECONDS(30)
+    {
+        int pos = random16(NUM_LEDS);
+        lampe.leds[pos] += CHSV( lampe.gHue + random8(64), 200, 150);
+    }
+    EVERY_N_MILLISECONDS(300) { lampe.gHue++; }
+}
+
+void beat_blink(Lampe &lampe, Mic &mic)
+{
+    uint8_t period = 0;
+    if (lampe.sampleInit || (lampe.getSampleTimer() > 60000))
+    {
+        fill_solid(lampe.leds, lampe.num_leds, CRGB(255, 0, 0));
+        period = mic.detectBeat(lampe);
+        Serial.print("BPM: ");
+        Serial.println(period);
+        fill_solid(lampe.leds, lampe.num_leds, CRGB(0, 255, 0));
+    }
+
+    EVERY_N_MILLISECONDS(period)
+    {
+        fill_solid(lampe.leds, lampe.num_leds, CRGB(0, 255, 0));
+    }
+}
+
+// Deprecated
+void beat_blink2(Lampe &lampe, Mic &mic)
+{
+    mic.detectBeatOld(lampe);
+}
+
+void amplitude_sensor(Lampe &lampe)
+{
+    const uint16_t sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
+    uint16_t sample;
+    uint32_t startMillis = millis(); // Start of sample window
+    uint16_t peakToPeak = 0;         // peak-to-peak level
+
+    uint16_t signalMax = 0;
+    uint16_t signalMin = 1024;
+
+    // collect data for 50 mS
+    while (millis() - startMillis < sampleWindow)
+    {
+        sample = analogRead(0);
+        if (sample < 1024) // toss out spurious readings
+        {
+            if (sample > signalMax)
+            {
+                signalMax = sample; // save just the max levels
+            }
+            else if (sample < signalMin)
+            {
+                signalMin = sample; // save just the min levels
+            }
+        }
+    }
+    peakToPeak = signalMax - signalMin;       // max - min = peak-peak amplitude
+    double volts = (peakToPeak * 5.0) / 1024; // convert to volts
+
+    uint8_t linval = lampe.linearReduce(peakToPeak * 255 / 1024);
+    fill_solid(lampe.leds, lampe.num_leds, CRGB(2.5 * linval, 0, 0));
+    Serial.print(" peakToPeak: ");
+    Serial.println(peakToPeak * 255 / 1024);
 }

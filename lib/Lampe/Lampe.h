@@ -1,41 +1,61 @@
 #ifndef LAMPE_H
 #define LAMPE_H
-#define NUM_LIGHTS 5
 
-#include <Arduino.h>
-#include <Tlc5940.h> 
-#include <CapacitiveSensor.h>
-#include <Config.h>
+#include "FastLED.h"
+#include "Arduino.h"
+
+FASTLED_USING_NAMESPACE
+
+#if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
+#warning "Requires FastLED 3.1 or later; check github for latest code."
+#endif
+
+#define DATA_PIN            3
+#define LED_TYPE            WS2812B
+#define COLOR_ORDER         GRB
+#define NUM_LEDS            16
+#define BRIGHTNESS          100
+#define FRAMES_PER_SECOND   120
+#define ARRAY_SIZE(A)       (sizeof(A) / sizeof((A)[0]))
+#define NUM_MENU_OPTIONS    5
+#define BUTTON_PIN          2
+
 
 class Lampe
 {
-	public:
-		Lampe();
-		void setLight(int light, int red, int green, int blue);
-		void setLight(int light, Color color);
-		bool touch(int light);
-		bool longTouch(int light);
-		bool click(int light);
-		bool longClick(int light);
-		bool hold(int light);
-		void updateAllTouch();
-		void updateTouch(int light);
-		int readCS(int light, int samples);
-		void update();
-	private:
-		bool touchList[NUM_LIGHTS];
-		bool clickList[NUM_LIGHTS];
-		bool longClickList[NUM_LIGHTS];
-		bool longTouchList[NUM_LIGHTS];
-		bool holdList[NUM_LIGHTS];
-		unsigned long clickTimer[NUM_LIGHTS];
-		unsigned long longClickTimer[NUM_LIGHTS];
-		unsigned long holdTimer[NUM_LIGHTS];
-		unsigned long touchTimer[NUM_LIGHTS];
-		unsigned long longTouchTimer[NUM_LIGHTS];
-		int touchThreshold;
-		CapacitiveSensor CS[NUM_LIGHTS];
-		uint16_t brightnessLevel[256];
+  public:
+    Lampe();
+    bool buttonClick();
+    void updateLinearReduce();
+    uint8_t linearReduce(uint8_t peak);
+    uint32_t getTimer();
+    void resetTimer();
+    uint32_t getSampleTimer();
+    void resetSampleTimer();
+    uint8_t nextMenuOptionOnClick();
+    uint8_t nextMenuOption();
+    void incrementMenu();
+    void update();
+    uint8_t cycleNumber(uint8_t i, uint8_t peak, uint8_t stepSize);
+    bool sampleInit;
+    uint8_t gHue;
+    uint8_t num_leds;
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    CRGB leds[NUM_LEDS];
+    uint8_t stateValues[NUM_LEDS] = {};
+  private:
+    void newStateVarReset();
+    uint32_t timer;
+    uint32_t linearReduceTimer;
+    uint32_t sampleTimer;
+    uint8_t linearValue;
+    uint8_t prevButtonState;
+    uint8_t menuOption;
+    bool menuRestart;
 };
+
+
 
 #endif

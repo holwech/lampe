@@ -1,3 +1,13 @@
+#include "Mic.h"
+
+
+Mic::Mic() {
+  timer = millis();
+  count = 0;
+  time = micros(); // Used to track rate
+  up = time + SAMPLEPERIODUS;
+}
+
 // 20 - 200hz Single Pole Bandpass IIR Filter
 float Mic::bassFilter(float sample) {
 	static float xv[3] = {0,0,0}, yv[3] = {0,0,0};
@@ -37,57 +47,87 @@ unsigned int Mic::getBPM (Lampe& Lampe, State& State) {
 }
 */
 
-unsigned short* Mic::sample() {
-	unsigned long time = micros(); // Used to track rate
-	float sample, value, envelope, beat, thresh;
-	unsigned char i;
-  unsigned int startTime = millis();
-  unsigned long timer = startTime;
-  unsigned short* beatInterval = new unsigned short[NUM_INTERVAL];
 
+uint8_t Mic::detectBeat(Lampe& lampe) {
+  float sample, value, envelope, beat, thresh;
+  uint32_t beat_times[NUM_INTERVAL];
+  uint8_t beat_idx = 0;
 
-	for(i = 0;;++i){
-		// Read ADC and center so +-512
-		sample = (float)analogRead(0)-503.f;
+  time = micros();
 
-		// Filter only bass component
-		value = bassFilter(sample);
+  for(count = 0;;++count){
+    // Read ADC and center so +-512
+    sample = (float)analogRead(0)-503.f;
 
-		// Take signal amplitude and filter
-		if(value < 0)value=-value;
-		envelope = envelopeFilter(value);
+    // Filter only bass component
+    value = bassFilter(sample);
 
-		// Every 200 samples (25hz) filter the envelope 
-		if(i == 200) {
-			// Filter out repeating bass sounds 100 - 180bpm
-			beat = beatFilter(envelope);
+    // Take signal amplitude and filter
+    if(value < 0)value=-value;
+    envelope = envelopeFilter(value);
 
-			// Threshold it based on potentiometer on AN1
-			thresh = 0.02f * (float)analogRead(1);
+    Serial.println(count);
+    // Every 200 samples (25hz) filter the envelope 
+    if(count == 200) {
+      // Filter out repeating bass sounds 100 - 180bpm
+      beat = beatFilter(envelope);
 
-			// If we are above threshold, light up LED. Timer constraint so that it doesn't activate more often
+      thresh = 0.1;
+
+      // If we are above threshold, light up LED. Timer constraint so that it doesn't activate more often
       // than 210 bpm.
-      unsigned short currTime = millis();
-			if((beat > thresh) && currTime - timer > 280) {
-        interval = currTime - timer;
-        timer = currTime;
-			}
+      Serial.print("Beat val: ");
+      Serial.println(beat);
+      if((beat > thresh) && (getTimer() > 280)) {
+        beat_times[beat_idx] = getTimer();
+        beat_idx++;
+      }
       //Reset sample counter
-			i = 0;
-		}
-    if (millis() - startTime > 10000) {
-      return interval;
     }
+    if (beat_idx == NUM_INTERVAL) {
+      return getBPM(beat_times);
+    }
+    for(
+        uint32_t up = time+SAMPLEPERIODUS;
+        time > 20 && time < up;
+        time = micros()
+    );
+  }
+}
 
-		// Consume excess clock cycles, to keep at 5000 hz
-		for(unsigned long up = time+SAMPLEPERIODUS; time > 20 && time < up; time = micros());
-	}
-  return interval;
+uint32_t Mic::getIntervalAverage(uint32_t beat_times[NUM_INTERVAL]) {
+  uint32_t min_val = beat_times[0];
+  uint8_t min_idx = 0;
+  uint32_t max_val = beat_times[0];
+  uint8_t max_idx = 0;
+  for (uint8_t i = 0; i < NUM_INTERVAL; i++) {
+    if (min_val > beat_times[i]) {
+      min_val = beat_times[i];
+      min_idx = i;
+    }
+    if (max_val < beat_times[i]) {
+      max_val = beat_times[i];
+      max_idx = i;
+    }
+  }
+  uint32_t sum = 0;
+  for (uint8_t i = 0; i < NUM_INTERVAL; i++) {
+    if ((i != min_idx) && (i != max_idx)) {
+      sum += beat_times[i];
+    }
+  }
+  uint32_t avg_beat_period = sum / (NUM_INTERVAL - 2);
+  return avg_beat_period;
+}
+
+uint8_t Mic::getBPM(uint32_t period) {
+  uint8_t bpm = (1 / period) * 60000; // (1 / (T * 1000)) * 60
+  return bpm;
 }
 
 
-void Mic::mic(Lampe& Lampe, State& State) {
-	unsigned long time = micros(); // Used to track rate
+void Mic::detectBeatOld(Lampe& lampe) {
+	unsigned long timet = micros(); // Used to track rate
 	float sample, value, envelope, beat, thresh;
 	unsigned char i;
 
@@ -101,31 +141,40 @@ void Mic::mic(Lampe& Lampe, State& State) {
 		// Take signal amplitude and filter
 		if(value < 0)value=-value;
 		envelope = envelopeFilter(value);
+    Serial.println(i);
 
 		// Every 200 samples (25hz) filter the envelope 
 		if(i == 200) {
 			// Filter out repeating bass sounds 100 - 180bpm
 			beat = beatFilter(envelope);
 
-			// Threshold it based on potentiometer on AN1
-			thresh = 0.02f * (float)analogRead(1);
+			thresh = 0;
 
 			// If we are above threshold, light up LED. Timer constraint so that it doesn't activate more often
       // than 210 bpm.
-			if((beat > thresh) && State.getTimer() > 280) {
-        int light	= rand() % 5;
+      //Serial.println(beat);
+			if((beat > 1.5) && lampe.getTimer() > 280) {
         int red = rand() % 256;
         int green = rand() % 256;
         int blue = rand() % 256;
-        Lampe.setLight(light, red, green, blue); 
-        State.resetTimer();
-        Tlc.update();
+        fill_solid(lampe.leds, lampe.num_leds, CRGB(red, green, blue));
+        lampe.update();
+        lampe.resetTimer();
 			}
       //Reset sample counter
 			i = 0;
 		}
 
 		// Consume excess clock cycles, to keep at 5000 hz
-		for(unsigned long up = time+SAMPLEPERIODUS; time > 20 && time < up; time = micros());
+		for(unsigned long up = timet+SAMPLEPERIODUS; timet > 20 && timet < up; timet = micros());
 	}  
+}
+
+
+unsigned long Mic::getTimer() {
+  return millis() - timer;
+}
+
+void Mic::resetTimer() {
+  timer = millis();
 }
