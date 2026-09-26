@@ -16,11 +16,11 @@ public:
                 if (used_ < sizeof(bytes_)) return false;
                 if (bytes_[2] == 1 &&
                     ((bytes_[3] == 1 && bytes_[4] < Programs::count()) ||
-                     (bytes_[3] == 2 && bytes_[4] <= 1)) &&
+                     (bytes_[3] == 2 && bytes_[4] <= 2)) &&
                     bytes_[5] == Telemetry::checksum(bytes_, 5)) {
                     used_ = 0;
                     if (bytes_[3] == 2) {
-                        audioRequested_ = bytes_[4] != 0;
+                        audioRequested_ = bytes_[4];
                         audioRequestedAt_ = now;
                         return true;
                     }
@@ -36,7 +36,10 @@ public:
     }
 
     bool audioEnabled(uint32_t now) const {
-        return audioRequested_ && uint32_t(now - audioRequestedAt_) < 3000;
+        return audioMode(now) != 0;
+    }
+    uint8_t audioMode(uint32_t now) const {
+        return uint32_t(now - audioRequestedAt_) < 3000 ? audioRequested_ : 0;
     }
 
     template <typename SerialPort>
@@ -49,6 +52,6 @@ private:
     uint8_t bytes_[6] = {}, used_ = 0;
     uint32_t lastByteAt_ = 0;
     uint32_t audioRequestedAt_ = 0;
-    bool audioRequested_ = false;
+    uint8_t audioRequested_ = 0;
 };
 } // namespace Commands

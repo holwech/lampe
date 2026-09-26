@@ -48,6 +48,57 @@ int main() {
         std::cout << "Busy/missing, amplitude " << amplitude << " -> " << int(beat.bpm()) << '\n';
         CHECK(std::abs(int(beat.bpm()) - 120) <= 3);
     }
+    // Real captures had a continuously varying 30–200 ADC peak range, not
+    // isolated kicks over a silent floor. Vary attacks and add competing sound
+    // across the tempo range; a detector that only handles clean pulses fails.
+    randomState = 42;
+    for (int bpm : {73, 100, 120, 140, 173}) {
+        LampLogic::BeatTracker noisy;
+        noisy.reset(0);
+        int matching = 0;
+        for (uint32_t t = 10; t < 30000; t += 10) {
+            const double period = 60000. / bpm;
+            const double phase = std::fmod(t, period);
+            const double offbeat = std::fmod(t + period / 2, period);
+            const uint16_t peak = 60 + noise(30) +
+                int((100 + noise(30)) * std::exp(-phase / 40)) +
+                int(20 * std::exp(-offbeat / 25));
+            noisy.sampleWindow(peak, t);
+            if (t >= 10000) {
+                const bool matches = std::abs(int(noisy.bpm()) - bpm) <= 4;
+                CHECK(noisy.bpm() == 0 || matches);
+                matching += matches;
+            }
+        }
+        CHECK(matching > 1500); // At least 75% of the final 20 seconds.
+    }
+    // Window replay and the ADC path must produce identical decisions.
+    LampLogic::BeatTracker direct, replay;
+    direct.reset(0); replay.reset(0);
+    uint32_t previousWindow = 0;
+    for (uint32_t t = 0; t < 16000; ++t) {
+        const int phase = t % 500;
+        const int envelope = phase < 80 ? 200 * std::exp(-phase / 22.) : 0;
+        direct.sample(512 + ((t & 1) ? envelope : -envelope), t);
+        if (direct.windowTime() != previousWindow) {
+            previousWindow = direct.windowTime();
+            replay.sampleWindow(direct.windowPeak(), previousWindow);
+            CHECK(direct.bpm() == replay.bpm());
+            CHECK(direct.confidence() == replay.confidence());
+            CHECK(direct.onset() == replay.onset());
+            CHECK(direct.pulse(t) == replay.pulse(t));
+        }
+    }
+    CHECK(replay.bpm() == 120);
+    replay.sampleWindow(100, previousWindow + 20); // Missing diagnostic window.
+    CHECK(replay.bpm() == 0);
+    // Sustained non-musical energy at full ADC range exercises wide sums and
+    // must not manufacture a tempo through arithmetic overflow.
+    replay.reset(0);
+    for (uint32_t t = 10; t < 20000; t += 10) {
+        replay.sampleWindow((t / 10) % 2 ? 1023 : 0, t);
+        CHECK(replay.bpm() == 0);
+    }
     LampLogic::BeatTracker beat;
     beat.reset(0);
     for (uint32_t t = 0; t < 12000; ++t) beat.sample(512, t);

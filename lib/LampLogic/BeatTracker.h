@@ -14,8 +14,8 @@ public:
         memset(scores_, 0, sizeof(scores_));
         windowAt_ = lastOnset_ = lastSupport_ = beatAt_ = now;
         minimum_ = 1023; maximum_ = previousPeak_ = previousRise_ = 0;
-        head_ = samples_ = period_ = candidate_ = 0;
-        scanLag_ = MinLag;
+        head_ = samples_ = period_ = candidate_ = onsetFloor_ = 0;
+        scanLag_ = MaxLag;
         confirmations_ = confidence_ = misses_ = 0;
     }
 
@@ -30,6 +30,13 @@ public:
         if (now - windowAt_ < WindowMs) return;
         const uint16_t peak = maximum_ >= minimum_ ? maximum_ - minimum_ : 0;
         minimum_ = 1023; maximum_ = 0;
+        sampleWindow(peak, now);
+    }
+
+    // Replay the peak windows exported by LA v2 diagnostics on the same path
+    // as the live ADC. A gap invalidates history instead of inventing samples.
+    void sampleWindow(uint16_t peak, uint32_t now) {
+        if (now - windowAt_ > 15) reset(now);
         windowAt_ = now;
         // Positive energy changes reject DC, steady tones and falling tails.
         const uint16_t difference = peak > previousPeak_ ? peak - previousPeak_ : 0;
@@ -41,7 +48,9 @@ public:
         head_ = (head_ + 1) & Mask;
         if (samples_ < HistorySize) ++samples_;
 
-        if (rise >= 2 && now - lastOnset_ >= 120) {
+        onsetFloor_ += (int32_t(onset) * 256 - onsetFloor_) / 32;
+        const uint16_t threshold = 3 + (onsetFloor_ >> 7);
+        if (onset >= threshold && now - lastOnset_ >= 120) {
             lastOnset_ = now;
             if (period_) {
                 const uint16_t phase = (now - beatAt_) % period_;
@@ -54,10 +63,10 @@ public:
             }
         }
         if (period_ && now - lastSupport_ > 3000) unlock();
-        if (samples_ < 400) return;
+        if (samples_ < 484) return;
         scores_[scanLag_ - MinLag] = correlation(scanLag_);
-        if (++scanLag_ > MaxLag) {
-            scanLag_ = MinLag;
+        if (--scanLag_ < MinLag) {
+            scanLag_ = MaxLag;
             estimate(now);
         }
     }
@@ -65,6 +74,8 @@ public:
     uint8_t bpm() const { return period_ ? (60000UL + period_ / 2) / period_ : 0; }
     uint8_t confidence() const { return period_ ? confidence_ : 0; }
     uint8_t onset() const { return samples_ ? at(0) : 0; }
+    uint16_t windowPeak() const { return previousPeak_; }
+    uint32_t windowTime() const { return windowAt_; }
     uint8_t pulse(uint32_t now) const {
         if (!period_) return 0;
         const uint16_t phase = (now - beatAt_) % period_;
@@ -79,38 +90,76 @@ private:
     uint8_t at(uint16_t age) const { return history_[(head_ - 1 - age) & Mask]; }
     uint8_t correlation(uint8_t lag) const {
         uint32_t product = 0, energy = 0, sumA = 0, sumB = 0;
-        for (uint16_t age = 0; age < 256; ++age) {
-            const uint16_t a = at(age), b = at(age + lag);
+        // Descending lags compensate for the advancing ring head: every score
+        // uses the same 384-window endpoint. Even the oldest read fits in 512.
+        for (uint16_t age = 0; age < 384; ++age) {
+            const uint16_t a = at(age + MaxLag - lag), b = at(age + MaxLag);
             product += uint32_t(a) * b;
             energy += uint32_t(a) * a + uint32_t(b) * b;
             sumA += a; sumB += b;
         }
         // Remove the mean: random positive changes otherwise look correlated.
-        const uint32_t baseline = sumA * sumB / 256;
+        const uint32_t baseline = meanProduct(sumA, sumB);
         if (product <= baseline) return 0;
         product -= baseline;
-        energy -= sumA * sumA / 256 + sumB * sumB / 256;
+        energy -= meanProduct(sumA, sumA) + meanProduct(sumB, sumB);
         // Widen before multiplying: AVR int is only 16 bits.
         return energy < 128 ? 0 : product * 200UL / energy;
     }
+    // Divide first without discarding the remainder: 384 full-scale windows
+    // can overflow a 32-bit squared sum, including on the native replay host.
+    static uint32_t meanProduct(uint32_t a, uint32_t b) {
+        return (a / 384) * b + (a % 384) * b / 384;
+    }
+    uint16_t rank(uint8_t lag) const {
+        return uint16_t(scores_[lag - MinLag]) * 2 +
+            (lag * 2 <= MaxLag ? scores_[lag * 2 - MinLag] : 0);
+    }
     void unlock() { period_ = confidence_ = confirmations_ = misses_ = 0; }
     void estimate(uint32_t now) {
+        // Old periodic samples remain in the ring after music stops. They must
+        // not immediately reacquire a lock that just expired from silence.
+        if (now - lastOnset_ > 1500) { confirmations_ = 0; return; }
+        // Repetition at twice the interval supports the shorter beat. This
+        // prevents alternating strong/weak kicks from looking like half tempo.
+        // Keep the base correlation for thresholds and phase refinement.
         uint8_t best = MinLag;
         for (uint8_t lag = MinLag + 1; lag <= MaxLag; ++lag) {
-            if (scores_[lag - MinLag] > scores_[best - MinLag]) best = lag;
+            if (rank(lag) > rank(best)) best = lag;
         }
-        // Prefer the shortest convincing repetition to its double/triple.
-        // Strong subdivisions can still yield half/double tempo, as with any
-        // microphone-only energy tracker; this is an estimate, not song metadata.
-        for (uint8_t lag = MinLag; lag < best; ++lag) {
-            const uint8_t multiple = (best + lag / 2) / lag;
-            if (uint16_t(scores_[lag - MinLag]) * 100 >= uint16_t(scores_[best - MinLag]) * 90 &&
-                multiple >= 2 && absolute(int16_t(best) - multiple * lag) <= 2) {
-                best = lag; break;
+        // A weak passage should not replace an established tempo with a
+        // subdivision. Keep it only while its own correlation still supports it.
+        const uint16_t anchor = period_ ? period_ : confirmations_ ? candidate_ : 0;
+        if (anchor) {
+            uint8_t current = (anchor + WindowMs / 2) / WindowMs;
+            if (current < MinLag) current = MinLag;
+            if (current > MaxLag) current = MaxLag;
+            uint8_t nearby = current;
+            for (uint8_t lag = current > MinLag ? current - 1 : current;
+                 lag <= current + 1 && lag <= MaxLag; ++lag) {
+                if (scores_[lag - MinLag] > scores_[nearby - MinLag]) nearby = lag;
             }
+            const uint8_t longer = best > nearby ? best : nearby;
+            const uint8_t shorter = best < nearby ? best : nearby;
+            const uint8_t multiple = (longer + shorter / 2) / shorter;
+            const bool harmonic = multiple >= 2 && absolute(int16_t(longer) - multiple * shorter) <= 2;
+            if (scores_[nearby - MinLag] >= (period_ ? 20 : 25) && (harmonic ||
+                uint16_t(scores_[nearby - MinLag]) * 100 >= uint16_t(scores_[best - MinLag]) * 65))
+                best = nearby;
         }
         const uint8_t score = scores_[best - MinLag];
-        if (score < 55) {
+        const bool supporting = period_ && absolute(int16_t(best * WindowMs) - period_) <= period_ / 12;
+        // Require a distinct peak above the lag-score background as well as an
+        // absolute floor. Correlation is not a probability of a correct BPM.
+        uint16_t sum = 0;
+        uint32_t squares = 0;
+        for (uint8_t value : scores_) { sum += value; squares += uint16_t(value) * value; }
+        constexpr uint8_t Count = MaxLag - MinLag + 1;
+        const uint16_t mean = sum / Count;
+        const uint32_t variance = squares / Count - mean * mean;
+        const int16_t prominence = int16_t(score) - mean;
+        if (score < (supporting ? 20 : 25) || prominence <= 0 ||
+            uint32_t(prominence) * prominence < 4 * variance) {
             confirmations_ = 0;
             if (++misses_ >= 3) unlock();
             return;
@@ -136,7 +185,9 @@ private:
         if (absolute(refined - candidate_) <= uint16_t(refined) / 20) ++confirmations_;
         else confirmations_ = 1;
         candidate_ = refined;
-        if (confirmations_ < 2) return;
+        // Adjacent scans overlap heavily. Weak real-world peaks need nearly
+        // three seconds of persistence; clean pulses can acquire sooner.
+        if (confirmations_ < (!period_ && score >= 55 ? 2 : 5)) return;
         period_ = candidate_;
         confidence_ = score;
         confirmations_ = 0;
@@ -151,8 +202,8 @@ private:
     uint8_t history_[HistorySize] = {}, scores_[MaxLag - MinLag + 1] = {};
     uint32_t windowAt_ = 0, lastOnset_ = 0, lastSupport_ = 0, beatAt_ = 0;
     uint16_t minimum_ = 1023, maximum_ = 0, previousPeak_ = 0;
-    uint16_t head_ = 0, samples_ = 0, period_ = 0, candidate_ = 0;
-    uint8_t previousRise_ = 0, scanLag_ = MinLag, confirmations_ = 0;
+    uint16_t head_ = 0, samples_ = 0, period_ = 0, candidate_ = 0, onsetFloor_ = 0;
+    uint8_t previousRise_ = 0, scanLag_ = MaxLag, confirmations_ = 0;
     uint8_t confidence_ = 0, misses_ = 0;
 };
 } // namespace LampLogic

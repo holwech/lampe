@@ -262,16 +262,62 @@ so loop speed does not change its rate. There are no serial writes per sample.
 [`BeatTracker.h`](lib/LampLogic/BeatTracker.h) independently collects 10 ms ADC
 peak-to-peak windows. Positive energy changes form a smoothed onset history of
 512 bytes. Mean-subtracted, normalized autocorrelation searches 300–1,000 ms beat
-intervals; one lag is scored per window to spread CPU work across the loop. Two
-consistent estimates with a correlation score of at least 55/100 establish lock.
-Shorter convincing repetitions are preferred to their multiples. A phase clock
-drives 90 ms fading pulses, gently aligns to matching onsets, and continues through
-missed hits. Three failed tempo scans or three seconds without matching onsets
-release the lock. Program changes clear the history. All arithmetic is integer,
-no heap is used, and the exact detector runs in both AVR firmware and WebAssembly.
-The correlation score is a heuristic, not a calibrated probability. Synthetic
-tests cover regular and missing beats, quieter offbeats, noise, silence, tempo
-changes and timer rollover; accuracy across real songs is not yet measured.
+intervals; one lag is scored per window to spread CPU work across the loop.
+Descending lags compare the same 384-window slice, so changes in the music during
+one scan do not bias competing tempos. Acquisition requires a distinct correlation
+peak above the lag-score background and at least 25/100 correlation. Weak peaks
+must persist for five scans (about three seconds); clean peaks of at least 55/100
+can lock after two. Including the history warmup, initial acquisition usually
+needs roughly 6–9 seconds of a clear rhythm.
+
+An established tempo can persist down to 20/100 when still supported, with extra
+resistance to half/double-tempo jumps. Correlation at twice an interval reinforces the shorter beat during
+acquisition, helping with alternating strong and weak kicks. A phase clock drives 90 ms fading pulses, aligns gently to
+attacks above the recent onset floor, and continues through missed hits. Three
+failed scans or three seconds without matching attacks release lock; stale history
+cannot reacquire it during silence. Program changes and missing measurement
+windows clear history. All arithmetic is integer, no heap is used, and the same
+detector runs in AVR firmware, WebAssembly and native capture replay. The displayed
+correlation score is a heuristic, not a calibrated probability of correctness.
+
+Tests cover regular and missing beats, noisy continuously varying input, offbeats,
+silence, tempo changes, ADC/replay parity and timer rollover. Real microphone
+recordings also inform the thresholds; this remains an energy-based estimator,
+so a strong subdivision or changing song can still confuse it.
+
+### Recording real microphone data for BPM tuning
+
+Disconnect Live lamp first; the browser and recorder cannot share the serial port.
+The recorder selects Sound reactive, renews the diagnostic lease, and disables
+capture when it exits. Opening the FTDI port may reset the board.
+
+```sh
+uv run --locked python scripts/capture_microphone.py --port YOUR_SERIAL_PORT --seconds 60 --windows --reference-bpm 120 --output captures/song-1
+uv run --locked python scripts/replay_microphone.py captures/song-1
+```
+
+The optional reference is used only in the report. It is **never sent to the lamp
+or passed to the detector**. `--windows` saves the detector's actual timestamped
+peak-to-peak windows and onsets in `windows.csv`, plus reported BPM in `frames.csv`,
+received bytes in `serial.bin`, and timing/packet statistics in `metadata.json`.
+Replay compiles the same C++ detector and writes its decisions to `replay.csv`.
+Its report excludes the first ten seconds and uses a ±4 BPM reference tolerance;
+both can be adjusted. Recorded timestamp gaps reset replay history rather than
+silently joining disconnected measurements.
+
+Omit `--windows` to record raw ADC samples in `raw.csv`. Raw capture is subsampled
+and drops batches when USB is busy, so it is useful for inspecting the sensor but
+must not be used as an exact replay of the detector's input. Window capture is only
+about 600 bytes/s and retries busy batches; its timestamps still expose any lost
+windows. All files under `captures/` are ignored by Git and stay local.
+
+Diagnostic command `LC` version 1, opcode 2, argument 2 selects window capture
+(argument 1 is raw capture; 0 disables either). Both use the existing three-second
+lease. Window packets are `LA` version 2, 60 bytes, with ten five-byte records:
+16-bit millisecond offset, 16-bit peak-to-peak ADC value, and 8-bit onset. The base
+timestamp is a 32-bit millisecond value, with the existing sequence byte and CRC-8.
+Raw `LA` version 1 retains microsecond timestamps and ADC/beat values. The two modes
+reuse one bounded buffer; the browser continues to request raw mode.
 
 ### Building and testing
 
@@ -355,7 +401,7 @@ uv run --locked pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p 
 
 The 3.1.8 → 3.10.5 upgrade also updates PlatformIO and the Arduino AVR core.
 The firmware with the shared engine, beat tracker and telemetry uses about
-**1,164 bytes of static RAM** and **12,956 bytes of flash**. Before the simulator work the upgraded firmware used
+**1,168 bytes of static RAM** and **13,930 bytes of flash**. Before the simulator work the upgraded firmware used
 458 and 8,482 bytes respectively. Static RAM figures
 exclude runtime stack/heap use. The configured board has 2,048 bytes of RAM and
 30,720 bytes of application flash.
@@ -453,7 +499,11 @@ verified. The microphone-capture firmware (`ffcbc6f`) was then uploaded and all
 (about 531 samples/s) alongside 29.7 LED snapshots/s, confirmed Sound reactive
 selection, and verified that disabling capture stopped the audio stream.
 The reconnected dashboard displayed live microphone values and both plots.
-Real-song tempo accuracy still needs measurement. Verify that:
+The detector was then tuned against four real microphone recordings and a paused-
+music room-noise capture. The final firmware's 13,930 flash bytes were verified;
+it used 1,168 bytes of static RAM. Replay and live results improved, but tempo
+acquisition remains intermittent. See [measured results and limitations](docs/bpm-measurements.md).
+Verify that:
 
 - The lamp starts normally using its separate 5 V supply.
 - One button press/release advances one effect, including northern lights and

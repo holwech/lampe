@@ -262,13 +262,15 @@ void testMicrophone() {
     CHECK(reader.audioEnabled(3099) && !reader.audioEnabled(3100));
     command(1, 2000);
     CHECK(reader.audioEnabled(4000));
-    command(2, 3000); // Invalid enable byte cannot renew the lease.
+    command(3, 3000); // Invalid enable byte cannot renew the lease.
     CHECK(!reader.audioEnabled(5000));
     command(1, 0xffffff00UL);
     CHECK(reader.audioEnabled(2000) && !reader.audioEnabled(3000));
     command(0, 2100);
     CHECK(!reader.audioEnabled(2100));
     CHECK(lamp.program() == 0);
+    command(2, 3000);
+    CHECK(reader.audioMode(4000) == 2);
 
     struct Output {
         int capacity = 0, writes = 0;
@@ -308,6 +310,20 @@ void testMicrophone() {
     CHECK(!microphone.tryWrite(output));
     microphone.reset();
     CHECK(!microphone.tryWrite(output));
+    output.capacity = 0;
+    for (uint8_t i = 0; i < 10; ++i) {
+        microphone.window(40 + i, i, 1000 + i * 10);
+        microphone.window(999, 99, 1000 + i * 10); // Same window is recorded once.
+    }
+    CHECK(!microphone.tryWrite(output));
+    microphone.window(77, 7, 1100); // Pending batch is still full.
+    output.capacity = Telemetry::Microphone::Size;
+    CHECK(microphone.tryWrite(output));
+    CHECK(output.bytes[2] == 2 && output.bytes[11] == 40 && output.bytes[56] == 49);
+    CHECK(output.bytes[54] == 90 && output.bytes[55] == 0);
+    for (uint8_t i = 0; i < 10; ++i) microphone.window(77 + i, i, 1100 + i * 10);
+    CHECK(microphone.tryWrite(output));
+    CHECK(output.bytes[11] == 77); // Retry did not mark an unsaved window as captured.
 }
 
 int main() {

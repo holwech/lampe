@@ -19,13 +19,14 @@ void Lampe::update() {
     const uint32_t now = millis();
     engine_.pollButton(digitalRead(Hardware::ButtonPin) == HIGH, now);
     commands_.poll(Serial, engine_, now);
-    const bool capture = commands_.audioEnabled(now) && Programs::usesAudio(engine_.program());
+    const uint8_t capture = Programs::usesAudio(engine_.program()) ? commands_.audioMode(now) : 0;
     if (!capture) microphone_.reset();
     if (Programs::usesAudio(engine_.program())) {
         const uint16_t reading = analogRead(Hardware::AudioPin);
         const uint32_t sampledAt = micros();
         engine_.sampleAudio(reading, now);
-        if (capture) microphone_.sample(reading, engine_.audioOnset(), engine_.beatPulse(now) > 0, sampledAt);
+        if (capture == 1) microphone_.sample(reading, engine_.audioOnset(), engine_.beatPulse(now) > 0, sampledAt);
+        if (capture == 2) microphone_.window(engine_.audioWindowPeak(), engine_.audioOnset(), engine_.audioWindowTime());
     }
 
     const uint32_t frameTime = micros();
@@ -41,7 +42,7 @@ void Lampe::update() {
         }
     }
     // Reserve UART time before the next LED snapshot (60 bytes take ~5.2 ms).
-    if (capture && !(telemetryFrames_ == 3 && uint32_t(micros() - frameAtUs_) > 1500))
+    if (capture && (capture == 2 || !(telemetryFrames_ == 3 && uint32_t(micros() - frameAtUs_) > 1500)))
         microphone_.tryWrite(Serial);
 }
 

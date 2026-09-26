@@ -190,7 +190,7 @@ function updateReadouts(now: number) {
   const stale = mode === "live" && (!connected || !hasLiveFrame || now - lastReceived > 500);
   $("beat-value").textContent = stale ? "—" : frame.bpm === null ? "Update firmware"
     : frame.bpm ? `${frame.bpm} BPM` : "Listening…";
-  $("beat-value").title = frame.bpm && !stale ? `Tempo confidence: ${frame.confidence}%` : "";
+  $("beat-value").title = frame.bpm && !stale ? `Rhythm correlation: ${frame.confidence}/100` : "";
   $("audio-level-value").textContent = `${input("audio-level").value}%`;
   $("audio-value").textContent = `${Math.round((frame.audio / 255) * 100)}%`;
   $("audio-meter").style.width = `${(frame.audio / 255) * 100}%`;
