@@ -95,12 +95,20 @@
             <section id="audio-section" class="audio-section" hidden>
               <div class="section-line">
                 <h2>Sound</h2>
-                <output
-                  aria-live="off"
-                  id="audio-value"
-                  aria-label="Audio response"
-                  >0%</output
-                >
+                <div class="sound-readouts">
+                  <output id="audio-value" aria-live="off" aria-label="Audio response">0%</output>
+                  <output id="beat-value" aria-label="Detected tempo">Listening…</output>
+                </div>
+              </div>
+              <div
+                class="meter"
+                role="meter"
+                aria-label="Audio envelope"
+                aria-valuemin="0"
+                aria-valuemax="255"
+                aria-valuenow="0"
+              >
+                <span id="audio-meter"></span>
               </div>
               <div id="audio-source" class="audio-controls">
                 <label for="audio-mode" class="sr-only"
@@ -112,15 +120,11 @@
                   <option value="silence">Silence</option>
                 </select>
               </div>
-              <div
-                class="meter"
-                role="meter"
-                aria-label="Audio envelope"
-                aria-valuemin="0"
-                aria-valuemax="255"
-                aria-valuenow="0"
-              >
-                <span id="audio-meter"></span>
+              <div id="tempo-input">
+                <label class="slider-label" for="audio-tempo">Pulse tempo
+                  <output id="audio-tempo-value" aria-live="off">120 BPM</output>
+                </label>
+                <input id="audio-tempo" type="range" min="60" max="200" step="1" value="120" />
               </div>
               <div id="audio-input">
                 <label class="slider-label" for="audio-level"

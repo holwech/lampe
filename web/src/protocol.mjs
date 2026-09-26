@@ -1,5 +1,7 @@
 export const LED_COUNT = 16;
-export const PACKET_SIZE = 61;
+export const PACKET_SIZE = 63;
+
+const packetSize = (version) => version === 1 ? 61 : version === 2 ? 63 : 0;
 
 /** @param {Uint8Array} bytes */
 export function crc8(bytes) {
@@ -15,18 +17,20 @@ export function crc8(bytes) {
 /** @param {Uint8Array} packet */
 export function decodeFrame(packet) {
   if (
-    packet.length !== PACKET_SIZE ||
+    packet.length !== packetSize(packet[2]) ||
     packet[0] !== 76 ||
     packet[1] !== 77 ||
-    packet[2] !== 1 ||
+    !packetSize(packet[2]) ||
     packet[3] !== LED_COUNT ||
-    crc8(packet.subarray(0, 60)) !== packet[60]
+    crc8(packet.subarray(0, -1)) !== packet[packet.length - 1]
   )
     return null;
   return {
     program: packet[4],
     brightness: packet[5],
     audio: packet[6],
+    bpm: packet[2] === 2 ? packet[60] : null,
+    confidence: packet[2] === 2 ? packet[61] : null,
     sequence: packet[7],
     time: new DataView(
       packet.buffer,
@@ -48,15 +52,22 @@ export class FrameParser {
     data.set(chunk, this.pending.length);
     const frames = [];
     let offset = 0;
-    while (offset + PACKET_SIZE <= data.length) {
+    while (offset + 3 <= data.length) {
       if (data[offset] !== 76 || data[offset + 1] !== 77) {
         offset++;
         continue;
       }
-      const frame = decodeFrame(data.subarray(offset, offset + PACKET_SIZE));
+      const size = packetSize(data[offset + 2]);
+      if (!size) {
+        this.rejected++;
+        offset++;
+        continue;
+      }
+      if (offset + size > data.length) break;
+      const frame = decodeFrame(data.subarray(offset, offset + size));
       if (frame) {
         frames.push(frame);
-        offset += PACKET_SIZE;
+        offset += size;
       } else {
         this.rejected++;
         offset++;

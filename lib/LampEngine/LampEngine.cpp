@@ -23,7 +23,10 @@ bool LampEngine::pollButton(bool high, uint32_t now) {
 }
 
 void LampEngine::sampleAudio(uint16_t reading, uint32_t now) {
-    if (Programs::usesAudio(program_)) audio_.sample(reading, now);
+    if (Programs::usesAudio(program_)) {
+        audio_.sample(reading, now);
+        beat_.sample(reading, now);
+    }
 }
 
 void LampEngine::render(uint32_t now) {
@@ -37,4 +40,5 @@ void LampEngine::resetEffect(uint32_t now) {
     effect = EffectState{};
     effect.stepAt = effect.colorAt = effect.sparkAt = now;
     audio_.reset(now);
+    beat_.reset(now);
 }

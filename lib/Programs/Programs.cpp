@@ -27,8 +27,9 @@ void flow(LampEngine &lampe, uint32_t now) {
     if (intervalElapsed(now, lampe.effect.stepAt, 20)) ++lampe.hue;
 }
 
-void amplitude(LampEngine &lampe, uint32_t) {
-    const uint8_t red = LampLogic::amplifiedBrightness(lampe.audioLevel());
+void amplitude(LampEngine &lampe, uint32_t now) {
+    const uint8_t red = lampe.bpm() ? lampe.beatPulse(now)
+                                  : LampLogic::amplifiedBrightness(lampe.audioLevel());
     fill_solid(lampe.leds, LampConfig::LedCount, CRGB(red, 0, 0));
 }
 

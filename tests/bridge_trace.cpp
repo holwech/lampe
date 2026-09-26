@@ -24,4 +24,14 @@ int main() {
             }
         }
     }
+    lamp_reset(1337);
+    lamp_select(2);
+    for (uint32_t frame = 0; frame < 3000; ++frame) {
+        const uint32_t time = frame * 8333UL / 1000;
+        const uint16_t period = frame < 1440 ? 500 : 428;
+        lamp_advance(1, frame < 2640 && time % period < 40 ? 700 : 0, 0);
+        const uint8_t *packet = lamp_frame();
+        for (uint32_t byte = 0; byte < lamp_frame_size(); ++byte) std::printf("%02x", packet[byte]);
+        std::puts("");
+    }
 }

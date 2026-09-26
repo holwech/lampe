@@ -6,11 +6,12 @@ import {
   FrameParser,
   PACKET_SIZE,
 } from "../src/protocol.mjs";
-function packet(sequence = 9) {
-  const bytes = new Uint8Array(PACKET_SIZE);
-  bytes.set([76, 77, 1, 16, 2, 100, 255, sequence, 0x78, 0x56, 0x34, 0x12]);
+function packet(sequence = 9, version = 2) {
+  const bytes = new Uint8Array(version === 1 ? 61 : PACKET_SIZE);
+  bytes.set([76, 77, version, 16, 2, 100, 255, sequence, 0x78, 0x56, 0x34, 0x12]);
   for (let i = 12; i < 60; i++) bytes[i] = (i * 37) % 256;
-  bytes[60] = crc8(bytes.subarray(0, 60));
+  if (version === 2) bytes.set([120, 90], 60);
+  bytes[bytes.length - 1] = crc8(bytes.subarray(0, -1));
   return bytes;
 }
 test("CRC-8 check value and little endian fields", () => {
@@ -20,6 +21,8 @@ test("CRC-8 check value and little endian fields", () => {
   assert.equal(frame.sequence, 9);
   assert.equal(frame.rgb.length, 48);
   assert.equal(frame.audio, 255);
+  assert.equal(frame.bpm, 120);
+  assert.equal(frame.confidence, 90);
 });
 test("every possible serial packet split and multi-packet reads", () => {
   const bytes = packet();
@@ -40,8 +43,8 @@ test("resynchronizes after noise, dropped bytes, bad checksums and unknown versi
   const corrupt = packet();
   corrupt[28] ^= 1;
   const unknown = packet();
-  unknown[2] = 2;
-  unknown[60] = crc8(unknown.subarray(0, 60));
+  unknown[2] = 3;
+  unknown[62] = crc8(unknown.subarray(0, 62));
   const stream = Uint8Array.from([
     0,
     255,
@@ -59,4 +62,16 @@ test("resynchronizes after noise, dropped bytes, bad checksums and unknown versi
   assert.ok(parser.pending.length < PACKET_SIZE);
   parser.push(new Uint8Array(1_000_000));
   assert.ok(parser.pending.length < PACKET_SIZE);
+});
+
+test("legacy firmware and mixed protocol versions remain readable at every split", () => {
+  const legacy = packet(8, 1), current = packet(9);
+  assert.equal(decodeFrame(legacy).bpm, null);
+  assert.equal(decodeFrame(legacy).confidence, null);
+  const stream = Uint8Array.from([...legacy, ...current, ...legacy]);
+  for (let split = 1; split < stream.length; split++) {
+    const parser = new FrameParser();
+    assert.deepEqual([...parser.push(stream.slice(0, split)), ...parser.push(stream.slice(split))],
+      [decodeFrame(legacy), decodeFrame(current), decodeFrame(legacy)]);
+  }
 });

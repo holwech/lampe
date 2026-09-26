@@ -423,6 +423,18 @@ input[type="range"]::-moz-range-thumb {
 .audio-controls {
   margin-top: 16px;
 }
+.sound-readouts {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 12px;
+}
+#audio-value {
+  color: #849477;
+}
+#beat-value {
+  font-variant-numeric: tabular-nums;
+}
 .audio-controls select {
   width: 100%;
 }
@@ -439,7 +451,8 @@ input[type="range"]::-moz-range-thumb {
   height: 100%;
   background: #8baf58;
 }
-#audio-input {
+#audio-input,
+#tempo-input {
   margin-top: 20px;
 }
 .notice {

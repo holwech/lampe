@@ -39,6 +39,18 @@ test("WebAssembly matches native C++ byte-for-byte across all programs, seeds, a
         );
       }
     }
+  module._lamp_reset(1337);
+  module._lamp_select(2);
+  let detected = false;
+  for (let frame = 0; frame < 3000; frame++) {
+    const time = Math.floor(frame * 8333 / 1000);
+    const period = frame < 1440 ? 500 : 428;
+    module._lamp_advance(1, frame < 2640 && time % period < 40 ? 700 : 0, 0);
+    const packet = bytes();
+    assert.equal(Buffer.from(packet).toString("hex"), expected[cursor++], `beat frame=${frame}`);
+    detected ||= decodeFrame(packet).bpm > 0;
+  }
+  assert.ok(detected);
   assert.equal(cursor, expected.length);
 });
 test("deterministic restart, real audio envelope and independent module instances", async () => {
@@ -50,7 +62,7 @@ test("deterministic restart, real audio envelope and independent module instance
   module._lamp_advance(120, 0, 0);
   other._lamp_advance(120, 0, 0);
   const pointer = other._lamp_frame();
-  assert.deepEqual(bytes(), other.HEAPU8.slice(pointer, pointer + 61));
+  assert.deepEqual(bytes(), other.HEAPU8.slice(pointer, pointer + other._lamp_frame_size()));
   const original = bytes();
   module._lamp_reset(1337);
   module._lamp_select(5);
@@ -65,4 +77,25 @@ test("deterministic restart, real audio envelope and independent module instance
   assert.equal(decodeFrame(bytes()).audio, 0);
   assert.equal(module._lamp_select(255), 0);
   assert.equal(module.UTF8ToString(module._lamp_program_name(7)), "Rainbow");
+});
+
+test("the shared simulator locks to musical pulses, flashes on its clock, and releases silence", () => {
+  module._lamp_reset(42);
+  module._lamp_select(2);
+  for (let frame = 0; frame < 1680; frame++) {
+    const time = frame * module._lamp_frame_interval_us() / 1000;
+    module._lamp_advance(1, Math.round(700 * Math.exp(-(time % 500) / 35)), 0);
+  }
+  const locked = decodeFrame(bytes());
+  assert.ok(Math.abs(locked.bpm - 120) <= 2, `BPM ${locked.bpm}`);
+  assert.ok(locked.confidence >= 55);
+  const levels = [];
+  for (let i = 0; i < 120; i++) {
+    module._lamp_advance(1, 0, 0);
+    levels.push(decodeFrame(bytes()).rgb[0]);
+  }
+  assert.ok(levels.some(level => level > 100));
+  assert.ok(levels.some(level => level === 0));
+  module._lamp_advance(480, 0, 0);
+  assert.equal(decodeFrame(bytes()).bpm, 0);
 });

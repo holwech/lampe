@@ -31,6 +31,7 @@ with tempfile.TemporaryDirectory(prefix="lampe-tests-") as output:
         "-I", str(ROOT / "lib/Programs"),
     ]
     suites = {
+        "test_beats": ([], ["tests/test_beats.cpp"]),
         "test_logic": ([], ["tests/test_logic.cpp", "lib/Programs/ProgramMenu.cpp"]),
         "test_rendering": (
             [

@@ -4,8 +4,8 @@
 #include <stddef.h>
 
 namespace Telemetry {
-constexpr uint8_t Version = 1;
-constexpr size_t PacketSize = 13 + 3 * LampConfig::LedCount;
+constexpr uint8_t Version = 2;
+constexpr size_t PacketSize = 15 + 3 * LampConfig::LedCount;
 
 inline uint8_t checksum(const uint8_t *data, size_t size) {
     uint8_t crc = 0;
@@ -31,6 +31,8 @@ inline void encode(uint8_t *out, const LampEngine &lamp, uint32_t now,
         out[13 + 3 * i] = lamp.leds[i].g;
         out[14 + 3 * i] = lamp.leds[i].b;
     }
+    out[60] = lamp.bpm();
+    out[61] = lamp.beatConfidence();
     out[PacketSize - 1] = checksum(out, PacketSize - 1);
 }
 // Checking capacity before the only serial writer runs keeps Serial.write nonblocking.

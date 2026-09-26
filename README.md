@@ -75,7 +75,8 @@ The dashboard has two sources for the same 3D view:
   using WebAssembly. No lamp is needed. Choose a program and it runs automatically
   while the tab is visible, pausing when you switch away. Audio controls appear
   when Sound reactive is selected.
-  Sound reactive accepts a simulated steady or pulsing input, or silence.
+  Sound reactive accepts a simulated steady or pulsing input, or silence. Set
+  Pulse tempo to test beat detection from 60–200 BPM.
 - **Live lamp** reads LED snapshots from the FTDI through Web Serial. Use desktop
   Chrome or Edge on localhost, choose Live lamp → Connect lamp, and select the
   adapter. Change programs with the physical lamp's button. Connect
@@ -86,6 +87,15 @@ Drag the model to orbit, scroll to zoom, and turn the diffuser off to see the
 for its raw RGB values. The diffuser shape is based on the photos; its light
 spread, brightness, and pixel orientation are an approximation, not a calibrated
 optical model. Raw pixel values are the actual effect output.
+
+**Sound reactive follows the music’s beat.** Play music near the lamp’s microphone
+and allow roughly 5–7 seconds of a clear, steady rhythm. While listening, the lamp
+responds to volume; once a tempo is found, it flashes red once per beat. The Sound
+panel shows the detected BPM alongside the microphone level. It can hold time
+through a brief missing beat, then returns to listening after silence or loss of
+a repeating rhythm. Quiet or complex music can take longer or fail to lock, and
+strong subdivisions can produce half/double tempo. The detector runs on the lamp;
+the browser is only a viewer in Live mode.
 
 ### Start locally
 
@@ -152,7 +162,7 @@ simulator. Real hardware timing still needs to be measured.
 This is a single PlatformIO project targeting Arduino on AVR. It controls 16
 WS2812B addressable RGB LEDs through FastLED 3.10.5. A digital button/sensor on D2
 cycles through lighting effects; A0 supplies analog audio for
-sound-reactive brightness. No Git submodules are required. The unused original
+sound-reactive brightness and beat detection. No Git submodules are required. The unused original
 TLC5940/capacitive-touch implementation remains available in Git history.
 
 [`platformio.ini`](platformio.ini) retains `board = nanoatmega328`, the existing
@@ -198,7 +208,7 @@ and existing LED colors carry through transitions.
 | Button/sensor input | D2, `INPUT`; HIGH while pressed, advance on a stable LOW release |
 | Debounce interval | 20 ms, configurable in `LampLogic.h` |
 | Audio input | A0; 10-bit ADC values from 0 to 1023 |
-| Serial output | 115200 baud; 61-byte binary RGB/metadata packets at about 30 Hz |
+| Serial output | 115200 baud; 63-byte binary RGB/audio/tempo packets at about 30 Hz |
 
 The existing input wiring supplies the button's logic level; the firmware does
 not enable an internal pull-up. Verify the input module's polarity and pulse
@@ -212,7 +222,7 @@ button release advances through all eight programs, then wraps back to 0:
 | --- | --- |
 | 0 | Random blocks of color (`quarterBlink`) |
 | 1 | Mirrored flowing colors (`flow`) |
-| 2 | Sound-reactive red brightness (`amplitude`) |
+| 2 | Red beat flashes after tempo lock; volume response while listening (`amplitude`) |
 | 3 | Rotating red and blue (`ambulance`) |
 | 4 | Rotating changing hues (`ambulanceHue`) |
 | 5 | Warm flickering colors (`fireplace`) |
@@ -229,7 +239,20 @@ The amplitude effect collects peak-to-peak values over successive 50 ms windows.
 It scales them using 32-bit arithmetic, decays the envelope by one level every
 5 ms, and clamps the 2.5× red brightness gain to 255. Decay follows elapsed time,
 so loop speed does not change its rate. There are no serial writes per sample.
-Beat detection is a separate archived experiment, not an available mode.
+
+[`BeatTracker.h`](lib/LampLogic/BeatTracker.h) independently collects 10 ms ADC
+peak-to-peak windows. Positive energy changes form a smoothed onset history of
+512 bytes. Mean-subtracted, normalized autocorrelation searches 300–1,000 ms beat
+intervals; one lag is scored per window to spread CPU work across the loop. Two
+consistent estimates with a correlation score of at least 55/100 establish lock.
+Shorter convincing repetitions are preferred to their multiples. A phase clock
+drives 90 ms fading pulses, gently aligns to matching onsets, and continues through
+missed hits. Three failed tempo scans or three seconds without matching onsets
+release the lock. Program changes clear the history. All arithmetic is integer,
+no heap is used, and the exact detector runs in both AVR firmware and WebAssembly.
+The correlation score is a heuristic, not a calibrated probability. Synthetic
+tests cover regular and missing beats, quieter offbeats, noise, silence, tempo
+changes and timer rollover; accuracy across real songs is not yet measured.
 
 ### Building and testing
 
@@ -312,8 +335,8 @@ uv run --locked pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p 
 ### FastLED upgrade notes
 
 The 3.1.8 → 3.10.5 upgrade also updates PlatformIO and the Arduino AVR core.
-The firmware with the shared engine and telemetry uses **460 bytes of static RAM**
-and **8,574 bytes of flash**. Before the simulator work the upgraded firmware used
+The firmware with the shared engine, beat tracker and telemetry uses about
+**1,078 bytes of static RAM** and **11,828 bytes of flash**. Before the simulator work the upgraded firmware used
 458 and 8,482 bytes respectively. Static RAM figures
 exclude runtime stack/heap use. The configured board has 2,048 bytes of RAM and
 30,720 bytes of application flash.
@@ -361,13 +384,13 @@ npm run test:browser
 ```
 
 The native suites retain the eight 15-second effect fingerprints. Node tests
-compare 5,760 complete native/WASM frames across all eight programs, two seeds,
-audio input and debounced button transitions. They check independent module
+compare 8,760 complete native/WASM frames across all eight programs, two seeds,
+audio input, beat acquisition/tempo changes and debounced button transitions. They check independent module
 instances, deterministic resets, arbitrary serial chunk boundaries, CRC rejection
 and resynchronization after lost/corrupt bytes. A fake UART verifies that sending
 never starts unless the whole packet fits. Playwright tests exercise the actual
 WebGL dashboard on desktop/mobile and a browser serial mock, including stale
-frames, unplugging, a cancelled port picker, and automatic pause/resume when the
+frames, unplugging, a cancelled port picker, tempo lock/release, and automatic pause/resume when the
 tab becomes hidden/visible. The same browser suite runs
 against both `npm run dev` and the production preview, including loading the
 generated WebAssembly module.
@@ -404,14 +427,17 @@ the [Web Serial documentation](https://developer.chrome.com/docs/capabilities/se
 ### Hardware verification
 
 Firmware, simulator and dashboard changes are checked by the automated suites above.
-This firmware has not yet been flashed to or tested on the physical lamp. In
-particular, check that:
+On 2026-09-26, the pre-BPM firmware (`b99ab2a`) was uploaded and verified through
+the pictured FTDI adapter using the existing `nanoatmega328` target. The live
+dashboard received valid changing LED frames and the user confirmed operation.
+The beat-tracking firmware was subsequently uploaded with all 11,828 flash bytes
+verified. Real-song tempo accuracy still needs measurement. Verify that:
 
 - The lamp starts normally using its separate 5 V supply.
 - One button press/release advances one effect, including northern lights and
   rainbow, and the menu wraps after the eighth effect.
-- Button input remains responsive in the audio mode, and sound produces smooth
-  red brightness without wrapping at high levels.
+- Button input remains responsive in the audio mode, tempo locks to a clear beat,
+  flashes follow that beat, and stopping the music releases the lock.
 - Effect colors, timing and transitions look right on the actual LED strip.
 - The live dashboard receives roughly 30 FPS and matches the raw LED patterns.
 - Connecting, disconnecting and leaving the dashboard closed do not visibly

@@ -99,6 +99,18 @@ test("animation stays stopped in hidden tabs and resumes when visible", async ({
   await expect.poll(colors).not.toEqual(held);
 });
 
+test("sound reactive finds the simulated tempo and loses lock in silence", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Sound reactive", exact: true }).click();
+  await expect(page.locator("#beat-value")).toHaveText("Listening…");
+  await page.locator("#audio-tempo").fill("120");
+  await expect(page.locator("#beat-value")).toHaveText("120 BPM", { timeout: 15000 });
+  await expect(page.locator("#beat-value")).toHaveAttribute("title", /confidence/);
+  await page.selectOption("#audio-mode", "silence");
+  await expect(page.locator("#tempo-input")).toBeHidden();
+  await expect(page.locator("#beat-value")).toHaveText("Listening…", { timeout: 7000 });
+});
+
 async function mockSerial(page, cancel = false) {
   await page.addInitScript(
     ({ cancel }) => {
@@ -162,7 +174,7 @@ test("live frames, split serial packets, stale state, disconnect and return to s
     module._lamp_select(7);
     module._lamp_advance(120, 0, 0);
     const p = module._lamp_frame();
-    const bytes = module.HEAPU8.slice(p, p + 61);
+    const bytes = module.HEAPU8.slice(p, p + module._lamp_frame_size());
     window.serialTest.controller.enqueue(bytes.slice(0, 17));
     window.serialTest.controller.enqueue(bytes.slice(17));
     return (
@@ -215,6 +227,30 @@ test("canceling the port picker leaves a usable dashboard", async ({
   await page.getByRole("button", { name: "Rainbow", exact: true }).click();
   const initial = await page.locator("#pixel-hex").textContent();
   await expect(page.locator("#pixel-hex")).not.toHaveText(initial);
+});
+
+test("live microphone tempo is displayed and clears when telemetry becomes stale", async ({ page }) => {
+  await mockSerial(page);
+  await page.goto("/");
+  await expect(page.locator(".program")).toHaveCount(8);
+  await page.getByRole("button", { name: "Live lamp", exact: true }).click();
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  await page.evaluate(async () => {
+    const { default: createLamp } = await import("/generated/lamp.js");
+    const module = await createLamp();
+    module._lamp_reset(42);
+    module._lamp_select(2);
+    for (let frame = 0; frame < 1680; frame++) {
+      const time = frame * module._lamp_frame_interval_us() / 1000;
+      module._lamp_advance(1, time % 500 < 40 ? 700 : 0, 0);
+    }
+    const pointer = module._lamp_frame();
+    window.serialTest.controller.enqueue(module.HEAPU8.slice(pointer, pointer + module._lamp_frame_size()));
+  });
+  await expect(page.locator("#beat-value")).toHaveText("120 BPM");
+  await expect(page.locator("#tempo-input")).toBeHidden();
+  await expect(page.locator("#beat-value")).toHaveText("—");
+  await expect(page.locator("#beat-value")).toHaveAttribute("title", "");
 });
 
 test("manual disconnect releases the port and preserves simulation settings", async ({

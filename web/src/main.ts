@@ -97,6 +97,7 @@ function updateControls() {
     live || !audio;
   $("audio-section").hidden = !audio;
   $("audio-source").hidden = $("audio-input").hidden = live;
+  $("tempo-input").hidden = live || select("audio-mode").value !== "pulse";
   $("source-label").hidden = !live;
   $("source-label").dataset.connected = String(connected && hasLiveFrame);
   $("connection-status").textContent = busy
@@ -129,6 +130,8 @@ async function setMode(value: "sim" | "live") {
       program: 0,
       brightness: 0,
       audio: 0,
+      bpm: null,
+      confidence: null,
       sequence: 0,
       time: 0,
       rgb: new Uint8Array(48),
@@ -147,7 +150,7 @@ function advance() {
   const audioMode = select("audio-mode").value;
   const pulse =
     audioMode === "pulse"
-      ? Math.pow(Math.max(0, Math.sin((time / 1000) * Math.PI * 2)), 3)
+      ? Math.exp(-((time % (60000 / Number(input("audio-tempo").value))) / 35))
       : 1;
   const level =
     audioMode === "silence"
@@ -163,6 +166,13 @@ function inspect(index: number) {
   );
 }
 function updateReadouts(now: number) {
+  const tempo = input("audio-tempo").value;
+  $("audio-tempo-value").textContent = `${tempo} BPM`;
+  $("tempo-input").hidden = mode === "live" || select("audio-mode").value !== "pulse";
+  const stale = mode === "live" && (!connected || !hasLiveFrame || now - lastReceived > 500);
+  $("beat-value").textContent = stale ? "—" : frame.bpm === null ? "Update firmware"
+    : frame.bpm ? `${frame.bpm} BPM` : "Listening…";
+  $("beat-value").title = frame.bpm && !stale ? `Tempo confidence: ${frame.confidence}%` : "";
   $("audio-level-value").textContent = `${input("audio-level").value}%`;
   $("audio-value").textContent = `${Math.round((frame.audio / 255) * 100)}%`;
   $("audio-meter").style.width = `${(frame.audio / 255) * 100}%`;

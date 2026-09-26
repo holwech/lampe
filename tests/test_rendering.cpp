@@ -149,11 +149,42 @@ void testEngineAndTelemetry() {
     CHECK(Telemetry::tryWrite(serial, lamp, 0x12345678, 254, 100));
     CHECK(serial.writes == 1);
     CHECK(serial.bytes[0] == 'L' && serial.bytes[1] == 'M');
-    CHECK(serial.bytes[2] == 1 && serial.bytes[3] == 16);
+    CHECK(serial.bytes[2] == 2 && serial.bytes[3] == 16);
     CHECK(serial.bytes[4] == 1 && serial.bytes[5] == 100 && serial.bytes[7] == 254);
     CHECK(serial.bytes[8] == 0x78 && serial.bytes[9] == 0x56 && serial.bytes[10] == 0x34 && serial.bytes[11] == 0x12);
     CHECK(serial.bytes[12] == lamp.leds[0].r);
-    CHECK(serial.bytes[60] == Telemetry::checksum(serial.bytes, 60));
+    CHECK(serial.bytes[60] == 0 && serial.bytes[61] == 0);
+    CHECK(serial.bytes[62] == Telemetry::checksum(serial.bytes, 62));
+}
+
+void testBeatRendering() {
+    LampEngine lamp;
+    lamp.reset(0);
+    lamp.selectProgram(2, 0);
+    for (uint32_t now = 0; now < 14000; ++now) {
+        const uint16_t amplitude = now % 500 < 40 ? 200 : 0;
+        lamp.sampleAudio((now & 1) ? 512 + amplitude : 512 - amplitude, now);
+        lamp.render(now);
+    }
+    CHECK(lamp.bpm() >= 118 && lamp.bpm() <= 122);
+    CHECK(lamp.beatConfidence() >= 55);
+    // Beat-clock pulses continue through a missing microphone hit.
+    bool flashed = false, dark = false;
+    for (uint32_t now = 14000; now < 15000; ++now) {
+        lamp.sampleAudio(512, now);
+        lamp.render(now);
+        flashed |= lamp.leds[0].r > 100;
+        dark |= lamp.leds[0].r == 0;
+    }
+    CHECK(flashed && dark);
+    uint8_t packet[Telemetry::PacketSize];
+    Telemetry::encode(packet, lamp, 15000, 1, 100);
+    CHECK(packet[60] == lamp.bpm() && packet[61] == lamp.beatConfidence());
+    lamp.selectProgram(0, 15000);
+    CHECK(lamp.bpm() == 0 && lamp.beatConfidence() == 0);
+    lamp.selectProgram(2, 15000);
+    lamp.render(15000);
+    CHECK(lamp.leds[0] == CRGB(0, 0, 0));
 }
 
 int main() {
@@ -161,5 +192,6 @@ int main() {
     testPatternsAndTiming();
     testEffectTraces();
     testEngineAndTelemetry();
+    testBeatRendering();
     std::cout << "Passed: FastLED colors, eight effect traces, shared engine, and nonblocking telemetry\n";
 }
