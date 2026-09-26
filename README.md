@@ -73,7 +73,8 @@ The dashboard has two sources for the same 3D view:
 
 - **Simulator** runs the actual C++ effects and FastLED color math in your browser
   using WebAssembly. No lamp is needed. Choose a program, pause, step a frame,
-  change playback speed or brightness, and replay with a fixed random seed.
+  change playback speed or brightness, and replay with a fixed random seed under
+  Advanced. Audio controls appear when Sound reactive is selected.
   Sound reactive accepts a simulated steady or pulsing input, or silence.
 - **Live lamp** reads LED snapshots from the FTDI through Web Serial. Use desktop
   Chrome or Edge on localhost, choose Live lamp → Connect lamp, and select the
@@ -219,7 +220,7 @@ To add an effect, implement it in `Programs.cpp`, declare it in `Programs.h`, an
 add it to `ProgramList.def`. Menu length, dispatch, labels and audio flags come
 from that registry. Keep existing IDs stable for live telemetry. Set the audio
 flag if the effect needs microphone sampling, and extend the dispatch and rendering
-tests. Optional dashboard descriptions/swatches live in `web/src/main.ts`.
+tests. Dashboard color swatches live in `web/src/main.ts`.
 
 The amplitude effect collects peak-to-peak values over successive 50 ms windows.
 It scales them using 32-bit arithmetic, decays the envelope by one level every

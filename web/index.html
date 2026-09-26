@@ -11,53 +11,92 @@
     />
   </head>
   <body>
+    <svg
+      class="icon-definitions"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <symbol id="icon-play" viewBox="0 0 24 24">
+        <path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none" />
+      </symbol>
+      <symbol id="icon-pause" viewBox="0 0 24 24">
+        <path d="M9 5v14M15 5v14" stroke-width="3" />
+      </symbol>
+      <symbol id="icon-restart" viewBox="0 0 24 24">
+        <path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" />
+      </symbol>
+      <symbol id="icon-step" viewBox="0 0 24 24">
+        <path d="m5 6 10 6-10 6Z" fill="currentColor" stroke="none" />
+        <path d="M19 5v14" />
+      </symbol>
+      <symbol id="icon-view" viewBox="0 0 24 24">
+        <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
+        <circle cx="12" cy="12" r="4" />
+      </symbol>
+      <symbol id="icon-help" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .6-1.5 1-1.5 2M12 16h.01" />
+      </symbol>
+      <symbol id="icon-power" viewBox="0 0 24 24">
+        <path d="M12 2v10M7 5a8 8 0 1 0 10 0" />
+      </symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24">
+        <path d="m9 5 7 7-7 7" />
+      </symbol>
+    </svg>
     <div id="app">
       <header class="topbar">
         <a class="brand" href="/" aria-label="Lampe Studio home"
-          ><span class="brand-mark" aria-hidden="true">◉</span> lampe<span
-            class="brand-divider"
-            >/</span
-          ><span class="brand-studio">studio</span></a
+          ><span class="brand-mark" aria-hidden="true">◉</span> lampe
+          <span class="brand-studio">studio</span></a
         >
         <div class="mode-switch" role="group" aria-label="Source">
-          <button id="sim-mode" aria-pressed="true">Simulator</button
-          ><button id="live-mode" aria-pressed="false">Live lamp</button>
+          <button id="sim-mode" aria-pressed="true">Simulator</button>
+          <button id="live-mode" aria-pressed="false">Live lamp</button>
         </div>
-        <span class="local-badge"><span></span> Local workspace</span>
+        <details id="help" class="help-menu">
+          <summary aria-label="Help" title="Help">
+            <svg class="icon" aria-hidden="true"><use href="#icon-help" /></svg>
+          </summary>
+          <div class="help-popover">
+            <p>Drag to orbit. Scroll to zoom.</p>
+            <p>The diffuser previews approximate light spread.</p>
+            <p id="live-help" hidden>
+              Change programs with the lamp’s button. Opening the serial port
+              may reset the lamp.
+            </p>
+            <a
+              href="https://github.com/holwech/lampe#readme"
+              target="_blank"
+              rel="noreferrer"
+              >Wiring & setup ↗</a
+            >
+          </div>
+        </details>
       </header>
       <main>
-        <div class="intro">
-          <div>
-            <p class="eyebrow">LIGHT, IN GOOD COMPANY</p>
-            <h1>A little lamp. A world of color.</h1>
-            <p class="subtitle">Explore the Mini, one program at a time.</p>
-          </div>
-          <div class="hardware-label">
-            <strong>LAMPE MINI</strong
-            ><span>16 pixels · one shared engine</span>
-          </div>
-        </div>
-        <div id="notice" class="notice" role="status">
-          Loading the lamp engine…
-        </div>
+        <div id="notice" class="notice" role="status">Loading…</div>
         <div id="live-info" class="live-info" hidden>
-          <div>
-            <strong>Connect the FTDI and the separate 5 V supply.</strong>
-            <p>
-              The FTDI connection alone cannot power the lights. Use the lamp’s
-              button to change programs. Opening the port may reset the
-              controller once.
-            </p>
-          </div>
-          <button id="connect" class="primary">Connect lamp</button>
+          <span
+            ><svg class="icon" aria-hidden="true">
+              <use href="#icon-power" /></svg
+            >FTDI + separate 5 V supply</span
+          >
+          <button
+            id="connect"
+            class="primary"
+            title="Opening the port may reset the lamp"
+          >
+            Connect lamp
+          </button>
         </div>
         <div class="workspace">
           <section class="viewer-panel" aria-label="3D lamp preview">
             <div class="stage" id="stage">
               <div class="stage-top">
-                <span class="stage-tag">MINI / 01</span
-                ><span id="source-label" class="source-label"
-                  ><i></i> SIMULATED</span
+                <h1>Lampe Mini</h1>
+                <span id="source-label" class="source-label" hidden
+                  ><i></i><span id="connection-status">Offline</span></span
                 >
               </div>
               <canvas
@@ -66,44 +105,64 @@
               ></canvas>
               <div id="stage-message" class="stage-message" hidden></div>
               <div class="stage-tools">
-                <button id="diffuser" aria-pressed="true">Diffuser on</button
-                ><button
+                <button
+                  id="diffuser"
+                  aria-pressed="true"
+                  aria-label="Diffuser on"
+                  title="Toggle diffuser"
+                >
+                  <span class="toggle-track" aria-hidden="true"></span>Diffuser
+                </button>
+                <button
                   id="reset-view"
                   aria-label="Reset camera view"
                   title="Reset camera view"
                 >
-                  ↺ View
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#icon-view" />
+                  </svg>
                 </button>
               </div>
-              <span class="orbit-hint"
-                >Drag to orbit <span>·</span> Scroll to zoom</span
-              >
             </div>
             <div class="transport">
-              <div class="transport-actions">
+              <div id="transport-actions" class="transport-actions">
                 <button
                   id="play"
                   class="play"
                   aria-label="Pause simulation"
+                  title="Pause simulation"
                   disabled
                 >
-                  Ⅱ</button
-                ><button
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#icon-pause" />
+                  </svg>
+                </button>
+                <button
                   id="restart"
                   aria-label="Restart simulation"
                   title="Restart with the same seed"
                   disabled
                 >
-                  ↺</button
-                ><button
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#icon-restart" />
+                  </svg>
+                </button>
+                <button
                   id="step"
                   aria-label="Step one frame"
                   title="Pause and step one frame"
                   disabled
                 >
-                  ↦</button
-                ><label class="speed-label" for="speed">Speed</label
-                ><select id="speed" aria-label="Playback speed" disabled>
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#icon-step" />
+                  </svg>
+                </button>
+                <select
+                  id="speed"
+                  aria-label="Playback speed"
+                  title="Playback speed"
+                  disabled
+                >
                   <option value="0.25">¼×</option>
                   <option value="0.5">½×</option>
                   <option value="1" selected>1×</option>
@@ -112,49 +171,45 @@
                 </select>
               </div>
               <div class="clock">
-                <span id="clock-label">SIMULATION TIME</span
-                ><output id="clock">00:00.000</output>
+                <span id="clock-label" class="sr-only">Simulation time</span
+                ><output
+                  aria-live="off"
+                  id="clock"
+                  aria-labelledby="clock-label"
+                  >00:00.000</output
+                >
               </div>
             </div>
             <section class="pixels" aria-label="LED inspector">
-              <div class="section-line">
-                <h2>The pixels underneath</h2>
-                <span>RAW RGB / 16 LEDS</span>
-              </div>
               <div id="led-strip" class="led-strip"></div>
-              <div class="pixel-detail">
+              <div
+                class="pixel-detail"
+                title="Raw LED values, before global brightness"
+              >
                 <span id="pixel-name">Pixel 00</span
-                ><code id="pixel-rgb">R 000 &nbsp; G 000 &nbsp; B 000</code
+                ><code id="pixel-rgb">R 000 G 000 B 000</code
                 ><code id="pixel-hex">#000000</code>
               </div>
             </section>
           </section>
-          <aside class="controls">
+          <aside class="controls" aria-label="Lamp controls">
             <section class="programs-section">
-              <div class="section-line">
-                <h2>Light programs</h2>
-                <span id="program-count">—</span>
-              </div>
-              <p class="section-help" id="program-help">
-                Same C++ effects. A new place to play.
-              </p>
+              <h2>Programs</h2>
               <div
                 id="programs"
                 class="programs"
                 role="group"
                 aria-label="Light programs"
               ></div>
-              <p id="program-description" class="program-description"></p>
             </section>
-            <section class="tuning">
-              <div class="section-line">
-                <h2>Fine tune</h2>
-                <span id="tuning-label">SIMULATOR</span>
-              </div>
+            <section class="tuning" aria-label="Brightness">
               <label class="slider-label" for="brightness"
                 ><span>Brightness</span
-                ><output id="brightness-value">39%</output></label
-              ><input
+                ><output aria-live="off" id="brightness-value"
+                  >39%</output
+                ></label
+              >
+              <input
                 id="brightness"
                 type="range"
                 min="0"
@@ -162,40 +217,26 @@
                 value="100"
                 disabled
               />
-              <div class="seed-row">
-                <label for="seed">Random seed</label
-                ><input
-                  id="seed"
-                  type="number"
-                  min="0"
-                  max="65535"
-                  step="1"
-                  value="1337"
-                  disabled
-                /><button
-                  id="apply-seed"
-                  aria-label="Restart with this seed"
-                  title="Restart with this seed"
-                  disabled
-                >
-                  ↺
-                </button>
-              </div>
-              <p class="tiny">A fixed seed makes every replay repeatable.</p>
             </section>
-            <section class="audio-section">
+            <section id="audio-section" class="audio-section" hidden>
               <div class="section-line">
-                <h2>Sound input</h2>
-                <span id="audio-status">IDLE</span>
+                <h2>Sound</h2>
+                <output
+                  aria-live="off"
+                  id="audio-value"
+                  aria-label="Audio response"
+                  >0%</output
+                >
               </div>
-              <div class="audio-controls">
+              <div id="audio-source" class="audio-controls">
                 <label for="audio-mode" class="sr-only"
                   >Simulated sound source</label
-                ><select id="audio-mode" disabled>
-                  <option value="pulse">Pulsing signal</option>
-                  <option value="steady">Steady signal</option>
-                  <option value="silence">Silence</option></select
-                ><output id="audio-value">0</output>
+                >
+                <select id="audio-mode" disabled>
+                  <option value="pulse">Pulse</option>
+                  <option value="steady">Steady</option>
+                  <option value="silence">Silence</option>
+                </select>
               </div>
               <div
                 class="meter"
@@ -207,36 +248,64 @@
               >
                 <span id="audio-meter"></span>
               </div>
-              <label class="slider-label" for="audio-level"
-                ><span>Input level</span
-                ><output id="audio-level-value">45%</output></label
-              ><input
-                id="audio-level"
-                type="range"
-                min="0"
-                max="100"
-                value="45"
-                disabled
-              />
-              <p id="audio-help" class="tiny">
-                Choose Sound reactive to explore the audio response.
-              </p>
+              <div id="audio-input">
+                <label class="slider-label" for="audio-level"
+                  ><span>Input level</span
+                  ><output aria-live="off" id="audio-level-value"
+                    >45%</output
+                  ></label
+                >
+                <input
+                  id="audio-level"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="45"
+                  disabled
+                />
+              </div>
             </section>
+            <details id="advanced-controls" class="advanced-controls">
+              <summary>
+                Advanced
+                <svg class="icon" aria-hidden="true">
+                  <use href="#icon-chevron" />
+                </svg>
+              </summary>
+              <div class="advanced-content">
+                <div id="seed-controls" class="seed-row">
+                  <label for="seed">Random seed</label
+                  ><input
+                    id="seed"
+                    type="number"
+                    min="0"
+                    max="65535"
+                    step="1"
+                    value="1337"
+                    title="Use the same seed to replay the same random sequence"
+                    disabled
+                  />
+                  <button
+                    id="apply-seed"
+                    aria-label="Restart with this seed"
+                    title="Restart with this seed"
+                    disabled
+                  >
+                    <svg class="icon" aria-hidden="true">
+                      <use href="#icon-restart" />
+                    </svg>
+                  </button>
+                </div>
+                <dl class="diagnostics">
+                  <dt>Status</dt>
+                  <dd id="engine-status">Loading</dd>
+                  <dt>Stream</dt>
+                  <dd id="stream-status">120 Hz</dd>
+                </dl>
+              </div>
+            </details>
           </aside>
         </div>
-        <footer>
-          <span
-            ><i class="status-dot"></i
-            ><span id="engine-status">Starting engine</span></span
-          ><span id="stream-status"
-            >120 Hz simulation · 3D diffusion is approximate</span
-          ><a
-            href="https://github.com/holwech/lampe"
-            target="_blank"
-            rel="noreferrer"
-            >Project & wiring ↗</a
-          >
-        </footer>
       </main>
     </div>
     <script type="module" src="/src/main.ts"></script>
