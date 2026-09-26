@@ -117,7 +117,6 @@ test("live frames, split serial packets, stale state, disconnect and return to s
   await expect(
     page.getByRole("button", { name: "Disconnect", exact: true }),
   ).toBeVisible();
-  await expect(page.locator("#brightness")).toBeDisabled();
   await expect(page.locator('[data-program="7"]')).toBeDisabled();
   await page.evaluate(async () => {
     const { default: createLamp } = await import("/generated/lamp.js");
@@ -148,7 +147,9 @@ test("live frames, split serial packets, stale state, disconnect and return to s
     "true",
   );
   await page.getByRole("button", { name: "Simulator", exact: true }).click();
-  await expect(page.locator("#brightness")).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "Pause simulation", exact: true }),
+  ).toBeEnabled();
   expect(await page.evaluate(() => window.serialTest.options.baudRate)).toBe(
     115200,
   );
@@ -176,7 +177,7 @@ test("manual disconnect releases the port and preserves simulation settings", as
   await page.goto("/");
   await expect(page.locator(".program")).toHaveCount(8);
   await page.getByRole("button", { name: "Pause simulation", exact: true }).click();
-  await page.locator("#brightness").fill("210");
+  await page.locator('[data-program="5"]').click();
   await page.getByRole("button", { name: "Live lamp", exact: true }).click();
   await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
   await page.getByRole("button", { name: "Disconnect", exact: true }).click();
@@ -185,7 +186,10 @@ test("manual disconnect releases the port and preserves simulation settings", as
   expect(await page.evaluate(() => window.serialTest.opened)).toBe(2);
   await page.getByRole("button", { name: "Simulator", exact: true }).click();
   expect(await page.evaluate(() => window.serialTest.closed)).toBe(2);
-  await expect(page.locator("#brightness")).toHaveValue("210");
+  await expect(page.locator('[data-program="5"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await expect(page.getByRole("button", { name: "Play simulation", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Diffuser on", exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath("studio-led-ring.png"), fullPage: true });

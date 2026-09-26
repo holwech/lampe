@@ -73,12 +73,12 @@ The dashboard has two sources for the same 3D view:
 
 - **Simulator** runs the actual C++ effects and FastLED color math in your browser
   using WebAssembly. No lamp is needed. Choose a program, pause, step a frame,
-  change playback speed or brightness, and replay with a fixed random seed under
+  change playback speed, and replay with a fixed random seed under
   Advanced. Audio controls appear when Sound reactive is selected.
   Sound reactive accepts a simulated steady or pulsing input, or silence.
 - **Live lamp** reads LED snapshots from the FTDI through Web Serial. Use desktop
   Chrome or Edge on localhost, choose Live lamp → Connect lamp, and select the
-  adapter. Program and brightness controls stay on the physical lamp. Connect
+  adapter. Change programs with the physical lamp's button. Connect
   the **separate 5 V supply** and upload this repository’s firmware first.
 
 Drag the model to orbit, scroll to zoom, and turn the diffuser off to see the
@@ -341,13 +341,15 @@ The browser steps the engine at 8,333 µs intervals regardless of display refres
 rate. Playback speed changes how much virtual time advances. Hidden tabs freeze
 the simulator; long browser stalls are capped instead of replaying a large
 backlog. Reset reinitializes the engine with the chosen seed and selected program;
-ordinary program changes preserve hue/pixels like the physical button. Simulator
-brightness affects the preview, while raw RGB inspection remains unscaled.
+ordinary program changes preserve hue/pixels like the physical button. The
+simulator uses the firmware's fixed global brightness of 100/255.
 
 The live adapter and simulator both produce the same frame representation. The
-renderer approximates `TypicalLEDStrip` correction and global brightness; it does
-not simulate LED PWM, FastLED dithering, sensor noise, electrical behavior or exact
-light diffusion. Simulated audio uses the real envelope code, but is not a
+renderer applies a fixed 4× display gain to make the lamp brighter on screen,
+while preserving relative frame brightness and approximating `TypicalLEDStrip`
+correction. Raw RGB inspection remains unscaled. It does not simulate LED PWM,
+FastLED dithering, sensor noise, electrical behavior or exact light diffusion.
+Simulated audio uses the real envelope code, but is not a
 microphone capture. Live mode receives data only, with no remote control channel.
 
 ```sh

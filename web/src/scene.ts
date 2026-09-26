@@ -2,6 +2,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import type { Frame } from "./simulator";
 
+// Boost the rendered light while preserving the brightness ratios in the frame.
+const LIGHT_DISPLAY_GAIN = 4;
+
 export class LampScene {
   private renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
@@ -233,10 +236,10 @@ export class LampScene {
   }
   update(frame: Frame) {
     const average = new THREE.Color(0, 0, 0);
+    const gain = (frame.brightness / 255) * LIGHT_DISPLAY_GAIN;
     for (let i = 0; i < 16; i++) {
-      // Approximate FastLED global brightness and TypicalLEDStrip correction.
-      // RGB inspection retains the original, unscaled frame bytes.
-      const gain = frame.brightness / 255;
+      // Retain relative brightness and TypicalLEDStrip correction under the
+      // fixed display gain. RGB inspection uses the original frame bytes.
       const color = new THREE.Color().setRGB(
         (frame.rgb[i * 3] / 255) * gain,
         ((frame.rgb[i * 3 + 1] / 255) * gain * 176) / 255,

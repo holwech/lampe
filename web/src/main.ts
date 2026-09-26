@@ -97,7 +97,7 @@ function updateControls() {
       : "Connect lamp";
   for (const id of ["play", "restart", "step", "apply-seed"])
     button(id).disabled = live;
-  for (const id of ["brightness", "seed"]) input(id).disabled = live;
+  input("seed").disabled = live;
   select("speed").disabled = live;
   button("play").innerHTML =
     `<svg class="icon" aria-hidden="true"><use href="#icon-${playing ? "pause" : "play"}" /></svg>`;
@@ -189,7 +189,6 @@ function restart() {
   }
   simulator.reset(seed);
   simulator.select(simulatedProgram);
-  simulator.brightness(Number(input("brightness").value));
   accumulator = 0;
   showFrame(simulator.frame());
   notice("");
@@ -222,9 +221,6 @@ function updateReadouts(now: number) {
   $("clock").textContent =
     `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(3, "0")}`;
   $("clock").dataset.time = String(frame.time);
-  input("brightness").value = String(frame.brightness);
-  $("brightness-value").textContent =
-    `${Math.round((frame.brightness / 255) * 100)}%`;
   $("audio-level-value").textContent = `${input("audio-level").value}%`;
   $("audio-value").textContent = `${Math.round((frame.audio / 255) * 100)}%`;
   $("audio-meter").style.width = `${(frame.audio / 255) * 100}%`;
@@ -404,10 +400,6 @@ async function start() {
     advance();
     showFrame(simulator.frame());
     updateControls();
-  });
-  input("brightness").addEventListener("input", () => {
-    simulator.brightness(Number(input("brightness").value));
-    showFrame(simulator.frame());
   });
   button("diffuser").addEventListener("click", () => {
     const visible = button("diffuser").getAttribute("aria-pressed") !== "true";

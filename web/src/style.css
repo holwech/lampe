@@ -718,9 +718,6 @@ input[type="range"]::-moz-range-thumb {
   .controls > section {
     padding: 22px;
   }
-  .tuning {
-    max-width: none;
-  }
   .advanced-controls > summary {
     padding: 18px 22px;
   }

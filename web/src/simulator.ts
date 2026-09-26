@@ -5,7 +5,6 @@ interface LampModule {
   UTF8ToString(pointer: number): string;
   _lamp_reset(seed: number): void;
   _lamp_select(program: number): number;
-  _lamp_brightness(brightness: number): void;
   _lamp_advance(frames: number, audio: number, button: number): void;
   _lamp_frame(): number;
   _lamp_frame_size(): number;
@@ -43,9 +42,6 @@ export class Simulator {
   }
   select(program: number) {
     this.module._lamp_select(program);
-  }
-  brightness(value: number) {
-    this.module._lamp_brightness(value);
   }
   advance(frames: number, audio: number, button = false) {
     this.module._lamp_advance(frames, audio, +button);
