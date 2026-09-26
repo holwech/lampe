@@ -448,7 +448,12 @@ On 2026-09-26, the pre-BPM firmware (`b99ab2a`) was uploaded and verified throug
 the pictured FTDI adapter using the existing `nanoatmega328` target. The live
 dashboard received valid changing LED frames and the user confirmed operation.
 The beat-tracking firmware was subsequently uploaded with all 11,828 flash bytes
-verified. Real-song tempo accuracy still needs measurement. Verify that:
+verified. The microphone-capture firmware (`ffcbc6f`) was then uploaded and all
+12,956 bytes verified. A four-second hardware check received 2,160 raw samples
+(about 531 samples/s) alongside 29.7 LED snapshots/s, confirmed Sound reactive
+selection, and verified that disabling capture stopped the audio stream.
+The reconnected dashboard displayed live microphone values and both plots.
+Real-song tempo accuracy still needs measurement. Verify that:
 
 - The lamp starts normally using its separate 5 V supply.
 - One button press/release advances one effect, including northern lights and
