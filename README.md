@@ -97,6 +97,20 @@ a repeating rhythm. Quiet or complex music can take longer or fail to lock, and
 strong subdivisions can produce half/double tempo. The detector runs on the lamp;
 the browser can select programs and display their live output.
 
+**See what the microphone hears.** Select Sound reactive to reveal the raw
+waveform (0–1023 ADC values) and a five-second rhythm timeline. Green shows the
+sound attacks used by the detector; orange marks its beat flashes. The range
+readout and Clipping badge reveal signals that reach the ADC limits. **Save
+capture** downloads the last five seconds as CSV with sample times, raw values,
+attack strength and beat state. The simulator shows its actual generated inputs
+in the same views, labelled Simulated.
+
+Live capture needs the latest firmware. It streams at most 1,000 timestamped
+samples per second while Sound reactive and the dashboard tab are visible, with
+gaps shown when batches are dropped. This is a subsampled diagnostic view for
+levels and rhythm, not a full-bandwidth audio recording or frequency analysis.
+Samples stay in the local browser unless you save a capture.
+
 ### Start locally
 
 Requirements: Node.js **22.12+** (24 LTS recommended),
@@ -341,7 +355,7 @@ uv run --locked pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p 
 
 The 3.1.8 → 3.10.5 upgrade also updates PlatformIO and the Arduino AVR core.
 The firmware with the shared engine, beat tracker and telemetry uses about
-**1,088 bytes of static RAM** and **12,094 bytes of flash**. Before the simulator work the upgraded firmware used
+**1,164 bytes of static RAM** and **12,956 bytes of flash**. Before the simulator work the upgraded firmware used
 458 and 8,482 bytes respectively. Static RAM figures
 exclude runtime stack/heap use. The configured board has 2,048 bytes of RAM and
 30,720 bytes of application flash.
@@ -394,6 +408,10 @@ instances, deterministic resets, arbitrary serial chunk boundaries, CRC rejectio
 and resynchronization after lost/corrupt bytes. A fake UART verifies that sending
 never starts unless the whole packet fits. Command tests cover checksums, invalid
 IDs/opcodes, noise, partial-message timeouts, bounded reads and the physical button.
+Microphone tests cover full-resolution ADC values, timestamp rollover, capture
+lease expiry, UART capacity/drop behavior, mixed packet streams, corruption
+recovery, bounded history and CSV export. Simulator capture uses the actual
+samples passed to the shared engine.
 
 CI builds AVR and WebAssembly, runs these suites, builds the static dashboard and
 checks AVRDUDE's simulated programmer. The JS dependency versions are pinned in

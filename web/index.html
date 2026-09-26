@@ -144,6 +144,22 @@
               </div>
             </section>
           </aside>
+          <section id="microphone-panel" class="microphone-panel" aria-label="Microphone analysis" hidden>
+            <div class="section-line">
+              <div class="capture-heading"><h2>What the lamp hears</h2><span id="capture-status">Waiting for microphone…</span></div>
+              <button id="save-audio" class="capture-save" disabled title="Download the last five seconds as CSV">Save capture</button>
+            </div>
+            <div class="audio-plots">
+              <figure>
+                <figcaption><span>Microphone waveform</span><span class="capture-metrics"><span id="mic-clipping" hidden>Clipping</span><output id="mic-range">—</output></span></figcaption>
+                <canvas id="waveform" role="img" aria-label="Microphone waveform"></canvas>
+              </figure>
+              <figure>
+                <figcaption><span>Rhythm</span><span class="plot-legend"><span>Sound attacks</span><span>Beat flashes</span></span></figcaption>
+                <canvas id="rhythm" role="img" aria-label="Sound attacks and detected beats"></canvas>
+              </figure>
+            </div>
+          </section>
         </div>
       </main>
     </div>

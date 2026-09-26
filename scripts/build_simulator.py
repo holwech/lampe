@@ -18,7 +18,7 @@ if not (fastled / "FastLED.h").is_file():
     parser.error("FastLED is missing. Run: uv run --locked pio pkg install --environment nanoatmega328")
 output = ROOT / "web/public/generated"
 output.mkdir(parents=True, exist_ok=True)
-exports = ["reset", "select", "brightness", "button", "advance", "frame", "frame_size", "program_count", "frame_interval_us", "program_name", "program_uses_audio"]
+exports = ["reset", "select", "brightness", "button", "advance", "frame", "frame_size", "audio_data", "audio_size", "program_count", "frame_interval_us", "program_name", "program_uses_audio"]
 command = [compiler, "-std=c++17", "-O2", "-DFASTLED_STUB_IMPL=1",
            "-ffunction-sections", "-fdata-sections", "-isystem", str(fastled),
            "-isystem", str(fastled / "platforms/stub")]

@@ -17,6 +17,7 @@ public:
     uint8_t audioLevel() const { return audio_.level(); }
     uint8_t bpm() const { return beat_.bpm(); }
     uint8_t beatConfidence() const { return beat_.confidence(); }
+    uint8_t audioOnset() const { return beat_.onset(); }
     uint8_t beatPulse(uint32_t now) const { return beat_.pulse(now); }
 
     CRGB leds[LampConfig::LedCount] = {};

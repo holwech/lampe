@@ -4,8 +4,8 @@
 #include <stddef.h>
 
 namespace Telemetry {
-// Version 3 keeps the v2 layout and advertises program-command support.
-constexpr uint8_t Version = 3;
+// Version 4 keeps the v2 layout and adds optional raw microphone capture.
+constexpr uint8_t Version = 4;
 constexpr size_t PacketSize = 15 + 3 * LampConfig::LedCount;
 
 inline uint8_t checksum(const uint8_t *data, size_t size) {
@@ -36,7 +36,7 @@ inline void encode(uint8_t *out, const LampEngine &lamp, uint32_t now,
     out[61] = lamp.beatConfidence();
     out[PacketSize - 1] = checksum(out, PacketSize - 1);
 }
-// Checking capacity before the only serial writer runs keeps Serial.write nonblocking.
+// Each writer checks whole-packet capacity to keep Serial.write nonblocking.
 template <typename SerialPort>
 bool tryWrite(SerialPort &serial, const LampEngine &lamp, uint32_t now,
               uint8_t sequence, uint8_t brightness) {

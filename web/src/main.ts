@@ -2,12 +2,14 @@ import "./style.css";
 import { LampScene } from "./scene";
 import { Simulator, type Frame } from "./simulator";
 import { LampConnection, serialSupported } from "./serial";
+import { AudioView } from "./audio-view";
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const button = (id: string) => $<HTMLButtonElement>(id);
 const input = (id: string) => $<HTMLInputElement>(id);
 const select = (id: string) => $<HTMLSelectElement>(id);
+const audioView = new AudioView();
 const swatches = [
   "linear-gradient(90deg,#f29a5b 0 45%,#7d9dba 45%)",
   "linear-gradient(90deg,#bb819e,#bdc981,#7d9dba)",
@@ -46,6 +48,7 @@ function stageMessage(message: string) {
   $("stage-message").hidden = !message;
 }
 function showFrame(value: Frame) {
+  if (frame?.program !== value.program) audioView.clear();
   frame = value;
   scene?.update(value);
 }
@@ -71,6 +74,10 @@ const connection = new LampConnection(
       updateControls();
     }
   },
+  (batch) => {
+    if (mode === "live" && !document.hidden && !$("audio-section").hidden) audioView.append(batch);
+  },
+  (message) => audioView.failed(message),
 );
 
 function updateControls() {
@@ -99,6 +106,8 @@ function updateControls() {
   select("audio-mode").disabled = input("audio-level").disabled =
     live || !audio;
   $("audio-section").hidden = !audio;
+  $("microphone-panel").hidden = !audio;
+  connection.setCapture(live && connected && hasLiveFrame && audio && frame.rawAudio && !document.hidden);
   $("audio-source").hidden = $("audio-input").hidden = live;
   $("tempo-input").hidden = live || select("audio-mode").value !== "pulse";
   $("source-label").hidden = !live;
@@ -125,6 +134,7 @@ async function setMode(value: "sim" | "live") {
   hasLiveFrame = false;
   lastReceived = 0;
   accumulator = 0;
+  audioView.clear();
   if (mode === "sim") {
     showFrame(simulator.frame());
     stageMessage("");
@@ -137,6 +147,7 @@ async function setMode(value: "sim" | "live") {
       bpm: null,
       confidence: null,
       programControl: false,
+      rawAudio: false,
       sequence: 0,
       time: 0,
       rgb: new Uint8Array(48),
@@ -162,6 +173,7 @@ function advance() {
       ? 0
       : Math.round((Number(input("audio-level").value) / 100) * 1023 * pulse);
   simulator.advance(1, level);
+  simulator.audio(batch => audioView.append(batch));
 }
 function inspect(index: number) {
   selectedPixel = index;
@@ -171,6 +183,7 @@ function inspect(index: number) {
   );
 }
 function updateReadouts(now: number) {
+  if (!$("microphone-panel").hidden) audioView.render(mode === "live", connected, frame.rawAudio);
   const tempo = input("audio-tempo").value;
   $("audio-tempo-value").textContent = `${tempo} BPM`;
   $("tempo-input").hidden = mode === "live" || select("audio-mode").value !== "pulse";
@@ -331,6 +344,7 @@ async function start() {
     }
     busy = true;
     hasLiveFrame = false;
+    audioView.clear();
     updateControls();
     notice("");
     try {
@@ -365,6 +379,7 @@ async function start() {
   document.addEventListener("visibilitychange", () => {
     accumulator = 0;
     lastTick = performance.now();
+    updateControls();
     if (animationFrame !== null) {
       cancelAnimationFrame(animationFrame);
       animationFrame = null;

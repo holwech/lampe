@@ -2,6 +2,7 @@
 #include <Programs.h>
 #include <Telemetry.h>
 #include <Commands.h>
+#include <Microphone.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -150,7 +151,7 @@ void testEngineAndTelemetry() {
     CHECK(Telemetry::tryWrite(serial, lamp, 0x12345678, 254, 100));
     CHECK(serial.writes == 1);
     CHECK(serial.bytes[0] == 'L' && serial.bytes[1] == 'M');
-    CHECK(serial.bytes[2] == 3 && serial.bytes[3] == 16);
+    CHECK(serial.bytes[2] == 4 && serial.bytes[3] == 16);
     CHECK(serial.bytes[4] == 1 && serial.bytes[5] == 100 && serial.bytes[7] == 254);
     CHECK(serial.bytes[8] == 0x78 && serial.bytes[9] == 0x56 && serial.bytes[10] == 0x34 && serial.bytes[11] == 0x12);
     CHECK(serial.bytes[12] == lamp.leds[0].r);
@@ -247,6 +248,68 @@ void testProgramCommands() {
     CHECK(serial.position == 18 && lamp.program() == 3);
 }
 
+void testMicrophone() {
+    LampEngine lamp;
+    lamp.reset(0);
+    Commands::Reader reader;
+    CHECK(!reader.audioEnabled(0));
+    auto command = [&](uint8_t enabled, uint32_t now) {
+        uint8_t bytes[] = {'L', 'C', 1, 2, enabled, 0};
+        bytes[5] = Telemetry::checksum(bytes, 5);
+        for (uint8_t byte : bytes) reader.push(byte, now, lamp);
+    };
+    command(1, 100);
+    CHECK(reader.audioEnabled(3099) && !reader.audioEnabled(3100));
+    command(1, 2000);
+    CHECK(reader.audioEnabled(4000));
+    command(2, 3000); // Invalid enable byte cannot renew the lease.
+    CHECK(!reader.audioEnabled(5000));
+    command(1, 0xffffff00UL);
+    CHECK(reader.audioEnabled(2000) && !reader.audioEnabled(3000));
+    command(0, 2100);
+    CHECK(!reader.audioEnabled(2100));
+    CHECK(lamp.program() == 0);
+
+    struct Output {
+        int capacity = 0, writes = 0;
+        uint8_t bytes[Telemetry::Microphone::Size] = {};
+        int availableForWrite() { return capacity; }
+        void write(const uint8_t *data, size_t size) {
+            CHECK(size == sizeof(bytes) && int(size) <= capacity);
+            memcpy(bytes, data, size); ++writes;
+        }
+    } output;
+    Telemetry::Microphone microphone;
+    for (int capacity = 0; capacity < Telemetry::Microphone::Size; ++capacity) {
+        microphone.reset(); output.capacity = capacity;
+        for (uint8_t i = 0; i < 10; ++i) microphone.sample(i, i, false, i * 1000UL);
+        CHECK(!microphone.tryWrite(output));
+        output.capacity = Telemetry::Microphone::Size;
+        CHECK(!microphone.tryWrite(output)); // Busy batches are dropped, not retried.
+    }
+    CHECK(output.writes == 0);
+    microphone.reset();
+    for (uint8_t i = 0; i < 10; ++i) {
+        microphone.sample(i == 9 ? 1023 : 512, 42, i == 0, uint32_t(0xfffff000UL + i * 1100UL));
+        microphone.sample(0, 0, false, uint32_t(0xfffff000UL + i * 1100UL + 50)); // Rate limit.
+        if (i < 9) CHECK(!microphone.tryWrite(output));
+    }
+    CHECK(microphone.tryWrite(output) && output.writes == 1);
+    CHECK(output.bytes[0] == 'L' && output.bytes[1] == 'A' && output.bytes[2] == 1 && output.bytes[3] == 10);
+    CHECK(output.bytes[5] == 0 && output.bytes[6] == 0xf0 && output.bytes[7] == 255 && output.bytes[8] == 255);
+    CHECK(output.bytes[9] == 0 && output.bytes[10] == 0 && output.bytes[11] == 0 && output.bytes[12] == 0x82);
+    CHECK(output.bytes[13] == 42);
+    CHECK(output.bytes[54] == (9900 & 255) && output.bytes[55] == (9900 >> 8));
+    CHECK(output.bytes[56] == 255 && output.bytes[57] == 3);
+    CHECK(output.bytes[59] == Telemetry::checksum(output.bytes, 59));
+    // A long pause clears an incomplete batch; reset cannot leak previous samples.
+    microphone.sample(1, 1, false, 10000);
+    for (uint8_t i = 0; i < 9; ++i) microphone.sample(2, 2, false, 100000UL + i * 1000UL);
+    CHECK(!microphone.tryWrite(output));
+    microphone.reset();
+    CHECK(!microphone.tryWrite(output));
+}
+
 int main() {
     testColors();
     testPatternsAndTiming();
@@ -254,5 +317,6 @@ int main() {
     testEngineAndTelemetry();
     testBeatRendering();
     testProgramCommands();
+    testMicrophone();
     std::cout << "Passed: FastLED colors, eight effect traces, shared engine, telemetry, beat rendering and program commands\n";
 }

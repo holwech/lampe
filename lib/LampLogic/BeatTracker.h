@@ -64,6 +64,7 @@ public:
 
     uint8_t bpm() const { return period_ ? (60000UL + period_ / 2) / period_ : 0; }
     uint8_t confidence() const { return period_ ? confidence_ : 0; }
+    uint8_t onset() const { return samples_ ? at(0) : 0; }
     uint8_t pulse(uint32_t now) const {
         if (!period_) return 0;
         const uint16_t phase = (now - beatAt_) % period_;

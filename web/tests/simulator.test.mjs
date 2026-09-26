@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import createLamp from "../public/generated/lamp.js";
-import { decodeFrame } from "../src/protocol.mjs";
+import { decodeFrame, FrameParser } from "../src/protocol.mjs";
 const wasmBinary = readFileSync(
   new URL("../public/generated/lamp.wasm", import.meta.url),
 );
@@ -12,6 +12,26 @@ const bytes = () => {
   const pointer = module._lamp_frame();
   return module.HEAPU8.slice(pointer, pointer + module._lamp_frame_size());
 };
+test("simulator capture contains the actual ADC inputs and shared detector output", () => {
+  module._lamp_reset(42);
+  module._lamp_select(2);
+  const batches = [];
+  const parser = new FrameParser(batch => batches.push(batch));
+  for (let i = 0; i < 12; i++) {
+    module._lamp_advance(1, 1023, 0);
+    const pointer = module._lamp_audio_data();
+    parser.push(module.HEAPU8.slice(pointer, pointer + module._lamp_audio_size()));
+  }
+  assert.equal(batches.length, 10);
+  assert.deepEqual(batches[0].samples.map(sample => sample.raw), [0, 1023, 0, 1023, 0, 1023, 0, 1023, 0, 1023]);
+  assert.ok(batches.some(batch => batch.samples.some(sample => sample.onset > 0)));
+  assert.equal(batches[9].startMicros, 90000);
+  module._lamp_select(0);
+  module._lamp_advance(1, 1023, 0);
+  assert.equal(module._lamp_audio_size(), 0);
+  module._lamp_reset(42);
+  assert.equal(module._lamp_audio_size(), 0);
+});
 test("WebAssembly matches native C++ byte-for-byte across all programs, seeds, audio and button transitions", () => {
   const expected = execFileSync(
     "uv",

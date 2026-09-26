@@ -1,5 +1,5 @@
-import { FrameParser, selectProgramCommand } from "./protocol.mjs";
-import type { Frame } from "./simulator";
+import { FrameParser, selectProgramCommand, captureCommand } from "./protocol.mjs";
+import type { Frame, AudioBatch } from "./simulator";
 interface Port {
   readable: ReadableStream<Uint8Array> | null;
   writable: WritableStream<Uint8Array> | null;
@@ -28,6 +28,12 @@ export class LampConnection {
   private reading: Promise<void> | null = null;
   private closing = false;
   private programControl = false;
+  private rawAudio = false;
+  private captureWanted = false;
+  private captureSent = false;
+  private captureWriting = false;
+  private captureAt = 0;
+  private captureTimer: ReturnType<typeof setInterval> | null = null;
   private pending: {
     program: number;
     resolve: () => void;
@@ -38,6 +44,8 @@ export class LampConnection {
   constructor(
     private onFrame: (frame: Frame) => void,
     private onEnd: (message: string) => void,
+    private onAudio: (batch: AudioBatch) => void,
+    private onCaptureError: (message: string) => void,
   ) {}
   async connect() {
     const api = serialAPI();
@@ -54,7 +62,8 @@ export class LampConnection {
     this.port = port;
     this.closing = false;
     this.programControl = false;
-    this.parser = new FrameParser();
+    this.rawAudio = this.captureSent = false;
+    this.parser = new FrameParser(this.onAudio);
     try {
       // Some adapters reset the board on open before these signals can be cleared.
       await port.setSignals({ dataTerminalReady: false, requestToSend: false });
@@ -62,6 +71,7 @@ export class LampConnection {
       this.writer = port.writable?.getWriter() ?? null;
       this.reader = port.readable.getReader();
       this.reading = this.read();
+      this.captureTimer = setInterval(() => this.syncCapture(), 1000);
     } catch (error) {
       this.writer?.releaseLock();
       this.writer = null;
@@ -69,6 +79,30 @@ export class LampConnection {
       this.port = null;
       throw error;
     }
+  }
+  setCapture(enabled: boolean) {
+    if (enabled !== this.captureWanted) this.captureAt = -Infinity;
+    this.captureWanted = enabled;
+    this.syncCapture();
+  }
+  private syncCapture() {
+    const writer = this.writer;
+    if (!writer || this.closing || !this.rawAudio || this.captureWriting) return;
+    const wanted = this.captureWanted;
+    if ((!wanted && !this.captureSent) || performance.now() - this.captureAt < 1000) return;
+    this.captureWriting = true;
+    this.captureAt = performance.now();
+    // Serialize through the same writer as program commands; one lease write at a time.
+    void writer.write(captureCommand(wanted)).then(() => {
+      this.captureSent = wanted;
+    }).catch((error) => {
+      if (!this.closing) this.onCaptureError(`Microphone stream unavailable: ${String(error)}`);
+    }).finally(() => { this.captureWriting = false; });
+  }
+  private stopCapture() {
+    if (this.captureTimer !== null) clearInterval(this.captureTimer);
+    this.captureTimer = null;
+    this.captureWanted = this.captureSent = this.rawAudio = false;
   }
   selectProgram(program: number): Promise<void> {
     const writer = this.writer;
@@ -117,6 +151,7 @@ export class LampConnection {
         if (value)
           for (const frame of this.parser.push(value)) {
             this.programControl = frame.programControl;
+            this.rawAudio = frame.rawAudio;
             if (frame.programControl && this.pending?.program === frame.program) this.finishCommand();
             this.onFrame(frame);
           }
@@ -126,6 +161,7 @@ export class LampConnection {
     } finally {
       this.reader?.releaseLock();
       this.reader = null;
+      this.stopCapture();
       if (!this.closing) {
         this.programControl = false;
         this.finishCommand(new Error(message));
@@ -138,6 +174,7 @@ export class LampConnection {
   }
   async disconnect() {
     this.closing = true;
+    this.stopCapture();
     this.programControl = false;
     this.finishCommand(new DOMException("Program change cancelled.", "AbortError"));
     await this.releaseWriter();
