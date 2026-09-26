@@ -1,7 +1,7 @@
 export const LED_COUNT = 16;
 export const PACKET_SIZE = 63;
 
-const packetSize = (version) => version === 1 ? 61 : version === 2 ? 63 : 0;
+const packetSize = (version) => version === 1 ? 61 : version === 2 || version === 3 ? 63 : 0;
 
 /** @param {Uint8Array} bytes */
 export function crc8(bytes) {
@@ -12,6 +12,15 @@ export function crc8(bytes) {
       crc = ((crc << 1) ^ (crc & 0x80 ? 0x07 : 0)) & 255;
   }
   return crc;
+}
+
+/** @param {number} program */
+export function selectProgramCommand(program) {
+  if (!Number.isInteger(program) || program < 0 || program > 255)
+    throw new RangeError("Program must be an unsigned byte.");
+  const bytes = Uint8Array.of(76, 67, 1, 1, program, 0);
+  bytes[5] = crc8(bytes.subarray(0, 5));
+  return bytes;
 }
 
 /** @param {Uint8Array} packet */
@@ -29,8 +38,9 @@ export function decodeFrame(packet) {
     program: packet[4],
     brightness: packet[5],
     audio: packet[6],
-    bpm: packet[2] === 2 ? packet[60] : null,
-    confidence: packet[2] === 2 ? packet[61] : null,
+    bpm: packet[2] >= 2 ? packet[60] : null,
+    confidence: packet[2] >= 2 ? packet[61] : null,
+    programControl: packet[2] === 3,
     sequence: packet[7],
     time: new DataView(
       packet.buffer,

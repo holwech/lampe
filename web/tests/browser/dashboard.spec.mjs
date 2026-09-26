@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { crc8, selectProgramCommand } from "../../src/protocol.mjs";
 
 test("automatic simulation, real rendering, pixel inspection and responsive layout", async ({
   page,
@@ -119,6 +120,8 @@ async function mockSerial(page, cancel = false) {
         closed: 0,
         signals: null,
         controller: null,
+        writes: [],
+        writeError: false,
       };
       Object.defineProperty(navigator, "serial", {
         configurable: true,
@@ -131,15 +134,22 @@ async function mockSerial(page, cancel = false) {
                 window.serialTest.controller = controller;
               },
             });
+            const writable = new WritableStream({
+              write(bytes) {
+                if (window.serialTest.writeError) throw new Error("USB write failed");
+                window.serialTest.writes.push(Array.from(bytes));
+              },
+            });
             return {
               readable: stream,
+              writable,
               async open(options) {
                 window.serialTest.opened++;
                 window.serialTest.options = options;
               },
               async close() {
-                if (stream.locked)
-                  throw new Error("Reader lock was not released");
+                if (stream.locked || writable.locked)
+                  throw new Error("Serial stream lock was not released");
                 window.serialTest.closed++;
               },
               async setSignals(signals) {
@@ -209,6 +219,87 @@ test("live frames, split serial packets, stale state, disconnect and return to s
     115200,
   );
   expect(await page.evaluate(() => window.serialTest.closed)).toBe(1);
+});
+
+function commandTestFrame(program, version = 3) {
+  const bytes = new Uint8Array(63);
+  bytes.set([76, 77, version, 16, program, 100, 0, 1]);
+  bytes[62] = crc8(bytes.subarray(0, 62));
+  return Array.from(bytes);
+}
+
+async function sendTestFrame(page, program, version = 3) {
+  await page.evaluate((bytes) => {
+    window.serialTest.controller.enqueue(Uint8Array.from(bytes));
+  }, commandTestFrame(program, version));
+}
+
+test("program commands wait for lamp confirmation and follow physical button changes", async ({ page }) => {
+  await mockSerial(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Fireplace", exact: true }).click();
+  await page.getByRole("button", { name: "Live lamp", exact: true }).click();
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  await sendTestFrame(page, 0);
+  await page.getByRole("button", { name: "Rainbow", exact: true }).click();
+  expect(await page.evaluate(() => window.serialTest.writes)).toEqual([[...selectProgramCommand(7)]]);
+  await expect(page.locator('[data-program="0"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('[data-program="7"]')).toHaveAttribute("aria-busy", "true");
+  await sendTestFrame(page, 1); // A different physical selection is not an acknowledgement.
+  await expect(page.locator('[data-program="1"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('[data-program="7"]')).toBeDisabled();
+  await sendTestFrame(page, 7);
+  await expect(page.locator('[data-program="7"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('[data-program="7"]')).toBeEnabled();
+  await page.getByRole("button", { name: "Rainbow", exact: true }).click();
+  expect(await page.evaluate(() => window.serialTest.writes.length)).toBe(1);
+  await sendTestFrame(page, 2); // Physical button changes remain authoritative.
+  await expect(page.locator('[data-program="2"]')).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Simulator", exact: true }).click();
+  await expect(page.locator('[data-program="5"]')).toHaveAttribute("aria-pressed", "true");
+});
+
+test("unconfirmed commands and write errors leave the reported selection intact", async ({ page }) => {
+  await mockSerial(page);
+  await page.goto("/");
+  await expect(page.locator(".program")).toHaveCount(8);
+  await page.getByRole("button", { name: "Live lamp", exact: true }).click();
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  await page.evaluate((bytes) => {
+    window.serialTest.timer = setInterval(() => {
+      window.serialTest.controller.enqueue(Uint8Array.from(bytes));
+    }, 100);
+  }, commandTestFrame(0));
+  await page.getByRole("button", { name: "Rainbow", exact: true }).click();
+  await expect(page.locator("#notice")).toContainText("did not confirm");
+  await expect(page.locator('[data-program="0"]')).toHaveAttribute("aria-pressed", "true");
+  await page.evaluate(() => { window.serialTest.writeError = true; });
+  await page.getByRole("button", { name: "Flow", exact: true }).click();
+  await expect(page.locator("#notice")).toContainText("USB write failed");
+  await expect(page.locator('[data-program="0"]')).toHaveAttribute("aria-pressed", "true");
+  await page.evaluate(() => clearInterval(window.serialTest.timer));
+  await page.getByRole("button", { name: "Disconnect", exact: true }).click();
+  expect(await page.evaluate(() => window.serialTest.closed)).toBe(1);
+});
+
+test("legacy firmware stays read-only and a pending change cancels cleanly on disconnect", async ({ page }) => {
+  await mockSerial(page);
+  await page.goto("/");
+  await expect(page.locator(".program")).toHaveCount(8);
+  await page.getByRole("button", { name: "Live lamp", exact: true }).click();
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  await sendTestFrame(page, 0, 2);
+  await expect(page.locator('[data-program="7"]')).toBeDisabled();
+  await expect(page.locator("#programs")).toHaveAttribute("title", /Update firmware/);
+  await sendTestFrame(page, 0);
+  await page.getByRole("button", { name: "Rainbow", exact: true }).click();
+  await page.getByRole("button", { name: "Disconnect", exact: true }).click();
+  await expect(page.locator("#notice")).toBeHidden();
+  await expect(page.locator('[data-program="7"]')).toHaveAttribute("aria-busy", "false");
+  expect(await page.evaluate(() => window.serialTest.closed)).toBe(1);
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  await sendTestFrame(page, 1);
+  await expect(page.locator('[data-program="7"]')).toBeEnabled();
 });
 
 test("canceling the port picker leaves a usable dashboard", async ({

@@ -1,6 +1,7 @@
 #include <LampEngine.h>
 #include <Programs.h>
 #include <Telemetry.h>
+#include <Commands.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -149,7 +150,7 @@ void testEngineAndTelemetry() {
     CHECK(Telemetry::tryWrite(serial, lamp, 0x12345678, 254, 100));
     CHECK(serial.writes == 1);
     CHECK(serial.bytes[0] == 'L' && serial.bytes[1] == 'M');
-    CHECK(serial.bytes[2] == 2 && serial.bytes[3] == 16);
+    CHECK(serial.bytes[2] == 3 && serial.bytes[3] == 16);
     CHECK(serial.bytes[4] == 1 && serial.bytes[5] == 100 && serial.bytes[7] == 254);
     CHECK(serial.bytes[8] == 0x78 && serial.bytes[9] == 0x56 && serial.bytes[10] == 0x34 && serial.bytes[11] == 0x12);
     CHECK(serial.bytes[12] == lamp.leds[0].r);
@@ -187,11 +188,71 @@ void testBeatRendering() {
     CHECK(lamp.leds[0] == CRGB(0, 0, 0));
 }
 
+void testProgramCommands() {
+    LampEngine lamp;
+    lamp.reset(0);
+    Commands::Reader reader;
+    const uint8_t known[] = {76, 67, 1, 1, 7, 148}; // Shared JS encoder vector.
+    for (uint8_t i = 0; i < 5; ++i) {
+        CHECK(!reader.push(known[i], i, lamp));
+        CHECK(lamp.program() == 0);
+    }
+    CHECK(reader.push(known[5], 5, lamp));
+    CHECK(lamp.program() == 7);
+    lamp.effect.stepAt = 1234;
+    for (uint8_t byte : known) reader.push(byte, 10, lamp);
+    CHECK(lamp.effect.stepAt == 1234); // Duplicate commands are idempotent.
+
+    for (uint8_t field : {uint8_t(2), uint8_t(3), uint8_t(4), uint8_t(5)}) {
+        uint8_t invalid[] = {76, 67, 1, 1, 0, 0};
+        invalid[field] = 255;
+        if (field != 5) invalid[5] = Telemetry::checksum(invalid, 5);
+        for (uint8_t byte : invalid) CHECK(!reader.push(byte, 20, lamp));
+        CHECK(lamp.program() == 7);
+    }
+    lamp.selectProgram(0, 30);
+    for (uint8_t byte : {uint8_t('L'), uint8_t('L'), uint8_t('C'), uint8_t(99)})
+        reader.push(byte, 30, lamp);
+    for (uint8_t byte : known) reader.push(byte, 30, lamp);
+    CHECK(lamp.program() == 7); // Resync even when a fresh header overlaps junk.
+
+    lamp.selectProgram(0, 100);
+    for (uint8_t i = 0; i < 3; ++i) reader.push(known[i], 100, lamp);
+    for (uint8_t i = 3; i < 6; ++i) CHECK(!reader.push(known[i], 201, lamp));
+    CHECK(lamp.program() == 0); // Discard abandoned partial commands.
+    for (uint8_t i = 0; i < 6; ++i) reader.push(known[i], 0xfffffff0UL + i * 5, lamp);
+    CHECK(lamp.program() == 7); // Timeout arithmetic survives millis rollover.
+    CHECK(!lamp.pollButton(true, 20));
+    CHECK(!lamp.pollButton(true, 41));
+    CHECK(!lamp.pollButton(false, 50));
+    CHECK(lamp.pollButton(false, 71));
+    CHECK(lamp.program() == 0); // Physical button advances from the remote choice.
+
+    struct Input {
+        uint8_t bytes[18] = {};
+        int position = 0;
+        int available() { return 18 - position; }
+        int read() { CHECK(available() > 0); return bytes[position++]; }
+    } serial;
+    for (uint8_t i = 0; i < 3; ++i) {
+        uint8_t *packet = serial.bytes + i * 6;
+        packet[0] = 'L'; packet[1] = 'C'; packet[2] = packet[3] = 1;
+        packet[4] = i + 1; packet[5] = Telemetry::checksum(packet, 5);
+    }
+    reader.poll(serial, lamp, 200);
+    CHECK(serial.position == 8 && lamp.program() == 1);
+    reader.poll(serial, lamp, 201);
+    CHECK(serial.position == 16 && lamp.program() == 2);
+    reader.poll(serial, lamp, 202);
+    CHECK(serial.position == 18 && lamp.program() == 3);
+}
+
 int main() {
     testColors();
     testPatternsAndTiming();
     testEffectTraces();
     testEngineAndTelemetry();
     testBeatRendering();
-    std::cout << "Passed: FastLED colors, eight effect traces, shared engine, and nonblocking telemetry\n";
+    testProgramCommands();
+    std::cout << "Passed: FastLED colors, eight effect traces, shared engine, telemetry, beat rendering and program commands\n";
 }

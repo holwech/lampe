@@ -79,7 +79,7 @@ The dashboard has two sources for the same 3D view:
   Pulse tempo to test beat detection from 60–200 BPM.
 - **Live lamp** reads LED snapshots from the FTDI through Web Serial. Use desktop
   Chrome or Edge on localhost, choose Live lamp → Connect lamp, and select the
-  adapter. Change programs with the physical lamp's button. Connect
+  adapter. Click a program to change the physical lamp; its button also works. Connect
   the **separate 5 V supply** and upload this repository’s firmware first.
 
 Drag the model to orbit, scroll to zoom, and turn the diffuser off to see the
@@ -95,7 +95,7 @@ panel shows the detected BPM alongside the microphone level. It can hold time
 through a brief missing beat, then returns to listening after silence or loss of
 a repeating rhythm. Quiet or complex music can take longer or fail to lock, and
 strong subdivisions can produce half/double tempo. The detector runs on the lamp;
-the browser is only a viewer in Live mode.
+the browser can select programs and display their live output.
 
 ### Start locally
 
@@ -150,6 +150,10 @@ once through DTR; allow for the bootloader and one-second firmware startup delay
 A connected port without valid frames produces a power/firmware troubleshooting
 message. Disconnect in the dashboard before uploading again.
 
+Program buttons become available once current firmware reports live frames.
+The selected card follows the lamp's confirmation, including physical button
+changes. Firmware from before app control stays view-only until upgraded.
+
 The lamp keeps running autonomously at up to 120 FPS. It attempts about 30 serial
 snapshots per second, skipping any that cannot fit immediately in the transmit
 queue. It never waits for a browser or acknowledgements. This adds some CPU/UART
@@ -181,8 +185,9 @@ bootloader. Check the actual controller before changing upload parameters.
 | [`lib/Programs/Programs.cpp`](lib/Programs/Programs.cpp) | The eight lighting effects |
 | [`lib/LampLogic/LampLogic.h`](lib/LampLogic/LampLogic.h) | Hardware-independent brightness arithmetic, audio envelope, debouncing and timing helpers |
 | [`lib/Telemetry/Telemetry.h`](lib/Telemetry/Telemetry.h) | Shared packet encoder and capacity-checked serial writer; [protocol specification](docs/telemetry.md) |
+| [`lib/Telemetry/Commands.h`](lib/Telemetry/Commands.h) | Bounded serial command parser for program selection |
 | [`simulator/`](simulator/) | WebAssembly bridge, virtual clock/ADC inputs, and actual FastLED color implementations |
-| [`web/src/`](web/src/) | TypeScript dashboard, Three.js model, serial reader and packet parser |
+| [`web/src/`](web/src/) | TypeScript dashboard, Three.js model, serial connection and packet parser |
 | [`scripts/build_simulator.py`](scripts/build_simulator.py) | Compiles the engine and FastLED to WebAssembly using pinned Emscripten |
 | [`tests/`](tests/) and [`web/tests/`](web/tests/) | Native regressions, C++/WASM parity, serial framing and browser interaction tests |
 | [`experiments/beat-detection/`](experiments/beat-detection/) | Archived, unfinished beat detector; excluded from the firmware build |
@@ -336,7 +341,7 @@ uv run --locked pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p 
 
 The 3.1.8 → 3.10.5 upgrade also updates PlatformIO and the Arduino AVR core.
 The firmware with the shared engine, beat tracker and telemetry uses about
-**1,078 bytes of static RAM** and **11,828 bytes of flash**. Before the simulator work the upgraded firmware used
+**1,088 bytes of static RAM** and **12,094 bytes of flash**. Before the simulator work the upgraded firmware used
 458 and 8,482 bytes respectively. Static RAM figures
 exclude runtime stack/heap use. The configured board has 2,048 bytes of RAM and
 30,720 bytes of application flash.
@@ -373,7 +378,8 @@ while preserving relative frame brightness and approximating `TypicalLEDStrip`
 correction. Raw RGB inspection remains unscaled. It does not simulate LED PWM,
 FastLED dithering, sensor noise, electrical behavior or exact light diffusion.
 Simulated audio uses the real envelope code, but is not a
-microphone capture. Live mode receives data only, with no remote control channel.
+microphone capture. Live mode reads telemetry and sends program selections over
+the same USB serial connection; the physical lamp keeps rendering autonomously.
 
 ```sh
 # Build first: generated WASM and JS are intentionally ignored by Git.
@@ -388,9 +394,12 @@ compare 8,760 complete native/WASM frames across all eight programs, two seeds,
 audio input, beat acquisition/tempo changes and debounced button transitions. They check independent module
 instances, deterministic resets, arbitrary serial chunk boundaries, CRC rejection
 and resynchronization after lost/corrupt bytes. A fake UART verifies that sending
-never starts unless the whole packet fits. Playwright tests exercise the actual
+never starts unless the whole packet fits. Command tests cover checksums, invalid
+IDs/opcodes, noise, partial-message timeouts, bounded reads and the physical button.
+Playwright tests exercise the actual
 WebGL dashboard on desktop/mobile and a browser serial mock, including stale
-frames, unplugging, a cancelled port picker, tempo lock/release, and automatic pause/resume when the
+frames, command confirmation/timeouts/write failures, legacy firmware, unplugging,
+a cancelled port picker, tempo lock/release, and automatic pause/resume when the
 tab becomes hidden/visible. The same browser suite runs
 against both `npm run dev` and the production preview, including loading the
 generated WebAssembly module.

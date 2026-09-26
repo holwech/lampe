@@ -18,6 +18,7 @@ void Lampe::begin() {
 void Lampe::update() {
     const uint32_t now = millis();
     engine_.pollButton(digitalRead(Hardware::ButtonPin) == HIGH, now);
+    commands_.poll(Serial, engine_, now);
     if (Programs::usesAudio(engine_.program())) {
         engine_.sampleAudio(analogRead(Hardware::AudioPin), now);
     }

@@ -1,20 +1,21 @@
-# Lamp telemetry, version 2
+# Lamp serial protocol
 
 The firmware emits binary snapshots at **115200 baud, 8N1**, with no flow control
-or command channel. It attempts one packet after every four rendered LED frames
+and accepts bounded program-selection commands. It attempts one packet after every four rendered LED frames
 (about 30 Hz). Only `Lampe::update()` writes to serial. It checks that the entire
 packet fits in the AVR UART transmit queue before encoding/writing; a busy queue
 causes that snapshot to be dropped. There is no retry, acknowledgement, connection
 handshake, allocation, or dependence on browser activity in the lamp loop.
 
-Each version 2 packet is exactly 63 bytes. The dashboard also accepts the older
-61-byte version 1 format (without tempo fields); it shows “Update firmware” in
-place of a tempo when receiving version 1 audio frames.
+Each version 3 packet is exactly 63 bytes. Its layout matches version 2; version 3
+advertises support for host program commands. The dashboard also accepts version 2
+and the older 61-byte version 1 format (without tempo fields). Both older versions
+remain view-only; program buttons are disabled with an update-firmware tooltip.
 
 | Offset | Bytes | Meaning |
 | --- | --- | --- |
 | 0 | 2 | Magic bytes `0x4c 0x4d` (`LM`) |
-| 2 | 1 | Version: `2` |
+| 2 | 1 | Version: `3` (program commands supported) |
 | 3 | 1 | LED count: `16` |
 | 4 | 1 | Program ID, indexed from zero in `ProgramList.def` |
 | 5 | 1 | Global brightness, 0–255 |
@@ -45,7 +46,35 @@ does not include this stack space. A compile-time assertion ensures a packet fit
 the configured Arduino TX ring; the default 64-byte ring has 63 usable slots.
 The capacity check is tested with every insufficient capacity and a full packet.
 
-Live mode is read-only. It never sends brightness, program, or pixel commands.
+### Program selection (host → lamp)
+
+The dashboard sends six bytes for a program change:
+
+| Offset | Bytes | Meaning |
+| --- | --- | --- |
+| 0 | 2 | Magic bytes `0x4c 0x43` (`LC`) |
+| 2 | 1 | Command protocol version: `1` |
+| 3 | 1 | Opcode: `1` (select program) |
+| 4 | 1 | Program ID, 0–7 from `ProgramList.def` |
+| 5 | 1 | Same CRC-8 over bytes 0–4 |
+
+For example, selecting Rainbow sends `4c 43 01 01 07 94`.
+The firmware consumes at most eight available bytes per loop, never waiting for
+more. Invalid versions, opcodes, IDs and checksums are discarded; the six-byte
+parser resynchronizes after noise and expires partial commands after a 100 ms
+inter-byte gap. Selecting the current program is a no-op, preserving effect state
+and BPM lock. The physical button continues from the currently selected program.
+Neither source writes EEPROM; restart still selects Color blocks.
+
+The app permits one pending change and uses the regular telemetry program field
+as confirmation. It highlights the lamp's reported program, not an optimistic
+local choice. A write failure, disconnect, or lack of confirmation within two
+seconds reports failure or cancels the pending change. Stale/missing telemetry
+disables program controls. Physical button changes continue to update the app.
+Brightness, pixel writes and other commands are not implemented.
+
+### Connection lifecycle
+
 Opening a serial port can toggle DTR and reset a Pro Mini. The browser deasserts
 DTR/RTS after opening, but cannot prevent an adapter/driver's initial reset pulse.
 Close the dashboard connection before uploading firmware. Older firmware's text

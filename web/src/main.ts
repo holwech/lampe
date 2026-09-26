@@ -28,6 +28,7 @@ let busy = false,
 let selectedPixel = 0,
   accumulator = 0;
 let animationFrame: number | null = null;
+let pendingProgram: number | null = null;
 let lastTick = performance.now(),
   lastReceived = 0,
   connectedAt = 0,
@@ -85,7 +86,9 @@ function updateControls() {
       ? "Disconnect"
       : "Connect lamp";
   programButtons.forEach((b, i) => {
-    b.disabled = live;
+    b.disabled = live && (busy || !connected || !hasLiveFrame || !frame.programControl ||
+      performance.now() - lastReceived > 500 || pendingProgram !== null);
+    b.setAttribute("aria-busy", String(live && pendingProgram === i));
     b.setAttribute(
       "aria-pressed",
       String((!live || hasLiveFrame) && i === frame.program),
@@ -107,7 +110,8 @@ function updateControls() {
         ? "Connected"
         : "Waiting"
       : "Offline";
-  $("programs").title = live ? "Change programs with the lamp’s button" : "";
+  $("programs").title = live && hasLiveFrame && !frame.programControl
+    ? "Update firmware to change programs from the app." : "";
 }
 
 async function setMode(value: "sim" | "live") {
@@ -132,6 +136,7 @@ async function setMode(value: "sim" | "live") {
       audio: 0,
       bpm: null,
       confidence: null,
+      programControl: false,
       sequence: 0,
       time: 0,
       rgb: new Uint8Array(48),
@@ -203,6 +208,7 @@ function updateReadouts(now: number) {
   if (mode === "live") {
     const age = now - lastReceived;
     if (connected && hasLiveFrame && age > 500) {
+      programButtons.forEach((b) => b.disabled = true);
       stageMessage("Signal paused · last frame held");
       $("source-label").dataset.connected = "false";
       $("connection-status").textContent = "Paused";
@@ -273,7 +279,24 @@ async function start() {
     const label = document.createElement("span");
     label.textContent = program.name;
     b.append(top, label);
-    b.addEventListener("click", () => {
+    b.addEventListener("click", async () => {
+      if (mode === "live") {
+        if (!connected || !hasLiveFrame || !frame.programControl || pendingProgram !== null ||
+          performance.now() - lastReceived > 500 || frame.program === i) return;
+        pendingProgram = i;
+        notice("");
+        updateControls();
+        try {
+          await connection.selectProgram(i);
+        } catch (error) {
+          if (mode === "live" && !(error instanceof DOMException && error.name === "AbortError"))
+            notice(error instanceof Error ? error.message : String(error), true);
+        } finally {
+          pendingProgram = null;
+          updateControls();
+        }
+        return;
+      }
       simulator.select(i);
       showFrame(simulator.frame());
       accumulator = 0;

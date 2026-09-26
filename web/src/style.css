@@ -336,6 +336,11 @@ h2 {
   gap: 9px;
   margin-top: 18px;
 }
+.program[aria-busy="true"] {
+  border-color: #85976d;
+  opacity: 0.8;
+  cursor: progress;
+}
 .program {
   display: flex;
   flex-direction: column;

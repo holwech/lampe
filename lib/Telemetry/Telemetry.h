@@ -4,7 +4,8 @@
 #include <stddef.h>
 
 namespace Telemetry {
-constexpr uint8_t Version = 2;
+// Version 3 keeps the v2 layout and advertises program-command support.
+constexpr uint8_t Version = 3;
 constexpr size_t PacketSize = 15 + 3 * LampConfig::LedCount;
 
 inline uint8_t checksum(const uint8_t *data, size_t size) {
