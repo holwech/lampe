@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#edece7" />
+    <title>Lampe Studio</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23222b26'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23c7ef8c' stroke-width='4'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Lampe Studio home"
+          ><span class="brand-mark" aria-hidden="true">◉</span> lampe<span
+            class="brand-divider"
+            >/</span
+          ><span class="brand-studio">studio</span></a
+        >
+        <div class="mode-switch" role="group" aria-label="Source">
+          <button id="sim-mode" aria-pressed="true">Simulator</button
+          ><button id="live-mode" aria-pressed="false">Live lamp</button>
+        </div>
+        <span class="local-badge"><span></span> Local workspace</span>
+      </header>
+      <main>
+        <div class="intro">
+          <div>
+            <p class="eyebrow">LIGHT, IN GOOD COMPANY</p>
+            <h1>A little lamp. A world of color.</h1>
+            <p class="subtitle">Explore the Mini, one program at a time.</p>
+          </div>
+          <div class="hardware-label">
+            <strong>LAMPE MINI</strong
+            ><span>16 pixels · one shared engine</span>
+          </div>
+        </div>
+        <div id="notice" class="notice" role="status">
+          Loading the lamp engine…
+        </div>
+        <div id="live-info" class="live-info" hidden>
+          <div>
+            <strong>Connect the FTDI and the separate 5 V supply.</strong>
+            <p>
+              The FTDI connection alone cannot power the lights. Use the lamp’s
+              button to change programs. Opening the port may reset the
+              controller once.
+            </p>
+          </div>
+          <button id="connect" class="primary">Connect lamp</button>
+        </div>
+        <div class="workspace">
+          <section class="viewer-panel" aria-label="3D lamp preview">
+            <div class="stage" id="stage">
+              <div class="stage-top">
+                <span class="stage-tag">MINI / 01</span
+                ><span id="source-label" class="source-label"
+                  ><i></i> SIMULATED</span
+                >
+              </div>
+              <canvas
+                id="lamp-canvas"
+                aria-label="Interactive 3D model of Lampe Mini. Drag to rotate and scroll to zoom."
+              ></canvas>
+              <div id="stage-message" class="stage-message" hidden></div>
+              <div class="stage-tools">
+                <button id="diffuser" aria-pressed="true">Diffuser on</button
+                ><button
+                  id="reset-view"
+                  aria-label="Reset camera view"
+                  title="Reset camera view"
+                >
+                  ↺ View
+                </button>
+              </div>
+              <span class="orbit-hint"
+                >Drag to orbit <span>·</span> Scroll to zoom</span
+              >
+            </div>
+            <div class="transport">
+              <div class="transport-actions">
+                <button
+                  id="play"
+                  class="play"
+                  aria-label="Pause simulation"
+                  disabled
+                >
+                  Ⅱ</button
+                ><button
+                  id="restart"
+                  aria-label="Restart simulation"
+                  title="Restart with the same seed"
+                  disabled
+                >
+                  ↺</button
+                ><button
+                  id="step"
+                  aria-label="Step one frame"
+                  title="Pause and step one frame"
+                  disabled
+                >
+                  ↦</button
+                ><label class="speed-label" for="speed">Speed</label
+                ><select id="speed" aria-label="Playback speed" disabled>
+                  <option value="0.25">¼×</option>
+                  <option value="0.5">½×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="2">2×</option>
+                  <option value="4">4×</option>
+                </select>
+              </div>
+              <div class="clock">
+                <span id="clock-label">SIMULATION TIME</span
+                ><output id="clock">00:00.000</output>
+              </div>
+            </div>
+            <section class="pixels" aria-label="LED inspector">
+              <div class="section-line">
+                <h2>The pixels underneath</h2>
+                <span>RAW RGB / 16 LEDS</span>
+              </div>
+              <div id="led-strip" class="led-strip"></div>
+              <div class="pixel-detail">
+                <span id="pixel-name">Pixel 00</span
+                ><code id="pixel-rgb">R 000 &nbsp; G 000 &nbsp; B 000</code
+                ><code id="pixel-hex">#000000</code>
+              </div>
+            </section>
+          </section>
+          <aside class="controls">
+            <section class="programs-section">
+              <div class="section-line">
+                <h2>Light programs</h2>
+                <span id="program-count">—</span>
+              </div>
+              <p class="section-help" id="program-help">
+                Same C++ effects. A new place to play.
+              </p>
+              <div
+                id="programs"
+                class="programs"
+                role="group"
+                aria-label="Light programs"
+              ></div>
+              <p id="program-description" class="program-description"></p>
+            </section>
+            <section class="tuning">
+              <div class="section-line">
+                <h2>Fine tune</h2>
+                <span id="tuning-label">SIMULATOR</span>
+              </div>
+              <label class="slider-label" for="brightness"
+                ><span>Brightness</span
+                ><output id="brightness-value">39%</output></label
+              ><input
+                id="brightness"
+                type="range"
+                min="0"
+                max="255"
+                value="100"
+                disabled
+              />
+              <div class="seed-row">
+                <label for="seed">Random seed</label
+                ><input
+                  id="seed"
+                  type="number"
+                  min="0"
+                  max="65535"
+                  step="1"
+                  value="1337"
+                  disabled
+                /><button
+                  id="apply-seed"
+                  aria-label="Restart with this seed"
+                  title="Restart with this seed"
+                  disabled
+                >
+                  ↺
+                </button>
+              </div>
+              <p class="tiny">A fixed seed makes every replay repeatable.</p>
+            </section>
+            <section class="audio-section">
+              <div class="section-line">
+                <h2>Sound input</h2>
+                <span id="audio-status">IDLE</span>
+              </div>
+              <div class="audio-controls">
+                <label for="audio-mode" class="sr-only"
+                  >Simulated sound source</label
+                ><select id="audio-mode" disabled>
+                  <option value="pulse">Pulsing signal</option>
+                  <option value="steady">Steady signal</option>
+                  <option value="silence">Silence</option></select
+                ><output id="audio-value">0</output>
+              </div>
+              <div
+                class="meter"
+                role="meter"
+                aria-label="Audio envelope"
+                aria-valuemin="0"
+                aria-valuemax="255"
+                aria-valuenow="0"
+              >
+                <span id="audio-meter"></span>
+              </div>
+              <label class="slider-label" for="audio-level"
+                ><span>Input level</span
+                ><output id="audio-level-value">45%</output></label
+              ><input
+                id="audio-level"
+                type="range"
+                min="0"
+                max="100"
+                value="45"
+                disabled
+              />
+              <p id="audio-help" class="tiny">
+                Choose Sound reactive to explore the audio response.
+              </p>
+            </section>
+          </aside>
+        </div>
+        <footer>
+          <span
+            ><i class="status-dot"></i
+            ><span id="engine-status">Starting engine</span></span
+          ><span id="stream-status"
+            >120 Hz simulation · 3D diffusion is approximate</span
+          ><a
+            href="https://github.com/holwech/lampe"
+            target="_blank"
+            rel="noreferrer"
+            >Project & wiring ↗</a
+          >
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

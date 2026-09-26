@@ -40,8 +40,8 @@ shows the programming header's ground connections and capacitive reset circuit.
    the board as a Pro Mini/ATmega328P, but do not establish its voltage variant.
 3. Plug the FTDI adapter's USB cable into the computer and connect the lamp's
    **separate 5 V supply**. Keep FTDI VCC disconnected with this arrangement.
-4. Select the adapter's serial port for uploads or serial monitoring. The
-   firmware logs the selected program at **115200 baud** on startup and mode changes.
+4. Select the adapter’s serial port for uploads or in the local dashboard. The
+   firmware streams binary LED snapshots at **115200 baud**; see Live lamp below.
 
 <a href="docs/images/ftdi-wiring.jpg"><img src="docs/images/ftdi-wiring.jpg" alt="Close-up of the Pro Mini programming header and FTDI adapter, showing the disconnected VCC pin" width="600"></a>
 
@@ -67,6 +67,83 @@ separate 5 V supply. Adapter activity alone does not confirm that the lamp is
 powered. For upload problems, check the selected port, crossed TX/RX connections,
 common ground, and DTR connection before changing firmware settings.
 
+## For humans: the local lamp studio
+
+The dashboard has two sources for the same 3D view:
+
+- **Simulator** runs the actual C++ effects and FastLED color math in your browser
+  using WebAssembly. No lamp is needed. Choose a program, pause, step a frame,
+  change playback speed or brightness, and replay with a fixed random seed.
+  Sound reactive accepts a simulated steady or pulsing input, or silence.
+- **Live lamp** reads LED snapshots from the FTDI through Web Serial. Use desktop
+  Chrome or Edge on localhost, choose Live lamp → Connect lamp, and select the
+  adapter. Program and brightness controls stay on the physical lamp. Connect
+  the **separate 5 V supply** and upload this repository’s firmware first.
+
+Drag the model to orbit, scroll to zoom, and turn the diffuser off to see the
+16 LED ring and controller. Click a pixel below the model (or a visible 3D LED)
+for its raw RGB values. The diffuser shape is based on the photos; its light
+spread, brightness, and pixel orientation are an approximation, not a calibrated
+optical model. Raw pixel values are the actual effect output.
+
+### Start locally
+
+Requirements: Node.js **22.12+** (24 LTS recommended), Python 3, a C++17 compiler,
+PlatformIO from `requirements-dev.txt`, and Emscripten **6.0.10**. Set up the Python
+virtual environment as described under Building and testing, then:
+
+```sh
+# From this repository. Installs the shared FastLED source without building AVR.
+pio pkg install --environment nanoatmega328
+npm ci
+
+# One-time SDK installation in a sibling directory; skip the clone if installed.
+git clone --depth 1 https://github.com/emscripten-core/emsdk.git ../emsdk
+../emsdk/emsdk install "$(cat .emscripten-version)"
+../emsdk/emsdk activate "$(cat .emscripten-version)"
+source ../emsdk/emsdk_env.sh
+
+npm run dev
+```
+
+Open **http://127.0.0.1:5173**. Everything runs locally; no account, backend service,
+or internet connection is needed after installing dependencies. The server binds
+only to loopback. If Emscripten is already installed elsewhere, source that SDK’s
+`emsdk_env.sh` or set `EMXX=/absolute/path/to/em++`.
+
+Saving a C++ file under `lib/` or `simulator/` rebuilds WebAssembly and reloads the
+page. Changes to the web UI use Vite’s normal development reload. A page reload
+restarts the simulation and requires reconnecting live serial. Build errors appear
+in the terminal; the last successful simulator stays available until a build
+succeeds. Stop the server with Ctrl+C.
+
+For a production build and local preview:
+
+```sh
+npm run build
+npm run preview
+# Open http://127.0.0.1:4173
+```
+
+Only building needs Emscripten. `dist/` contains the complete static dashboard,
+including the compiled lamp engine, and can be served locally after building.
+
+### Connecting the real lamp
+
+Close any serial monitor and upload the current firmware using the instructions
+below. Older firmware only logs program numbers and cannot feed the dashboard.
+Choose Live lamp and connect the FTDI. Opening the port may reset the controller
+once through DTR; allow for the bootloader and one-second firmware startup delay.
+A connected port without valid frames produces a power/firmware troubleshooting
+message. Disconnect in the dashboard before uploading again.
+
+The lamp keeps running autonomously at up to 120 FPS. It attempts about 30 serial
+snapshots per second, skipping any that cannot fit immediately in the transmit
+queue. It never waits for a browser or acknowledgements. This adds some CPU/UART
+work, but no intentional frame delay. The browser holds the last frame and marks
+it stale after 500 ms without data. Cable removal never silently switches to the
+simulator. Real hardware timing still needs to be measured.
+
 ## Project context for developers and agents
 
 This is a single PlatformIO project targeting Arduino on AVR. It controls 16
@@ -85,12 +162,16 @@ bootloader. Check the actual controller before changing upload parameters.
 | File or directory | Responsibility |
 | --- | --- |
 | [`src/main.cpp`](src/main.cpp) | Starts serial, waits one second, calls `lampe.begin()` from `setup()`, and runs `lampe.update()` from `loop()` |
-| [`lib/Lampe/Hardware.h`](lib/Lampe/Hardware.h) | Pin assignments, LED count, brightness and frame interval |
-| [`lib/Lampe/`](lib/Lampe/) | Hardware initialization, LED buffer, input polling, per-effect state and frame scheduling |
-| [`lib/Programs/ProgramMenu.cpp`](lib/Programs/ProgramMenu.cpp) | Single effect table defining dispatch, audio input needs and menu length |
+| [`lib/Lampe/`](lib/Lampe/) | Arduino pin assignments, LED initialization, input polling, frame scheduling and nonblocking telemetry |
+| [`lib/LampEngine/`](lib/LampEngine/) | Shared LED buffer, effect/input state, deterministic randomness and hardware-independent configuration |
+| [`lib/Programs/ProgramList.def`](lib/Programs/ProgramList.def) | Single registry for firmware dispatch, audio flags and simulator labels |
 | [`lib/Programs/Programs.cpp`](lib/Programs/Programs.cpp) | The eight lighting effects |
 | [`lib/LampLogic/LampLogic.h`](lib/LampLogic/LampLogic.h) | Hardware-independent brightness arithmetic, audio envelope, debouncing and timing helpers |
-| [`tests/`](tests/) | Regression tests for arithmetic, input handling, menu dispatch, timer rollover and rendered LED colors |
+| [`lib/Telemetry/Telemetry.h`](lib/Telemetry/Telemetry.h) | Shared packet encoder and capacity-checked serial writer; [protocol specification](docs/telemetry.md) |
+| [`simulator/`](simulator/) | WebAssembly bridge, virtual clock/ADC inputs, and actual FastLED color implementations |
+| [`web/src/`](web/src/) | TypeScript dashboard, Three.js model, serial reader and packet parser |
+| [`scripts/build_simulator.py`](scripts/build_simulator.py) | Compiles the engine and FastLED to WebAssembly using pinned Emscripten |
+| [`tests/`](tests/) and [`web/tests/`](web/tests/) | Native regressions, C++/WASM parity, serial framing and browser interaction tests |
 | [`experiments/beat-detection/`](experiments/beat-detection/) | Archived, unfinished beat detector; excluded from the firmware build |
 | [`platformio.ini`](platformio.ini) | Pinned AVR platform, toolchain, Arduino core and FastLED dependency; downloaded libraries live under ignored `.pio/libdeps/` |
 
@@ -113,7 +194,7 @@ and existing LED colors carry through transitions.
 | Button/sensor input | D2, `INPUT`; HIGH while pressed, advance on a stable LOW release |
 | Debounce interval | 20 ms, configurable in `LampLogic.h` |
 | Audio input | A0; 10-bit ADC values from 0 to 1023 |
-| Serial output | 115200 baud; selected program index on startup and changes |
+| Serial output | 115200 baud; 61-byte binary RGB/metadata packets at about 30 Hz |
 
 The existing input wiring supplies the button's logic level; the firmware does
 not enable an internal pull-up. Verify the input module's polarity and pulse
@@ -135,8 +216,10 @@ button release advances through all eight programs, then wraps back to 0:
 | 7 | Rainbow (`rainbow`) |
 
 To add an effect, implement it in `Programs.cpp`, declare it in `Programs.h`, and
-add it to the table in `ProgramMenu.cpp`. Menu length is derived from that table.
-Set its audio flag if it needs microphone sampling, and extend the dispatch test.
+add it to `ProgramList.def`. Menu length, dispatch, labels and audio flags come
+from that registry. Keep existing IDs stable for live telemetry. Set the audio
+flag if the effect needs microphone sampling, and extend the dispatch and rendering
+tests. Optional dashboard descriptions/swatches live in `web/src/main.ts`.
 
 The amplitude effect collects peak-to-peak values over successive 50 ms windows.
 It scales them using 32-bit arithmetic, decays the envelope by one level every
@@ -203,7 +286,7 @@ effect timing, and repeatable 15-second frame sequences for all eight effects.
 The amplitude rendering trace covers silence; audio input arithmetic is covered
 separately by the logic tests. These host checks do not exercise LED signal timing.
 
-The test adapter in `tests/fastled_colors.cpp` includes a small set of upstream
+The shared adapter in `simulator/fastled_colors.cpp` includes a small set of upstream
 implementation files; review those paths and intentional color changes when
 upgrading FastLED. If using a custom PlatformIO library directory, pass
 `python scripts/test.py --fastled-dir /path/to/FastLED`.
@@ -221,8 +304,9 @@ pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p m328p -c dryrun 
 ### FastLED upgrade notes
 
 The 3.1.8 → 3.10.5 upgrade also updates PlatformIO and the Arduino AVR core.
-The default firmware build uses **458 bytes of static RAM** and **8,482 bytes of
-flash**, compared with 391 and 8,162 bytes before the upgrade. Static RAM figures
+The firmware with the shared engine and telemetry uses **460 bytes of static RAM**
+and **8,574 bytes of flash**. Before the simulator work the upgraded firmware used
+458 and 8,482 bytes respectively. Static RAM figures
 exclude runtime stack/heap use. The configured board has 2,048 bytes of RAM and
 30,720 bytes of application flash.
 
@@ -236,12 +320,49 @@ This is the upstream color behavior; the effect logic, timing, global brightness
 and LED wiring settings are retained. Rendering fingerprints record the new
 behavior so subsequent dependency changes are visible in tests.
 
-FastLED 3.10.5 also includes host and WebAssembly backends. The host rendering
-tests establish that our effects can run outside the Arduino. A future local
-simulator can use the same C++ effects with the upstream
-[FastLED web compiler](https://github.com/zackees/fastled-wasm), with simulated
-time/button/audio inputs. The 3D dashboard and live serial frame streaming are
-not implemented yet; browser compilation remains a separate integration step.
+### Simulator architecture and verification
+
+`LampEngine` owns program state, the 16 RGB pixels, debouncing and the audio
+envelope. It has no Arduino calls. The small `Lampe` adapter supplies real time,
+pins, ADC readings and FastLED output; `simulator/bridge.cpp` supplies virtual
+time and a deterministic 1 kHz square-wave ADC source. Both compile the same
+`Programs.cpp` and the pinned FastLED color algorithms. Each engine preserves its
+own random seed, so simulations are reproducible and independent.
+
+The browser steps the engine at 8,333 µs intervals regardless of display refresh
+rate. Playback speed changes how much virtual time advances. Hidden tabs freeze
+the simulator; long browser stalls are capped instead of replaying a large
+backlog. Reset reinitializes the engine with the chosen seed and selected program;
+ordinary program changes preserve hue/pixels like the physical button. Simulator
+brightness affects the preview, while raw RGB inspection remains unscaled.
+
+The live adapter and simulator both produce the same frame representation. The
+renderer approximates `TypicalLEDStrip` correction and global brightness; it does
+not simulate LED PWM, FastLED dithering, sensor noise, electrical behavior or exact
+light diffusion. Simulated audio uses the real envelope code, but is not a
+microphone capture. Live mode receives data only, with no remote control channel.
+
+```sh
+# Build first: generated WASM and JS are intentionally ignored by Git.
+npm run build
+npm test
+npx playwright install chromium
+npm run test:browser
+```
+
+The native suites retain the eight 15-second effect fingerprints. Node tests
+compare 5,760 complete native/WASM frames across all eight programs, two seeds,
+audio input and debounced button transitions. They check independent module
+instances, deterministic resets, arbitrary serial chunk boundaries, CRC rejection
+and resynchronization after lost/corrupt bytes. A fake UART verifies that sending
+never starts unless the whole packet fits. Playwright tests exercise the actual
+WebGL dashboard on desktop/mobile and a browser serial mock, including stale
+frames, unplugging and a cancelled port picker.
+
+CI builds AVR and WebAssembly, runs these suites, builds the static dashboard and
+checks AVRDUDE's simulated programmer. The JS dependency versions are pinned in
+`package.json`/`package-lock.json`; Emscripten is pinned in `.emscripten-version`.
+No generated third-party source or WebAssembly binary is checked in.
 
 ### Uploading
 
@@ -251,17 +372,18 @@ described above before uploading:
 
 ```sh
 pio run --environment nanoatmega328 --target upload --upload-port YOUR_SERIAL_PORT
-pio device monitor --port YOUR_SERIAL_PORT
 ```
 
-Close the serial monitor before uploading. `monitor_speed = 115200` is already
-configured; it is separate from the bootloader's upload speed. See the PlatformIO
-references for [`pio run`](https://docs.platformio.org/en/latest/core/userguide/cmd_run.html)
-and [serial monitoring](https://docs.platformio.org/en/latest/core/userguide/device/cmd_monitor.html).
+Disconnect the dashboard (and close any serial monitor) before uploading.
+`monitor_speed = 115200` is separate from the bootloader’s upload speed. The
+stream is binary, so a text serial monitor will show unreadable bytes; use Live
+lamp to inspect it. See the PlatformIO reference for
+[`pio run`](https://docs.platformio.org/en/latest/core/userguide/cmd_run.html) and
+the [Web Serial documentation](https://developer.chrome.com/docs/capabilities/serial).
 
 ### Hardware verification
 
-The cleanup and library upgrade were checked with host tests and an AVR build.
+Firmware, simulator and dashboard changes are checked by the automated suites above.
 This firmware has not yet been flashed to or tested on the physical lamp. In
 particular, check that:
 
@@ -271,6 +393,9 @@ particular, check that:
 - Button input remains responsive in the audio mode, and sound produces smooth
   red brightness without wrapping at high levels.
 - Effect colors, timing and transitions look right on the actual LED strip.
+- The live dashboard receives roughly 30 FPS and matches the raw LED patterns.
+- Connecting, disconnecting and leaving the dashboard closed do not visibly
+  interrupt animation, apart from the possible DTR reset on opening the port.
 
 Record the hardware and firmware revision tested. The JPEGs in
 [`docs/images/`](docs/images/) are the six supplied reference photos and document

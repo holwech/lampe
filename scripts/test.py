@@ -38,13 +38,14 @@ with tempfile.TemporaryDirectory(prefix="lampe-tests-") as output:
                 # Treat external headers as system headers; keep our own warnings strict.
                 "-isystem", str(fastled),
                 "-isystem", str(fastled / "platforms/stub"),
-                "-I", str(ROOT / "lib/Lampe"),
+                "-I", str(ROOT / "lib/LampEngine"),
+                "-I", str(ROOT / "lib/Telemetry"),
                 # Discard unused library functions that depend on hardware/runtime I/O.
                 "-ffunction-sections", "-fdata-sections",
                 "-Wl,-dead_strip" if sys.platform == "darwin" else "-Wl,--gc-sections",
             ],
-            ["tests/test_rendering.cpp", "tests/fastled_colors.cpp",
-             "lib/Programs/Programs.cpp", "lib/Programs/ProgramMenu.cpp"],
+            ["tests/test_rendering.cpp", "simulator/fastled_colors.cpp",
+             "lib/Programs/Programs.cpp", "lib/Programs/ProgramMenu.cpp", "lib/LampEngine/LampEngine.cpp"],
         ),
     }
     for name, (extra_flags, sources) in suites.items():

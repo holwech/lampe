@@ -1,0 +1,27 @@
+{
+  "name": "lampe-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build:simulator": "python3 scripts/build_simulator.py",
+    "build": "npm run build:simulator && tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test web/tests/*.test.mjs",
+    "test:browser": "playwright test",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/three": "0.186.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.1"
+  }
+}

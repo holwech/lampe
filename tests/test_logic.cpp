@@ -15,12 +15,12 @@
 
 // Link the real menu to recording callbacks; these tests exercise dispatch,
 // not FastLED's pixel rendering or hardware I/O.
-class Lampe {};
+class LampEngine {};
 static const char *rendered = nullptr;
 static uint32_t renderedAt = 0;
 namespace Programs {
 #define RECORD_EFFECT(name) \
-    void name(Lampe &, uint32_t now) { rendered = #name; renderedAt = now; }
+    void name(LampEngine &, uint32_t now) { rendered = #name; renderedAt = now; }
 RECORD_EFFECT(quarterBlink)
 RECORD_EFFECT(flow)
 RECORD_EFFECT(amplitude)
@@ -126,7 +126,7 @@ void testMenu() {
     const char *expected[] = {"quarterBlink", "flow", "amplitude", "ambulance",
                               "ambulanceHue", "fireplace", "northernLights", "rainbow"};
     CHECK(Programs::count() == sizeof(expected) / sizeof(expected[0]));
-    Lampe lamp;
+    LampEngine lamp;
     uint8_t index = 0;
     for (uint8_t pass = 0; pass < 2; ++pass) {
         for (uint8_t i = 0; i < Programs::count(); ++i) {

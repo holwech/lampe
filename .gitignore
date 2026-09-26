@@ -39,3 +39,8 @@
 .vscode/
 .venv/
 __pycache__/
+node_modules/
+dist/
+web/public/generated/
+test-results/
+playwright-report/

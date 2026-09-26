@@ -1,4 +1,4 @@
-name: Firmware checks
+name: Lamp checks
 
 on:
   push:
@@ -30,3 +30,23 @@ jobs:
           pio pkg exec --package platformio/tool-avrdude --
           avrdude -N -p m328p -c dryrun
           -U flash:w:.pio/build/nanoatmega328/firmware.hex:i
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install pinned Emscripten SDK
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install "$(cat .emscripten-version)"
+          "$RUNNER_TEMP/emsdk/emsdk" activate "$(cat .emscripten-version)"
+          echo "EMXX=$RUNNER_TEMP/emsdk/upstream/emscripten/em++" >> "$GITHUB_ENV"
+      - name: Install dashboard dependencies
+        run: npm ci
+      - name: Build shared engine and dashboard
+        run: npm run build
+      - name: Verify native and WebAssembly parity and serial framing
+        run: npm test
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Test dashboard and simulated serial connection
+        run: npm run test:browser

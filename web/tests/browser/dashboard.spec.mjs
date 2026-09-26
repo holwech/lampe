@@ -1,0 +1,192 @@
+import { test, expect } from "@playwright/test";
+
+test("simulator controls, real rendering, pixel inspection and responsive layout", async ({
+  page,
+}) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  await page.goto("/");
+  await expect(page.locator(".program")).toHaveCount(8);
+  await expect(page.locator("#lamp-canvas")).toHaveAttribute(
+    "data-ready",
+    "true",
+  );
+  await page
+    .getByRole("button", { name: "Pause simulation", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Restart simulation", exact: true })
+    .click();
+  await expect(page.locator("#clock")).toHaveAttribute("data-time", "0");
+  await page.waitForTimeout(150);
+  await expect(page.locator("#clock")).toHaveAttribute("data-time", "0");
+  await page.getByRole("button", { name: "Step one frame" }).click();
+  await expect(page.locator("#clock")).toHaveAttribute("data-time", "8");
+  await page.locator('[data-program="2"]').click();
+  await expect(page.locator("#audio-mode")).toBeEnabled();
+  await page.selectOption("#audio-mode", "steady");
+  await page.locator("#audio-level").fill("100");
+  for (let i = 0; i < 8; i++)
+    await page.getByRole("button", { name: "Step one frame" }).click();
+  await expect(page.locator("#pixel-hex")).toHaveText("#FF0000");
+  await page
+    .getByRole("button", { name: "Inspect pixel 7", exact: true })
+    .click();
+  await expect(page.locator("#pixel-name")).toHaveText("Pixel 07");
+  await page.getByRole("button", { name: "Diffuser on" }).click();
+  await expect(
+    page.getByRole("button", { name: "Diffuser off" }),
+  ).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "Diffuser off" }).click();
+  await page.locator('[data-program="5"]').click();
+  await page
+    .getByRole("button", { name: "Play simulation", exact: true })
+    .click();
+  await page.waitForTimeout(250);
+  await page.screenshot({
+    path: "test-results/studio-desktop.png",
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: "test-results/studio-mobile.png",
+    fullPage: true,
+  });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+async function mockSerial(page, cancel = false) {
+  await page.addInitScript(
+    ({ cancel }) => {
+      window.serialTest = {
+        opened: 0,
+        closed: 0,
+        signals: null,
+        controller: null,
+      };
+      Object.defineProperty(navigator, "serial", {
+        configurable: true,
+        value: {
+          async requestPort() {
+            if (cancel)
+              throw new DOMException("No port selected", "NotFoundError");
+            const stream = new ReadableStream({
+              start(controller) {
+                window.serialTest.controller = controller;
+              },
+            });
+            return {
+              readable: stream,
+              async open(options) {
+                window.serialTest.opened++;
+                window.serialTest.options = options;
+              },
+              async close() {
+                if (stream.locked) throw new Error("Reader lock was not released");
+                window.serialTest.closed++;
+              },
+              async setSignals(signals) {
+                window.serialTest.signals = signals;
+              },
+            };
+          },
+        },
+      });
+    },
+    { cancel },
+  );
+}
+
+test("live frames, split serial packets, stale state, disconnect and return to simulation", async ({
+  page,
+}) => {
+  await mockSerial(page);
+  await page.goto("/");
+  await expect(page.locator(".program")).toHaveCount(8);
+  await page.getByRole("button", { name: "Live lamp", exact: true }).click();
+  await expect(page.locator("#live-info")).toContainText("separate 5 V supply");
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Disconnect", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("#brightness")).toBeDisabled();
+  await expect(page.locator('[data-program="7"]')).toBeDisabled();
+  await page.evaluate(async () => {
+    const { default: createLamp } = await import("/generated/lamp.js");
+    const module = await createLamp();
+    module._lamp_reset(42);
+    module._lamp_select(7);
+    module._lamp_advance(120, 0, 0);
+    const p = module._lamp_frame();
+    const bytes = module.HEAPU8.slice(p, p + 61);
+    window.serialTest.controller.enqueue(bytes.slice(0, 17));
+    window.serialTest.controller.enqueue(bytes.slice(17));
+  });
+  await expect(page.locator('[data-program="7"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator("#clock")).toHaveAttribute("data-time", "999");
+  await expect(page.locator("#stage-message")).toHaveText(
+    "Signal paused · last frame held",
+  );
+  await page.evaluate(() =>
+    window.serialTest.controller.error(new Error("Cable unplugged")),
+  );
+  await expect(page.locator("#notice")).toContainText("Cable unplugged");
+  await expect(page.locator("#clock")).toHaveAttribute("data-time", "999");
+  await expect(page.locator("#live-mode")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("button", { name: "Simulator", exact: true }).click();
+  await expect(page.locator("#brightness")).toBeEnabled();
+  expect(await page.evaluate(() => window.serialTest.options.baudRate)).toBe(
+    115200,
+  );
+  expect(await page.evaluate(() => window.serialTest.closed)).toBe(1);
+});
+
+test("canceling the port picker leaves a usable dashboard", async ({
+  page,
+}) => {
+  await mockSerial(page, true);
+  await page.goto("/");
+  await expect(page.locator(".program")).toHaveCount(8);
+  await page.getByRole("button", { name: "Live lamp", exact: true }).click();
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  await expect(page.locator("#notice")).toContainText("No port selected");
+  await expect(
+    page.getByRole("button", { name: "Connect lamp", exact: true }),
+  ).toBeEnabled();
+  await page.getByRole("button", { name: "Simulator", exact: true }).click();
+  await expect(page.locator("#play")).toBeEnabled();
+});
+
+test("manual disconnect releases the port and preserves simulation settings", async ({ page }) => {
+  await mockSerial(page);
+  await page.goto("/");
+  await expect(page.locator(".program")).toHaveCount(8);
+  await page.getByRole("button", { name: "Pause simulation", exact: true }).click();
+  await page.locator("#brightness").fill("210");
+  await page.getByRole("button", { name: "Live lamp", exact: true }).click();
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  await page.getByRole("button", { name: "Disconnect", exact: true }).click();
+  expect(await page.evaluate(() => window.serialTest.closed)).toBe(1);
+  await page.getByRole("button", { name: "Connect lamp", exact: true }).click();
+  expect(await page.evaluate(() => window.serialTest.opened)).toBe(2);
+  await page.getByRole("button", { name: "Simulator", exact: true }).click();
+  expect(await page.evaluate(() => window.serialTest.closed)).toBe(2);
+  await expect(page.locator("#brightness")).toHaveValue("210");
+  await expect(page.getByRole("button", { name: "Play simulation", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Diffuser on", exact: true }).click();
+  await page.screenshot({ path: "test-results/studio-led-ring.png", fullPage: true });
+});

@@ -1,0 +1,9 @@
+// One registry for firmware dispatch and browser labels. Keep IDs stable on the wire.
+LAMP_PROGRAM(quarterBlink, "Color blocks", false)
+LAMP_PROGRAM(flow, "Flow", false)
+LAMP_PROGRAM(amplitude, "Sound reactive", true)
+LAMP_PROGRAM(ambulance, "Red & blue", false)
+LAMP_PROGRAM(ambulanceHue, "Chasing hues", false)
+LAMP_PROGRAM(fireplace, "Fireplace", false)
+LAMP_PROGRAM(northernLights, "Northern lights", false)
+LAMP_PROGRAM(rainbow, "Rainbow", false)

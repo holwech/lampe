@@ -1,5 +1,6 @@
-#include <Lampe.h>
+#include <LampEngine.h>
 #include <Programs.h>
+#include <Telemetry.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -26,18 +27,18 @@ void testColors() {
 }
 
 void testPatternsAndTiming() {
-    Lampe flow;
+    LampEngine flow;
     Programs::render(1, flow, 0);
     CHECK(flow.leds[7] == CRGB(255, 0, 0));
-    for (uint8_t i = 0; i < Hardware::LedCount / 2; ++i) {
-        CHECK(flow.leds[i] == flow.leds[Hardware::LedCount - 1 - i]);
+    for (uint8_t i = 0; i < LampConfig::LedCount / 2; ++i) {
+        CHECK(flow.leds[i] == flow.leds[LampConfig::LedCount - 1 - i]);
     }
     Programs::render(1, flow, 19);
     CHECK(flow.hue == 0);
     Programs::render(1, flow, 20);
     CHECK(flow.hue == 1);
 
-    Lampe ambulance;
+    LampEngine ambulance;
     Programs::render(3, ambulance, 29);
     CHECK(ambulance.effect.position == 0);
     Programs::render(3, ambulance, 30);
@@ -50,20 +51,20 @@ void testPatternsAndTiming() {
     CHECK(ambulance.leds[1] == CRGB(255, 0, 0));
     CHECK(ambulance.leds[9] == CRGB(0, 0, 255));
 
-    Lampe silence;
-    fill_solid(silence.leds, Hardware::LedCount, CRGB(255, 255, 255));
+    LampEngine silence;
+    fill_solid(silence.leds, LampConfig::LedCount, CRGB(255, 255, 255));
     Programs::render(2, silence, 0);
     for (const auto &pixel : silence.leds) CHECK(pixel == CRGB(0, 0, 0));
 }
 
 uint32_t renderTrace(uint8_t program, uint16_t seed) {
     // Start each effect with black pixels and zero state, without touching GPIO.
-    Lampe lamp;
-    fill_solid(lamp.leds, Hardware::LedCount, CRGB(0, 0, 0));
+    LampEngine lamp;
+    fill_solid(lamp.leds, LampConfig::LedCount, CRGB(0, 0, 0));
     random16_set_seed(seed);
     uint32_t hash = 2166136261UL;
     for (uint32_t frame = 0; frame < 1800; ++frame) {
-        const uint32_t now = frame * Hardware::FrameIntervalUs / 1000;
+        const uint32_t now = frame * LampConfig::FrameIntervalUs / 1000;
         Programs::render(program, lamp, now);
         for (const auto &pixel : lamp.leds) {
             for (uint8_t channel : {pixel.r, pixel.g, pixel.b}) {
@@ -97,9 +98,68 @@ void testEffectTraces() {
     CHECK(renderTrace(5, 42) != expected[5]);
 }
 
+void testEngineAndTelemetry() {
+    LampEngine lamp;
+    lamp.reset(100, false, 42);
+    CHECK(lamp.program() == 0);
+    CHECK(!lamp.selectProgram(255, 100));
+    CHECK(lamp.program() == 0);
+    CHECK(lamp.selectProgram(2, 100));
+    lamp.sampleAudio(0, 100);
+    lamp.sampleAudio(1023, 150);
+    lamp.render(150);
+    CHECK(lamp.audioLevel() == 255);
+    CHECK(lamp.leds[0] == CRGB(255, 0, 0));
+    lamp.selectProgram(0, 150);
+    CHECK(lamp.audioLevel() == 0);
+    CHECK(!lamp.pollButton(true, 150));
+    CHECK(!lamp.pollButton(true, 171));
+    CHECK(!lamp.pollButton(false, 180));
+    CHECK(lamp.pollButton(false, 201));
+    CHECK(lamp.program() == 1);
+    CHECK(!lamp.pollButton(false, 250));
+
+    LampEngine first, second;
+    first.reset(0, false, 1337); second.reset(0, false, 1337);
+    first.selectProgram(5, 0); second.selectProgram(5, 0);
+    for (uint32_t time = 0; time < 10000; time += 8) {
+        first.render(time); second.render(time);
+        for (uint8_t i = 0; i < LampConfig::LedCount; ++i) CHECK(first.leds[i] == second.leds[i]);
+    }
+    const uint8_t known[] = {'1','2','3','4','5','6','7','8','9'};
+    CHECK(Telemetry::checksum(known, sizeof(known)) == 0xf4);
+    struct FakeSerial {
+        int capacity = 0;
+        int writes = 0;
+        uint8_t bytes[Telemetry::PacketSize] = {};
+        int availableForWrite() { return capacity; }
+        void write(const uint8_t *data, size_t size) {
+            CHECK(size <= static_cast<size_t>(capacity));
+            CHECK(size == Telemetry::PacketSize);
+            for (size_t i = 0; i < size; ++i) bytes[i] = data[i];
+            ++writes;
+        }
+    } serial;
+    for (int capacity = 0; capacity < static_cast<int>(Telemetry::PacketSize); ++capacity) {
+        serial.capacity = capacity;
+        CHECK(!Telemetry::tryWrite(serial, lamp, 0x12345678, 254, 100));
+    }
+    CHECK(serial.writes == 0);
+    serial.capacity = Telemetry::PacketSize;
+    CHECK(Telemetry::tryWrite(serial, lamp, 0x12345678, 254, 100));
+    CHECK(serial.writes == 1);
+    CHECK(serial.bytes[0] == 'L' && serial.bytes[1] == 'M');
+    CHECK(serial.bytes[2] == 1 && serial.bytes[3] == 16);
+    CHECK(serial.bytes[4] == 1 && serial.bytes[5] == 100 && serial.bytes[7] == 254);
+    CHECK(serial.bytes[8] == 0x78 && serial.bytes[9] == 0x56 && serial.bytes[10] == 0x34 && serial.bytes[11] == 0x12);
+    CHECK(serial.bytes[12] == lamp.leds[0].r);
+    CHECK(serial.bytes[60] == Telemetry::checksum(serial.bytes, 60));
+}
+
 int main() {
     testColors();
     testPatternsAndTiming();
     testEffectTraces();
-    std::cout << "Passed: FastLED color math, effect patterns/timing, and all eight rendering traces\n";
+    testEngineAndTelemetry();
+    std::cout << "Passed: FastLED colors, eight effect traces, shared engine, and nonblocking telemetry\n";
 }

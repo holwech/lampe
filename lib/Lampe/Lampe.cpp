@@ -1,51 +1,39 @@
 #include "Lampe.h"
+#include <FastLED.h>
+#include <Hardware.h>
 #include <Programs.h>
+#include <Telemetry.h>
 
 void Lampe::begin() {
     pinMode(Hardware::ButtonPin, INPUT);
-    const uint32_t now = millis();
-    button_.reset(digitalRead(Hardware::ButtonPin) == HIGH, now);
-    program_ = 0;
-    hue = 0;
-    resetEffect(now);
-
-    FastLED.addLeds<WS2812B, Hardware::LedDataPin, GRB>(leds, Hardware::LedCount)
+    engine_.reset(millis(), digitalRead(Hardware::ButtonPin) == HIGH);
+    FastLED.addLeds<WS2812B, Hardware::LedDataPin, GRB>(engine_.leds, LampConfig::LedCount)
         .setCorrection(TypicalLEDStrip);
-    FastLED.setBrightness(Hardware::Brightness);
-    // Retain the initial rainbow underneath the first block-color animation.
-    fill_rainbow(leds, Hardware::LedCount, hue, 5);
+    FastLED.setBrightness(LampConfig::Brightness);
     FastLED.show();
     frameAtUs_ = micros();
-    printProgram();
+    telemetryFrames_ = sequence_ = 0;
 }
 
 void Lampe::update() {
     const uint32_t now = millis();
-    if (button_.released(digitalRead(Hardware::ButtonPin) == HIGH, now)) {
-        program_ = Programs::next(program_);
-        resetEffect(now);
-        printProgram();
-    }
-    if (Programs::usesAudio(program_)) {
-        audio_.sample(analogRead(Hardware::AudioPin), now);
+    engine_.pollButton(digitalRead(Hardware::ButtonPin) == HIGH, now);
+    if (Programs::usesAudio(engine_.program())) {
+        engine_.sampleAudio(analogRead(Hardware::AudioPin), now);
     }
 
-    // Input and audio continue to run between frames; no delay or sampling loop.
     const uint32_t frameTime = micros();
-    if (LampLogic::intervalElapsed(frameTime, frameAtUs_, Hardware::FrameIntervalUs)) {
-        Programs::render(program_, *this, now);
-        FastLED.show();
+    if (!LampLogic::intervalElapsed(frameTime, frameAtUs_, LampConfig::FrameIntervalUs)) return;
+    engine_.render(now);
+    FastLED.show();
+
+    // About 30 Hz. Never wait for the computer or for space in the TX queue.
+    if (++telemetryFrames_ == 4) {
+        telemetryFrames_ = 0;
+        const uint8_t sequence = sequence_++;
+        Telemetry::tryWrite(Serial, engine_, now, sequence, LampConfig::Brightness);
     }
 }
 
-void Lampe::resetEffect(uint32_t now) {
-    effect = EffectState{};
-    effect.stepAt = effect.colorAt = effect.sparkAt = now;
-    audio_.reset(now);
-}
-
-void Lampe::printProgram() const {
-    // Log transitions only, keeping serial writes out of the sampling path.
-    Serial.print(F("Program: "));
-    Serial.println(program_);
-}
+static_assert(Telemetry::PacketSize < SERIAL_TX_BUFFER_SIZE,
+              "A full telemetry packet must fit in the UART's transmit buffer");
