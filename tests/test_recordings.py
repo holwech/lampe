@@ -5,6 +5,7 @@ import csv
 import io
 import json
 from pathlib import Path
+import random
 import subprocess
 import sys
 import unittest
@@ -13,6 +14,34 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures/microphone"
 
 
 class RecordedMicrophoneTests(unittest.TestCase):
+    def replay(self, samples):
+        # No reference tempo or recorded onset is provided to the detector.
+        recording = "device_ms,peak,onset\n" + "".join(
+            f"{time},{peak},0\n" for time, peak in samples
+        )
+        result = subprocess.run(
+            [str(REPLAY)], input=recording, text=True, capture_output=True, check=True,
+        )
+        replay = list(csv.DictReader(io.StringIO(result.stdout)))
+        self.assertEqual(len(replay), len(samples))
+        self.assertEqual([int(row["device_ms"]) for row in replay],
+                         [time for time, _ in samples])
+        return [int(row["bpm"]) for row in replay]
+
+    def test_shuffled_sound(self):
+        # Preserve short real sound bursts, but destroy their rhythmic order.
+        # This caught false locks when weak-peak acquisition was too eager.
+        with (FIXTURES / "music-01.csv").open() as file:
+            peaks = [int(row["peak"]) for row in csv.DictReader(file)]
+        for seed in range(20):
+            with self.subTest(seed=seed):
+                blocks = [peaks[i:i + 5] for i in range(0, len(peaks), 5)]
+                random.Random(seed).shuffle(blocks)
+                shuffled = [peak for block in blocks for peak in block]
+                samples = [(10 * (i + 1), peak) for i, peak in enumerate(shuffled)]
+                self.assertTrue(all(bpm == 0 for bpm in self.replay(samples)),
+                                "Shuffled 50 ms bursts must not produce a tempo lock")
+
     def test_recordings(self):
         for case in json.loads((FIXTURES / "manifest.json").read_text()):
             with self.subTest(recording=case["file"]):
@@ -32,18 +61,7 @@ class RecordedMicrophoneTests(unittest.TestCase):
                 # shape. Recorded onsets are deliberately omitted from fixtures:
                 # the detector must derive them from peaks itself. Neither the
                 # reference BPM nor the expected results reach the C++ process.
-                recording = "device_ms,peak,onset\n" + "".join(
-                    f"{time},{peak},0\n" for time, peak in samples
-                )
-                result = subprocess.run(
-                    [str(REPLAY)], input=recording, text=True,
-                    capture_output=True, check=True,
-                )
-                replay = list(csv.DictReader(io.StringIO(result.stdout)))
-                self.assertEqual(len(replay), len(samples))
-                self.assertEqual([int(row["device_ms"]) for row in replay],
-                                 [time for time, _ in samples])
-                bpms = [int(row["bpm"]) for row in replay]
+                bpms = self.replay(samples)
 
                 if "reference_bpm" not in case:
                     # Include startup, too: quiet input must never create a lock.

@@ -1,6 +1,6 @@
 # Real microphone BPM measurements — 2026-09-26
 
-The detector was tuned using the physical lamp, FTDI A50285BI and music with a
+The first tuning round used the physical lamp, FTDI A50285BI and music with a
 user-supplied approximate reference of 120 BPM. No track identity, exact tempo or
 beat-position annotations were available. These measurements show improvement on
 this session's input; they are not a song-corpus accuracy benchmark.
@@ -82,3 +82,57 @@ evaluation needs new recordings. Reproduce a new
 capture with the recorder/replay commands in the [README](../README.md#recording-real-microphone-data-for-bpm-tuning).
 Future evaluation should use several known-tempo tracks and annotated beat times;
 the current approximate reference cannot establish absolute tempo or phase accuracy.
+
+## Second round: “Isn't She Lovely”
+
+The user identified Stevie Wonder's “Isn't She Lovely” as a song the detector
+struggled with, again supplying an approximate 120 BPM reference. Two separate
+75-second sessions each captured 7,270 input windows (about 73 seconds after
+serial-open startup), with 10–11 ms spacing, no missing windows and no rejected
+packets. Both passages were used during tuning; neither is a held-out benchmark.
+
+The previous firmware (`2fb167d`) never locked within 116–124 BPM in either
+passage. It reported other tempos for 15.8% and 20.4% of evaluated windows,
+including a 60 BPM half-tempo lock. This was a repeatable input-processing and
+tracking problem, rather than missing diagnostic packets.
+
+The revision smooths the measured envelope before extracting positive changes,
+then scales each change relative to the envelope. A noise offset and deadband
+limit amplification near silence. Acquisition accepts weaker correlation only
+with longer evidence: ten confirmations for weak peaks, five for moderate peaks,
+three for strong initial peaks. An isolated failed scan subtracts two
+confirmations instead of discarding them all. Three failures still clear evidence.
+
+Holding an established tempo requires less peak prominence than acquiring one
+(1.5 versus 2 standard deviations above the lag-score background). Weak support
+can keep the clock running, but period adjustments require a score of at least
+25/100. This avoids drifting during ambiguous passages. No song name or reference
+tempo is available to the detector, and its 60–200 BPM search range is unchanged.
+
+| Recorded input | Previous near reference | Revised near reference | Revised wrong tempo |
+| --- | ---: | ---: | ---: |
+| Music 1 | 64.3% | 70.3% | 0.0% |
+| Music 2 | 91.9% | 94.5% | 0.0% |
+| Music 3 | 69.1% | 95.9% | 0.0% |
+| Music 4 | 36.6% | 100.0% | 0.0% |
+| Isn't She Lovely, passage 1 | 0.0% | 60.0% | 0.0% |
+| Isn't She Lovely, passage 2 | 0.0% | 83.7% | 0.0% |
+
+As above, results exclude the first ten seconds and use the user's approximate
+reference ±4 BPM. The revised locked ranges are 119–121 and 119–122 BPM in the
+new passages. It still returns to listening in parts of the song. These figures
+measure tempo coverage, not whether each flash lands on the musical beat.
+
+![Previous and revised BPM on the two new recordings](bpm-isnt-she-lovely.svg)
+
+All original fixture thresholds remain unchanged. The two new fixtures require
+at least 55% and 75% coverage, and at most 1% wrong-tempo locks. The quiet recording
+and twenty seeded shuffles of real 50 ms sound bursts must never lock. These
+negative controls rejected more eager candidate algorithms and are now run in CI.
+The native tests across 60–200 BPM, weak/loud input, noisy rhythms, silence, missing
+windows, tempo changes and rollover all pass, as do all 13 dashboard/protocol/WASM
+tests and the production dashboard build.
+
+The revised firmware uses **1,172 bytes of static RAM** and **14,130 bytes of
+flash**, increases of 4 and 200 bytes. It was uploaded through FTDI A50285BI and
+all flash bytes verified.

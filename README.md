@@ -260,18 +260,23 @@ It scales them using 32-bit arithmetic, decays the envelope by one level every
 so loop speed does not change its rate. There are no serial writes per sample.
 
 [`BeatTracker.h`](lib/LampLogic/BeatTracker.h) independently collects 10 ms ADC
-peak-to-peak windows. Positive energy changes form a smoothed onset history of
-512 bytes. Mean-subtracted, normalized autocorrelation searches 300–1,000 ms beat
+peak-to-peak windows. A half-weight exponential filter smooths the measured
+envelope. Positive changes are divided by the current envelope plus a noise
+offset, making attacks relative to the local volume. These form a smoothed onset
+history of 512 bytes. Mean-subtracted, normalized autocorrelation searches 300–1,000 ms beat
 intervals; one lag is scored per window to spread CPU work across the loop.
 Descending lags compare the same 384-window slice, so changes in the music during
 one scan do not bias competing tempos. Acquisition requires a distinct correlation
-peak above the lag-score background and at least 25/100 correlation. Weak peaks
-must persist for five scans (about three seconds); clean peaks of at least 55/100
-can lock after two. Including the history warmup, initial acquisition usually
-needs roughly 6–9 seconds of a clear rhythm.
+peak above the lag-score background and at least 18/100 correlation. Weak peaks
+need ten confirmations; peaks of at least 35/100 need five, and a clean initial
+peak of at least 55/100 needs three. A failed scan subtracts two confirmations;
+three failures clear them. Including history warmup, initial acquisition takes
+at least roughly 7 seconds, or 12 seconds for weak rhythms, and can take longer.
 
-An established tempo can persist down to 20/100 when still supported, with extra
-resistance to half/double-tempo jumps. Correlation at twice an interval reinforces the shorter beat during
+An established tempo can persist down to 15/100 when still supported, with a
+lower peak-prominence requirement and extra resistance to half/double-tempo
+jumps. Scores below 25/100 can hold the clock but cannot retune its period.
+Correlation at twice an interval reinforces the shorter beat during
 acquisition, helping with alternating strong and weak kicks. A phase clock drives 90 ms fading pulses, aligns gently to
 attacks above the recent onset floor, and continues through missed hits. Three
 failed scans or three seconds without matching attacks release lock; stale history
@@ -310,11 +315,12 @@ and drops batches when USB is busy, so it is useful for inspecting the sensor bu
 must not be used as an exact replay of the detector's input. Window capture is only
 about 600 bytes/s and retries busy batches; its timestamps still expose any lost
 windows. Full capture files under `captures/` are ignored by Git and stay local.
-Five curated [recording fixtures](tests/fixtures/microphone/) are checked in for
-regression tests: four music captures and one quiet-room capture, containing only
+Seven curated [recording fixtures](tests/fixtures/microphone/) are checked in for
+regression tests: six music captures and one quiet-room capture, containing only
 timestamps and detector input peaks. `scripts/test.py` replays them in firmware
 CI and checks minimum time near the reference BPM, wrong-tempo locks and room-noise
-rejection. These complement the generated tests across 60–200 BPM; the real
+rejection. Twenty deterministic shuffles of real 50 ms sound bursts must also
+remain unlocked. These complement the generated tests across 60–200 BPM; the real
 recordings currently cover only this session's approximate 120 BPM reference.
 
 Diagnostic command `LC` version 1, opcode 2, argument 2 selects window capture
@@ -407,7 +413,7 @@ uv run --locked pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p 
 
 The 3.1.8 → 3.10.5 upgrade also updates PlatformIO and the Arduino AVR core.
 The firmware with the shared engine, beat tracker and telemetry uses about
-**1,168 bytes of static RAM** and **13,930 bytes of flash**. Before the simulator work the upgraded firmware used
+**1,172 bytes of static RAM** and **14,130 bytes of flash**. Before the simulator work the upgraded firmware used
 458 and 8,482 bytes respectively. Static RAM figures
 exclude runtime stack/heap use. The configured board has 2,048 bytes of RAM and
 30,720 bytes of application flash.
@@ -506,9 +512,12 @@ verified. The microphone-capture firmware (`ffcbc6f`) was then uploaded and all
 selection, and verified that disabling capture stopped the audio stream.
 The reconnected dashboard displayed live microphone values and both plots.
 The detector was then tuned against four real microphone recordings and a paused-
-music room-noise capture. The final firmware's 13,930 flash bytes were verified;
-it used 1,168 bytes of static RAM. Replay and live results improved, but tempo
-acquisition remains intermittent. See [measured results and limitations](docs/bpm-measurements.md).
+music room-noise capture. That firmware's 13,930 flash bytes were verified;
+it used 1,168 bytes of static RAM. A second revision, tuned against two passages
+of “Isn't She Lovely” while retaining all earlier regression checks, was also
+uploaded and its 14,130 flash bytes verified. It uses 1,172 bytes of static RAM.
+Detection improved but remains intermittent. See
+[measured results and limitations](docs/bpm-measurements.md).
 Verify that:
 
 - The lamp starts normally using its separate 5 V supply.

@@ -54,5 +54,31 @@
     "duration_ms": 27904,
     "gaps": 0,
     "max_locked_percent": 0
+  },
+  {
+    "file": "isnt-she-lovely-01.csv",
+    "source_capture": "isnt-she-lovely-baseline",
+    "track": "Isn’t She Lovely — Stevie Wonder",
+    "windows": 7270,
+    "duration_ms": 72977,
+    "gaps": 0,
+    "reference_bpm": 120,
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 55,
+    "max_wrong_percent": 1
+  },
+  {
+    "file": "isnt-she-lovely-02.csv",
+    "source_capture": "isnt-she-lovely-validation",
+    "track": "Isn’t She Lovely — Stevie Wonder",
+    "windows": 7270,
+    "duration_ms": 72981,
+    "gaps": 0,
+    "reference_bpm": 120,
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 75,
+    "max_wrong_percent": 1
   }
 ]

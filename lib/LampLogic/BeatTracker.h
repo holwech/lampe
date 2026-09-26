@@ -14,7 +14,7 @@ public:
         memset(scores_, 0, sizeof(scores_));
         windowAt_ = lastOnset_ = lastSupport_ = beatAt_ = now;
         minimum_ = 1023; maximum_ = previousPeak_ = previousRise_ = 0;
-        head_ = samples_ = period_ = candidate_ = onsetFloor_ = 0;
+        head_ = samples_ = period_ = candidate_ = onsetFloor_ = envelopeQ4_ = previousEnvelope_ = 0;
         scanLag_ = MaxLag;
         confirmations_ = confidence_ = misses_ = 0;
     }
@@ -38,9 +38,15 @@ public:
     void sampleWindow(uint16_t peak, uint32_t now) {
         if (now - windowAt_ > 15) reset(now);
         windowAt_ = now;
-        // Positive energy changes reject DC, steady tones and falling tails.
-        const uint16_t difference = peak > previousPeak_ ? peak - previousPeak_ : 0;
-        const uint8_t rise = difference < 4 ? 0 : difference > 510 ? 255 : uint8_t(difference / 2);
+        // Smooth rapid window fluctuations before finding attacks. Q4 retains
+        // weak changes; relative gain keeps loud passages from drowning out
+        // quieter attacks. The offset and deadband limit near-silence gain.
+        envelopeQ4_ += (int32_t(peak) * 16 - envelopeQ4_) / 2;
+        const uint16_t envelope = envelopeQ4_ / 16;
+        const uint16_t difference = envelope > previousEnvelope_ ? envelope - previousEnvelope_ : 0;
+        previousEnvelope_ = envelope;
+        // difference <= envelope, so this ratio is bounded below 128.
+        const uint8_t rise = difference < 2 ? 0 : uint32_t(difference) * 128 / (envelope + 16);
         previousPeak_ = peak;
         const uint8_t onset = (uint16_t(rise) + previousRise_) / 2;
         previousRise_ = rise;
@@ -86,6 +92,7 @@ public:
 private:
     static constexpr uint16_t WindowMs = 10, HistorySize = 512, Mask = HistorySize - 1;
     static constexpr uint8_t MinLag = 30, MaxLag = 100;
+    static constexpr uint8_t AcquireScore = 18, HoldScore = 15;
     static uint16_t absolute(int16_t value) { return value < 0 ? -value : value; }
     uint8_t at(uint16_t age) const { return history_[(head_ - 1 - age) & Mask]; }
     uint8_t correlation(uint8_t lag) const {
@@ -143,7 +150,7 @@ private:
             const uint8_t shorter = best < nearby ? best : nearby;
             const uint8_t multiple = (longer + shorter / 2) / shorter;
             const bool harmonic = multiple >= 2 && absolute(int16_t(longer) - multiple * shorter) <= 2;
-            if (scores_[nearby - MinLag] >= (period_ ? 20 : 25) && (harmonic ||
+            if (scores_[nearby - MinLag] >= (period_ ? HoldScore : AcquireScore) && (harmonic ||
                 uint16_t(scores_[nearby - MinLag]) * 100 >= uint16_t(scores_[best - MinLag]) * 65))
                 best = nearby;
         }
@@ -158,9 +165,12 @@ private:
         const uint16_t mean = sum / Count;
         const uint32_t variance = squares / Count - mean * mean;
         const int16_t prominence = int16_t(score) - mean;
-        if (score < (supporting ? 20 : 25) || prominence <= 0 ||
-            uint32_t(prominence) * prominence < 4 * variance) {
-            confirmations_ = 0;
+        // Holding a supported clock needs 1.5 sigma prominence; acquiring a
+        // new one needs 2 sigma. Do not drop a beat on every weak passage.
+        if (score < (supporting ? HoldScore : AcquireScore) || prominence <= 0 ||
+            uint32_t(prominence) * prominence * 4 < (supporting ? 9 : 16) * variance) {
+            // One weak scan loses evidence; three in a row discard it entirely.
+            confirmations_ = confirmations_ > 2 ? confirmations_ - 2 : 0;
             if (++misses_ >= 3) unlock();
             return;
         }
@@ -174,7 +184,8 @@ private:
         if (refined < 300) refined = 300;
         if (refined > 1000) refined = 1000;
         if (period_ && absolute(refined - period_) <= period_ / 12) {
-            const uint16_t next = (3UL * period_ + refined) / 4;
+            // Weak support can keep time, but must not drag the tempo around.
+            const uint16_t next = score >= 25 ? (3UL * period_ + refined + 2) / 4 : period_;
             // Rebase the oscillator without jumping phase when tempo changes.
             beatAt_ = now - uint32_t((now - beatAt_) % period_) * next / period_;
             period_ = next;
@@ -185,9 +196,9 @@ private:
         if (absolute(refined - candidate_) <= uint16_t(refined) / 20) ++confirmations_;
         else confirmations_ = 1;
         candidate_ = refined;
-        // Adjacent scans overlap heavily. Weak real-world peaks need nearly
-        // three seconds of persistence; clean pulses can acquire sooner.
-        if (confirmations_ < (!period_ && score >= 55 ? 2 : 5)) return;
+        // Adjacent scans overlap heavily. Weak peaks need ten confirmations
+        // (at least 6.4 s); moderate/strong peaks can acquire after five/three.
+        if (confirmations_ < (!period_ && score >= 55 ? 3 : score >= 35 ? 5 : 10)) return;
         period_ = candidate_;
         confidence_ = score;
         confirmations_ = 0;
@@ -201,6 +212,7 @@ private:
 
     uint8_t history_[HistorySize] = {}, scores_[MaxLag - MinLag + 1] = {};
     uint32_t windowAt_ = 0, lastOnset_ = 0, lastSupport_ = 0, beatAt_ = 0;
+    uint16_t envelopeQ4_ = 0, previousEnvelope_ = 0;
     uint16_t minimum_ = 1023, maximum_ = 0, previousPeak_ = 0;
     uint16_t head_ = 0, samples_ = 0, period_ = 0, candidate_ = 0, onsetFloor_ = 0;
     uint8_t previousRise_ = 0, scanLag_ = MaxLag, confirmations_ = 0;
