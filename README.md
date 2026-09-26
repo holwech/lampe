@@ -315,13 +315,18 @@ and drops batches when USB is busy, so it is useful for inspecting the sensor bu
 must not be used as an exact replay of the detector's input. Window capture is only
 about 600 bytes/s and retries busy batches; its timestamps still expose any lost
 windows. Full capture files under `captures/` are ignored by Git and stay local.
-Seven curated [recording fixtures](tests/fixtures/microphone/) are checked in for
-regression tests: six music captures and one quiet-room capture, containing only
+Ten curated [recording fixtures](tests/fixtures/microphone/) are checked in for
+regression tests: nine music captures and one quiet-room capture, containing only
 timestamps and detector input peaks. `scripts/test.py` replays them in firmware
 CI and checks minimum time near the reference BPM, wrong-tempo locks and room-noise
 rejection. Twenty deterministic shuffles of real 50 ms sound bursts must also
-remain unlocked. These complement the generated tests across 60–200 BPM; the real
-recordings currently cover only this session's approximate 120 BPM reference.
+remain unlocked. Three acquisition tests are explicitly marked as expected
+failures: two “Radioactive” passages and one “Have a Cigar” passage currently never
+lock. Their input validation and wrong-tempo limits still run as mandatory checks.
+An unexpected success requires reviewing the improvement and removing the marker;
+these cases must not be described as solved because CI is green. The approximate
+references are 120 and 136 BPM. These captures complement generated tests across
+60–200 BPM; see the [measured limitations](docs/bpm-measurements.md#third-round-radioactive-and-have-a-cigar).
 
 Diagnostic command `LC` version 1, opcode 2, argument 2 selects window capture
 (argument 1 is raw capture; 0 disables either). Both use the existing three-second

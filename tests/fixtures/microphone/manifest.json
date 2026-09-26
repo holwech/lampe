@@ -80,5 +80,50 @@
     "warmup_ms": 10000,
     "min_matching_percent": 75,
     "max_wrong_percent": 1
+  },
+  {
+    "file": "radioactive-01.csv",
+    "source_capture": "music-new-120-baseline",
+    "track": "Radioactive (assumed Imagine Dragons version)",
+    "windows": 8760,
+    "duration_ms": 87937,
+    "gaps": 0,
+    "reference_bpm": 136,
+    "reference_source": "https://origin03-www.musicnotes.com/sheetmusic/imagine-dragons/radioactive/MN0126667",
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 50,
+    "max_wrong_percent": 1,
+    "known_acquisition_failure": true
+  },
+  {
+    "file": "radioactive-02.csv",
+    "source_capture": "radioactive-validation",
+    "track": "Radioactive (assumed Imagine Dragons version)",
+    "windows": 8630,
+    "duration_ms": 87990,
+    "gaps": 2,
+    "reference_bpm": 136,
+    "reference_source": "https://origin03-www.musicnotes.com/sheetmusic/imagine-dragons/radioactive/MN0126667",
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 50,
+    "max_wrong_percent": 1,
+    "known_acquisition_failure": true
+  },
+  {
+    "file": "have-a-cigar-01.csv",
+    "source_capture": "new-song-after-radioactive",
+    "track": "Have a Cigar — Pink Floyd",
+    "windows": 7270,
+    "duration_ms": 72983,
+    "gaps": 0,
+    "reference_bpm": 120,
+    "reference_source": "https://www.musicnotes.com/sheetmusic/pink-floyd/have-a-cigar/MN0056300",
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 50,
+    "max_wrong_percent": 1,
+    "known_acquisition_failure": true
   }
 ]

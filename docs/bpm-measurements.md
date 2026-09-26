@@ -136,3 +136,61 @@ tests and the production dashboard build.
 The revised firmware uses **1,172 bytes of static RAM** and **14,130 bytes of
 flash**, increases of 4 and 200 bytes. It was uploaded through FTDI A50285BI and
 all flash bytes verified.
+
+## Third round: “Radioactive” and “Have a Cigar”
+
+After the user reported another difficult song, a 90-second capture was saved
+under `captures/music-new-120-baseline/`. The initial user estimate was 120 BPM;
+the user subsequently identified the title as “Radioactive.” Assuming the Imagine
+Dragons version, the [published score](https://origin03-www.musicnotes.com/sheetmusic/imagine-dragons/radioactive/MN0126667)
+marks 136 BPM. The microphone's strongest recurring intervals were around
+135–140 BPM, supporting that approximate reference rather than 120. The artist
+and exact playback version were not independently confirmed.
+
+The user put the song on repeat for a second 90-second capture, saved separately
+as `captures/radioactive-validation/`. Both captures finished before the user
+reported changing songs. The subsequent 75-second capture,
+`captures/new-song-after-radioactive/`, was identified as Pink Floyd's “Have a
+Cigar.” Its [guitar transcription](https://www.musicnotes.com/sheetmusic/pink-floyd/have-a-cigar/MN0056300)
+marks quarter-note = 120; use this as an approximate reference, not annotated
+ground truth for the exact recorded performance.
+
+| Input | Windows | Diagnostic gaps | Current replay near reference | Hardware tempo locks |
+| --- | ---: | ---: | ---: | ---: |
+| Radioactive 1 | 8,760 | 0 | 0.0% | 0 |
+| Radioactive 2 | 8,630 | 2 | 0.0% | 0 |
+| Have a Cigar | 7,270 | 0 | 0.0% | 0 |
+
+All captures had zero rejected packets and zero missing sequence numbers.
+The second Radioactive stream nevertheless had 1,215 ms and 160 ms gaps between
+measurement windows; LED telemetry continued in program 2 during both gaps.
+Their cause was not established. Replay resets at these gaps; it does not fill
+them with invented measurements. The other two captures had no gaps and maximum
+window spacings of 11 and 12 ms respectively.
+
+In Radioactive 1, peak-to-peak ADC readings had a median of 53 and a maximum of
+202: a signal was present and not hitting the ADC's full range. Every one of its
+8,760 recorded onset values matched native replay exactly. The original
+detector approached a candidate near 138 BPM, but evidence was too intermittent
+to meet its acquisition criteria. This is not explained by missing packets or
+a disagreement between AVR onset processing and replay.
+
+Several experimental changes were tested locally: slower envelope filtering,
+longer correlation averaging, changes to harmonic support, combining volume and
+attack evidence, noise gating, and phase consistency checks. Some helped one
+passage but introduced half-tempo/other wrong locks on the prior fixtures or
+false locks on shuffled sound. A phase-consistency candidate passed the existing
+tests but reached only 5.5% coverage on Radioactive 1 and 0% on both fresh captures.
+It was rejected as an inadequate fix. The three new captures were eventually
+examined during evaluation and should now be treated as development fixtures.
+
+**No algorithm change from this round was installed or committed.** Firmware
+remains `9e0ffd4`; its previous regression results are preserved. The three new
+fixtures have explicit expected-failure acquisition targets of at least 50%
+coverage. Their data integrity and wrong-tempo limits still run as required tests.
+This preserves the failure cases without weakening earlier thresholds or claiming
+that detection is solved. The next investigation should evaluate richer audio
+features, such as separate frequency-band envelopes, against new physical captures;
+these peak-only recordings cannot recreate spectral information that was never
+recorded. That is a proposed direction, not a verified fix or a demonstrated
+hardware fault.
