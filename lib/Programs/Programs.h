@@ -1,26 +1,24 @@
 #ifndef PROGRAMS_H
 #define PROGRAMS_H
 
-#include "FastLED.h"
-#include "Arduino.h"
-#include "Lampe.h"
-#include "Mic.h"
+#include <stdint.h>
 
-FASTLED_USING_NAMESPACE
+class Lampe;
 
-#define HUE_STEP_SIZE   8
-#define FLOW_START      8
+namespace Programs {
+uint8_t count();
+uint8_t next(uint8_t current);
+bool usesAudio(uint8_t program);
+void render(uint8_t program, Lampe &lampe, uint32_t now);
 
-void selectProgram(uint8_t menuOption, Lampe& lampe, Mic& mic);
-void rainbow(Lampe& lampe);
-void quarter_blink(Lampe &lampe);
-void flow(Lampe& lampe);
-void ambulance(Lampe &lampe);
-void ambulance_hue(Lampe &lampe);
-void fire_place(Lampe &lampe);
-void northern_lights(Lampe &lampe);
-void beat_blink(Lampe& lampe, Mic& mic);
-void beat_blink2(Lampe& lampe, Mic& mic);
-void amplitude_sensor(Lampe& lampe);
+void quarterBlink(Lampe &lampe, uint32_t now);
+void flow(Lampe &lampe, uint32_t now);
+void amplitude(Lampe &lampe, uint32_t now);
+void ambulance(Lampe &lampe, uint32_t now);
+void ambulanceHue(Lampe &lampe, uint32_t now);
+void fireplace(Lampe &lampe, uint32_t now);
+void northernLights(Lampe &lampe, uint32_t now);
+void rainbow(Lampe &lampe, uint32_t now);
+} // namespace Programs
 
 #endif

@@ -1,141 +1,51 @@
 #include "Lampe.h"
+#include <Programs.h>
 
-Lampe::Lampe()
-{
-    uint32_t startupTime = millis();
+void Lampe::begin() {
+    pinMode(Hardware::ButtonPin, INPUT);
+    const uint32_t now = millis();
+    button_.reset(digitalRead(Hardware::ButtonPin) == HIGH, now);
+    program_ = 0;
+    hue = 0;
+    resetEffect(now);
 
-    prevButtonState = LOW;
-    timer = startupTime;
-    menuOption = 0;
-    menuRestart = false;
-    linearReduceTimer = startupTime;
-    sampleTimer = startupTime;
-    sampleInit = true;
-    linearValue = 0;
-
-    pinMode(2, INPUT); // Button sensor
-
-    FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-    FastLED.setBrightness(BRIGHTNESS);
-
-    gHue = 0;
-    uint8_t red = 0;
-    uint8_t green = 0;
-    uint8_t blue = 0;
-    num_leds = NUM_LEDS;
-}
-
-void Lampe::update()
-{
+    FastLED.addLeds<WS2812B, Hardware::LedDataPin, GRB>(leds, Hardware::LedCount)
+        .setCorrection(TypicalLEDStrip);
+    FastLED.setBrightness(Hardware::Brightness);
+    // Retain the initial rainbow underneath the first block-color animation.
+    fill_rainbow(leds, Hardware::LedCount, hue, 5);
     FastLED.show();
-    FastLED.delay(1000 / FRAMES_PER_SECOND);
-    updateLinearReduce();
+    frameAtUs_ = micros();
+    printProgram();
 }
 
-uint8_t Lampe::cycleNumber(uint8_t num, uint8_t peak, uint8_t stepSize)
-{
-    uint8_t i = num + stepSize;
-    if (i >= peak) {
-        return 0;
+void Lampe::update() {
+    const uint32_t now = millis();
+    if (button_.released(digitalRead(Hardware::ButtonPin) == HIGH, now)) {
+        program_ = Programs::next(program_);
+        resetEffect(now);
+        printProgram();
     }
-    return i;
-}
+    if (Programs::usesAudio(program_)) {
+        audio_.sample(analogRead(Hardware::AudioPin), now);
+    }
 
-void Lampe::updateLinearReduce()
-{
-    unsigned long currTime = millis();
-    if ((linearValue > 0) && ((currTime - linearReduceTimer) > 5))
-    {
-        linearValue -= 1;
-        Serial.print("Linval: ");
-        Serial.print(linearValue);
-        linearReduceTimer = currTime;
+    // Input and audio continue to run between frames; no delay or sampling loop.
+    const uint32_t frameTime = micros();
+    if (LampLogic::intervalElapsed(frameTime, frameAtUs_, Hardware::FrameIntervalUs)) {
+        Programs::render(program_, *this, now);
+        FastLED.show();
     }
 }
 
-uint8_t Lampe::linearReduce(uint8_t peak)
-{
-    if (peak > 255)
-    {
-        linearValue = 255;
-    }
-    else if (peak > linearValue)
-    {
-        linearValue = peak;
-    }
-    return linearValue;
+void Lampe::resetEffect(uint32_t now) {
+    effect = EffectState{};
+    effect.stepAt = effect.colorAt = effect.sparkAt = now;
+    audio_.reset(now);
 }
 
-uint8_t Lampe::nextMenuOptionOnClick()
-{
-    if (buttonClick())
-    {
-        return nextMenuOption();
-    }
-    return menuOption;
-}
-
-bool Lampe::buttonClick()
-{
-    int buttonState = digitalRead(BUTTON_PIN);
-    if (buttonState == LOW && prevButtonState == HIGH)
-    {
-        prevButtonState = LOW;
-        return true;
-    }
-    else if (buttonState == HIGH)
-    {
-        prevButtonState = HIGH;
-    }
-    return false;
-}
-
-uint8_t Lampe::nextMenuOption()
-{
-    newStateVarReset();
-    incrementMenu();
-    return menuOption;
-}
-
-void Lampe::newStateVarReset()
-{
-    sampleInit = true;
-    for (int i = 0; i < NUM_LEDS; i++)
-    {
-        stateValues[i] = 0;
-    }
-}
-
-void Lampe::incrementMenu()
-{
-    if (menuOption >= NUM_MENU_OPTIONS)
-    {
-        menuOption = 0;
-        menuRestart = true;
-    }
-    else
-    {
-        menuOption++;
-        menuRestart = false;
-    }
-}
-
-uint32_t Lampe::getSampleTimer()
-{
-    return millis() - sampleTimer;
-}
-
-void Lampe::resetSampleTimer()
-{
-    sampleTimer = millis();
-}
-
-uint32_t Lampe::getTimer()
-{
-    return millis() - timer;
-}
-
-void Lampe::resetTimer()
-{
-    timer = millis();
+void Lampe::printProgram() const {
+    // Log transitions only, keeping serial writes out of the sampling path.
+    Serial.print(F("Program: "));
+    Serial.println(program_);
 }

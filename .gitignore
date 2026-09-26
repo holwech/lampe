@@ -37,3 +37,5 @@
 .pioenvs/
 .piolibdeps/
 .vscode/
+.venv/
+__pycache__/

@@ -41,7 +41,7 @@ shows the programming header's ground connections and capacitive reset circuit.
 3. Plug the FTDI adapter's USB cable into the computer and connect the lamp's
    **separate 5 V supply**. Keep FTDI VCC disconnected with this arrangement.
 4. Select the adapter's serial port for uploads or serial monitoring. The
-   firmware uses **115200 baud** for debug output.
+   firmware logs the selected program at **115200 baud** on startup and mode changes.
 
 <a href="docs/images/ftdi-wiring.jpg"><img src="docs/images/ftdi-wiring.jpg" alt="Close-up of the Pro Mini programming header and FTDI adapter, showing the disconnected VCC pin" width="600"></a>
 
@@ -72,99 +72,141 @@ common ground, and DTR connection before changing firmware settings.
 This is a single PlatformIO project targeting Arduino on AVR. It controls 16
 WS2812B addressable RGB LEDs through the bundled FastLED 3.1.8 library. A digital
 button/sensor on D2 cycles through lighting effects; A0 supplies analog audio for
-sound-reactive brightness. The entry point, project libraries and build
-configuration are all at the repository root.
+sound-reactive brightness. No Git submodules are required. The unused original
+TLC5940/capacitive-touch implementation remains available in Git history.
 
-The unused original TLC5940/capacitive-touch implementation has been removed;
-its source remains available in Git history. No Git submodules are required.
-
-[`platformio.ini`](platformio.ini) currently says `platform = atmelavr`,
-`framework = arduino`, and `board = nanoatmega328`. **The photographed controller
-is marked Pro Mini.** The Nano build target is the repository's existing setting,
-not proof of the fitted board or its bootloader. Verify the controller's clock,
-voltage variant and bootloader before changing that target or upload parameters.
+[`platformio.ini`](platformio.ini) retains `board = nanoatmega328`, the existing
+bootloader target. **The photographed controller is marked Pro Mini.** A successful
+build for the Nano target does not verify the fitted board's clock, voltage or
+bootloader. Check the actual controller before changing upload parameters.
 
 ### Where to make changes
 
 | File or directory | Responsibility |
 | --- | --- |
-| [`src/main.cpp`](src/main.cpp) | Arduino `setup()` / `loop()`; initializes serial, selects the current effect, then updates the LEDs |
-| [`lib/Lampe/`](lib/Lampe/) | LED buffer, FastLED setup, button handling, menu index, timing and amplitude decay |
-| [`lib/Programs/`](lib/Programs/) | Effect implementations and the `selectProgram()` dispatch switch |
-| [`lib/Mic/`](lib/Mic/) | Experimental filtering and beat detection |
-| [`lib/Config/`](lib/Config/) | Older color/menu definitions; the active loop uses the numeric dispatch in `Programs.cpp` |
-| [`lib/test/`](lib/test/) | Manual LED demo helpers; not an automated test suite and not called by the current entry point |
-| [`lib/FastLED-3.1.8/`](lib/FastLED-3.1.8/) | Bundled third-party library; application effects belong in `Programs`, not here |
+| [`src/main.cpp`](src/main.cpp) | Starts serial, waits one second, calls `lampe.begin()` from `setup()`, and runs `lampe.update()` from `loop()` |
+| [`lib/Lampe/Hardware.h`](lib/Lampe/Hardware.h) | Pin assignments, LED count, brightness and frame interval |
+| [`lib/Lampe/`](lib/Lampe/) | Hardware initialization, LED buffer, input polling, per-effect state and frame scheduling |
+| [`lib/Programs/ProgramMenu.cpp`](lib/Programs/ProgramMenu.cpp) | Single effect table defining dispatch, audio input needs and menu length |
+| [`lib/Programs/Programs.cpp`](lib/Programs/Programs.cpp) | The eight lighting effects |
+| [`lib/LampLogic/LampLogic.h`](lib/LampLogic/LampLogic.h) | Hardware-independent brightness arithmetic, audio envelope, debouncing and timing helpers |
+| [`tests/`](tests/) | Regression tests for arithmetic, input handling, actual menu dispatch and timer rollover |
+| [`experiments/beat-detection/`](experiments/beat-detection/) | Archived, unfinished beat detector; excluded from the firmware build |
+| [`lib/FastLED-3.1.8/`](lib/FastLED-3.1.8/) | Unmodified bundled LED library; application effects belong in `Programs` |
 
-Hardware constants are in
-[`lib/Lampe/Lampe.h`](lib/Lampe/Lampe.h):
+The global `Lampe` object only initializes its data. Hardware calls happen in
+`begin()`, after Arduino has initialized its timers. Each loop polls the button
+and, in the amplitude mode, takes one ADC sample. LED rendering is paced separately
+at up to 120 frames per second, without a frame delay or blocking audio window.
+Effect timers and the audio envelope reset when switching modes; the shared hue
+and existing LED colors carry through transitions.
+
+### Hardware settings and effects
 
 | Setting | Current value |
 | --- | --- |
-| LED data | D3 (`DATA_PIN`) |
-| LED type / color order | `WS2812B` / `GRB` |
-| LED count | 16 |
+| LED data | D3 |
+| LED type / color order | `WS2812B` / `GRB`, configured in `Lampe::begin()` |
+| LED count | 16; mirrored effects require an even count |
 | Global brightness | 100 on FastLED's 0–255 scale |
-| Frame pacing | `FRAMES_PER_SECOND = 120`; blocking effects can run more slowly |
-| Button/sensor input | D2, configured as `INPUT`; a HIGH-to-LOW transition advances the menu |
-| Audio input | A0 (`analogRead(0)` in the amplitude effect and microphone code) |
+| Frame interval | 8,333 microseconds (approximately 120 FPS) |
+| Button/sensor input | D2, `INPUT`; HIGH while pressed, advance on a stable LOW release |
+| Debounce interval | 20 ms, configurable in `LampLogic.h` |
+| Audio input | A0; 10-bit ADC values from 0 to 1023 |
+| Serial output | 115200 baud; selected program index on startup and changes |
 
-The Mini starts at menu index 0. The current button cycle reaches indices **0–5**:
-`quarter_blink`, `flow`, `amplitude_sensor`, `ambulance`, `ambulance_hue`, and
-`fire_place`. Although named `NUM_MENU_OPTIONS`, the value `5` is used as the
-highest menu index. `selectProgram()` also implements `northern_lights` at 6 and
-`rainbow` at 7, but the current button cycle cannot reach them. `setup()` calls
-`rainbow()` once before the normal loop.
+The existing input wiring supplies the button's logic level; the firmware does
+not enable an internal pull-up. Verify the input module's polarity and pulse
+length when changing the debounce interval or wiring. The photos do not provide
+a complete sensor schematic.
 
-The amplitude effect samples A0 for 50 ms and drives red brightness from the
-peak-to-peak signal with a decay helper. Beat detection is experimental and is
-not selected by the current menu. A0 and D2 are firmware expectations; the photos
-do not expose enough internal wiring to serve as a complete sensor schematic.
+The lamp starts at program 0, with an initial rainbow in the LED buffer. Each
+button release advances through all eight programs, then wraps back to 0:
 
-### Building, uploading and observing
+| Index | Effect |
+| --- | --- |
+| 0 | Random blocks of color (`quarterBlink`) |
+| 1 | Mirrored flowing colors (`flow`) |
+| 2 | Sound-reactive red brightness (`amplitude`) |
+| 3 | Rotating red and blue (`ambulance`) |
+| 4 | Rotating changing hues (`ambulanceHue`) |
+| 5 | Warm flickering colors (`fireplace`) |
+| 6 | Northern lights (`northernLights`) |
+| 7 | Rainbow (`rainbow`) |
 
-Use PlatformIO Core (`pio`). Run these commands from the repository root:
+To add an effect, implement it in `Programs.cpp`, declare it in `Programs.h`, and
+add it to the table in `ProgramMenu.cpp`. Menu length is derived from that table.
+Set its audio flag if it needs microphone sampling, and extend the dispatch test.
+
+The amplitude effect collects peak-to-peak values over successive 50 ms windows.
+It scales them using 32-bit arithmetic, decays the envelope by one level every
+5 ms, and clamps the 2.5× red brightness gain to 255. Decay follows elapsed time,
+so loop speed does not change its rate. There are no serial writes per sample.
+Beat detection is a separate archived experiment, not an available mode.
+
+### Building, testing and uploading
+
+The verified build uses PlatformIO Core **6.1.18**, the Atmel AVR platform
+**5.1.0**, AVR GCC **7.3.0** (package `1.70300.191015`), and the Arduino AVR framework
+package **5.2.0**. These versions are pinned in
+[`requirements-dev.txt`](requirements-dev.txt) and `platformio.ini`. FastLED stays
+at the bundled **3.1.8** version; upgrade it separately against this baseline.
+
+Set up the build tool in a virtual environment from the repository root:
 
 ```sh
-# Build the firmware.
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+```
+
+Run the tests and build:
+
+```sh
+# Requires Python 3 and a C++11 compiler (Clang or GCC); no lamp is needed.
+python scripts/test.py
+
+# Compile firmware for the existing bootloader target.
 pio run --environment nanoatmega328
 
 # Find the FTDI serial port.
 pio device list
 ```
 
-Once the firmware builds, replace `YOUR_SERIAL_PORT` below with the
-adapter's actual port (for example, `/dev/cu.usbserial-...` on macOS). Connect the
-lamp as described above before uploading:
+The test runner uses the host C++ compiler with warnings treated as errors and
+undefined-behavior checks. Set `CXX` to select a compiler. Tests cover brightness
+limits, audio sampling and decay, debounce and one-click behavior, dispatch to
+all eight effects, index wrapping, and 32-bit timer rollover. Firmware compilation
+also checks representative brightness values using AVR's actual integer widths.
+The [CI workflow](.github/workflows/ci.yml) runs the tests and AVR build on pushes
+and pull requests.
+
+Replace `YOUR_SERIAL_PORT` with the adapter's actual port (for example,
+`/dev/cu.usbserial-...` on macOS). Connect the separate 5 V supply and FTDI as
+described above before uploading:
 
 ```sh
 pio run --environment nanoatmega328 --target upload --upload-port YOUR_SERIAL_PORT
-pio device monitor --port YOUR_SERIAL_PORT --baud 115200
+pio device monitor --port YOUR_SERIAL_PORT
 ```
 
-Close the serial monitor before uploading. The monitor baud rate comes from
-`Serial.begin(115200)` and is separate from the bootloader's upload speed. See the
-PlatformIO references for [`pio run`](https://docs.platformio.org/en/latest/core/userguide/cmd_run.html)
+Close the serial monitor before uploading. `monitor_speed = 115200` is already
+configured; it is separate from the bootloader's upload speed. See the PlatformIO
+references for [`pio run`](https://docs.platformio.org/en/latest/core/userguide/cmd_run.html)
 and [serial monitoring](https://docs.platformio.org/en/latest/core/userguide/device/cmd_monitor.html).
 
-### Current limitations and useful checks
+### Hardware verification
 
-This is experimental firmware; builds with a current toolchain have not yet been
-verified. In particular:
+The cleanup was checked with host tests and an AVR build. It has not yet been
+flashed to or tested on the physical lamp. In particular, check that:
 
-- Platform/toolchain versions are not pinned. FastLED 3.1.8 is vendored in `lib/`.
-- `Mic::detectBeat()` passes the `beat_times` array to `getBPM(uint32_t)`,
-  which expects one period value. This is an existing type mismatch to investigate
-  if the build fails in the microphone code, even though beat detection is not
-  selected at runtime.
-- There is no active CI configuration or automated test suite in this repository.
+- The lamp starts normally using its separate 5 V supply.
+- One button press/release advances one effect, including northern lights and
+  rainbow, and the menu wraps after the eighth effect.
+- Button input remains responsive in the audio mode, and sound produces smooth
+  red brightness without wrapping at high levels.
+- Effect colors, timing and transitions look right on the actual LED strip.
 
-For firmware changes, build the project first, then verify on the actual
-lamp with its separate 5 V supply: startup lighting, the available menu effects,
-button/sensor behavior, and serial output at 115200 baud. Check sound response when
-changing the audio code. Record which hardware and firmware revision were tested;
-compilation alone does not validate wiring or light output.
-
-The photos in [`docs/images/`](docs/images/) are JPEG copies of the six reference
-photos supplied with this project. They document the physical Mini setup; source
-files remain the reference for the firmware behavior described above.
+Record the hardware and firmware revision tested. The JPEGs in
+[`docs/images/`](docs/images/) are the six supplied reference photos and document
+the physical Mini setup.

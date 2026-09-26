@@ -1,61 +1,36 @@
 #ifndef LAMPE_H
 #define LAMPE_H
 
-#include "FastLED.h"
-#include "Arduino.h"
+#include <FastLED.h>
+#include <Hardware.h>
+#include <LampLogic.h>
 
-FASTLED_USING_NAMESPACE
-
-#if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
-#warning "Requires FastLED 3.1 or later; check github for latest code."
-#endif
-
-#define DATA_PIN            3
-#define LED_TYPE            WS2812B
-#define COLOR_ORDER         GRB
-#define NUM_LEDS            16
-#define BRIGHTNESS          100
-#define FRAMES_PER_SECOND   120
-#define ARRAY_SIZE(A)       (sizeof(A) / sizeof((A)[0]))
-#define NUM_MENU_OPTIONS    5
-#define BUTTON_PIN          2
-
-
-class Lampe
-{
-  public:
-    Lampe();
-    bool buttonClick();
-    void updateLinearReduce();
-    uint8_t linearReduce(uint8_t peak);
-    uint32_t getTimer();
-    void resetTimer();
-    uint32_t getSampleTimer();
-    void resetSampleTimer();
-    uint8_t nextMenuOptionOnClick();
-    uint8_t nextMenuOption();
-    void incrementMenu();
+class Lampe {
+public:
+    // Hardware initialization belongs in setup(), after Arduino initializes timers.
+    void begin();
     void update();
-    uint8_t cycleNumber(uint8_t i, uint8_t peak, uint8_t stepSize);
-    bool sampleInit;
-    uint8_t gHue;
-    uint8_t num_leds;
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-    CRGB leds[NUM_LEDS];
-    uint8_t stateValues[NUM_LEDS] = {};
-  private:
-    void newStateVarReset();
-    uint32_t timer;
-    uint32_t linearReduceTimer;
-    uint32_t sampleTimer;
-    uint8_t linearValue;
-    uint8_t prevButtonState;
-    uint8_t menuOption;
-    bool menuRestart;
+    uint8_t audioLevel() const { return audio_.level(); }
+
+    CRGB leds[Hardware::LedCount] = {};
+    uint8_t hue = 0;
+    struct EffectState {
+        uint8_t position = 0;
+        uint8_t firstHue = 0;
+        uint8_t secondHue = 0;
+        uint32_t stepAt = 0;
+        uint32_t colorAt = 0;
+        uint32_t sparkAt = 0;
+    } effect;
+
+private:
+    void resetEffect(uint32_t now);
+    void printProgram() const;
+
+    LampLogic::DebouncedButton button_;
+    LampLogic::AudioEnvelope audio_;
+    uint8_t program_ = 0;
+    uint32_t frameAtUs_ = 0;
 };
-
-
 
 #endif
