@@ -154,7 +154,8 @@ and `platformio.ini`:
 | PlatformIO Core | 6.2.0 |
 | Atmel AVR platform | 5.3.0 |
 | Arduino AVR core | 1.8.8 (framework package 5.4.0) |
-| AVR GCC | 7.3.0 (package 1.70300.191015, as recommended by the AVR platform) |
+| AVR GCC | 7.3.0 (updated toolchain package 3.70300.220127) |
+| AVRDUDE uploader | 8.1 (PlatformIO package 1.80100.0) |
 | FastLED | 3.10.5 |
 
 PlatformIO downloads FastLED automatically; no third-party source needs to be
@@ -170,6 +171,11 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-dev.txt
 ```
+
+CI uses Python **3.14**; this is also the recommended version for new development
+environments. To refresh an existing environment's compatible Python dependencies,
+run `python -m pip install --upgrade --upgrade-strategy eager -r requirements-dev.txt`,
+then `python -m pip check`.
 
 Run the tests and build:
 
@@ -204,7 +210,13 @@ upgrading FastLED. If using a custom PlatformIO library directory, pass
 Firmware compilation also checks representative brightness values using AVR's
 actual integer widths. The [CI workflow](.github/workflows/ci.yml) installs the
 pinned dependencies and runs both test suites and the AVR build on pushes and
-pull requests.
+pull requests. It uses `actions/checkout` 7.0.1 and `actions/setup-python` 7.0.0.
+It also writes and verifies the generated HEX file through AVRDUDE's `dryrun`
+programmer, which simulates an ATmega328P without connecting to hardware:
+
+```sh
+pio pkg exec --package platformio/tool-avrdude -- avrdude -N -p m328p -c dryrun -U flash:w:.pio/build/nanoatmega328/firmware.hex:i
+```
 
 ### FastLED upgrade notes
 
