@@ -1,4 +1,5 @@
 #include <LampLogic.h>
+#include <FrameClock.h>
 #include <Programs.h>
 
 #include <cstdlib>
@@ -146,6 +147,19 @@ void testMenu() {
 }
 
 void testIndexAndTiming() {
+    LampLogic::FrameClock frame(8333);
+    frame.reset(100);
+    CHECK(frame.spare(200) == 8233);
+    CHECK(!frame.due(8432));
+    CHECK(frame.due(8443)); // 10 us late; the next deadline retains its phase.
+    CHECK(frame.spare(8443) == 8323);
+    CHECK(frame.due(16766));
+    CHECK(!frame.due(16766));
+    CHECK(frame.due(100000)); // Long stall produces one frame, no catch-up burst.
+    CHECK(!frame.due(100000));
+    frame.reset(0xfffff000UL);
+    CHECK(!frame.due(uint32_t(0xfffff000UL + 8332)));
+    CHECK(frame.due(uint32_t(0xfffff000UL + 8333)));
     CHECK(LampLogic::wrapIndex(15, 16) == 0);
     CHECK(LampLogic::wrapIndex(15, 16, 2) == 1); // Preserve overshoot instead of jumping to zero.
     CHECK(LampLogic::wrapIndex(14, 16, 15) == 13);

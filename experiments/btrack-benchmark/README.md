@@ -1,5 +1,10 @@
 # BTrack comparison and measured audio features
 
+This report describes the pre-deployment experiment against firmware `9e0ffd4`.
+The later, independently implemented AVR tracker and its timing measurements are
+documented in [standalone BPM](../../docs/bpm-standalone.md). BTrack itself remains
+an offline reference; it is not linked into the lamp firmware.
+
 This is an isolated research benchmark, not a replacement lamp program or a new
 firmware dependency. It compares the current lamp tracker with unchanged upstream
 [BTrack](https://github.com/adamstark/BTrack), first on the ten existing microphone

@@ -1,0 +1,7 @@
+{
+  "normal_firmware_verified": true,
+  "normal_firmware_sha256": "2c0b0b78ef3b34d1f1a2439d267afb236625d7056faf526fe00caa03594c195d",
+  "tracker_sha256": "ae51bdf8b00ecda81d8f8aa3421560e23036d8e3a0fe7d4acc8badec65494a75",
+  "source": "AVRDUDE write/read verification over FTDI A50285BI",
+  "timing_capture": "captures/standalone-timing-refined"
+}

@@ -11,7 +11,9 @@ public:
     void reset(uint32_t now, bool buttonHigh = false, uint16_t seed = LampConfig::RandomSeed);
     bool selectProgram(uint8_t program, uint32_t now);
     bool pollButton(bool high, uint32_t now);
-    void sampleAudio(uint16_t reading, uint32_t now);
+    void sampleAudio(uint16_t reading, uint32_t now, bool deferred = false);
+    void workAudio(uint32_t now) { beat_.work(now); }
+    bool audioWorkPending() const { return beat_.workPending(); }
     void render(uint32_t now);
     uint8_t program() const { return program_; }
     uint8_t audioLevel() const { return audio_.level(); }

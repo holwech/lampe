@@ -19,7 +19,9 @@ jobs:
       - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/setup-firmware
       - name: Test firmware logic, rendering and recorded microphone input
-        run: uv run --locked python scripts/test.py
+        run: |
+          uv run --locked python scripts/test.py
+          uv run --locked python experiments/led-microphone/test_capture.py
       - name: Build AVR firmware
         run: uv run --locked pio run --environment nanoatmega328
       - name: Check uploader with a simulated ATmega328P

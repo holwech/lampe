@@ -94,7 +94,8 @@
     "warmup_ms": 10000,
     "min_matching_percent": 50,
     "max_wrong_percent": 1,
-    "known_acquisition_failure": true
+    "known_wrong_tempo_failure": true,
+    "regression_max_wrong_percent": 11
   },
   {
     "file": "radioactive-02.csv",
@@ -109,7 +110,10 @@
     "warmup_ms": 10000,
     "min_matching_percent": 50,
     "max_wrong_percent": 1,
-    "known_acquisition_failure": true
+    "known_acquisition_failure": true,
+    "regression_min_matching_percent": 20,
+    "known_wrong_tempo_failure": true,
+    "regression_max_wrong_percent": 18
   },
   {
     "file": "have-a-cigar-01.csv",
@@ -124,6 +128,40 @@
     "warmup_ms": 10000,
     "min_matching_percent": 50,
     "max_wrong_percent": 1,
-    "known_acquisition_failure": true
+    "known_wrong_tempo_failure": true,
+    "regression_max_wrong_percent": 10
+  },
+  {
+    "file": "radioactive-03.csv",
+    "source_capture": "standalone-radioactive-live",
+    "track": "Radioactive (assumed Imagine Dragons version)",
+    "windows": 7160,
+    "duration_ms": 72927,
+    "gaps": 3,
+    "reference_bpm": 136,
+    "reference_source": "https://origin03-www.musicnotes.com/sheetmusic/imagine-dragons/radioactive/MN0126667",
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 50,
+    "max_wrong_percent": 1,
+    "known_acquisition_failure": true,
+    "regression_min_matching_percent": 0,
+    "known_wrong_tempo_failure": true,
+    "regression_max_wrong_percent": 40
+  },
+  {
+    "file": "radioactive-steady-01.csv",
+    "source_capture": "standalone-radioactive-steady",
+    "track": "Radioactive (assumed Imagine Dragons version)",
+    "sampling_condition": "Constant red LEDs; same ADC/tracker and 120 Hz LED update schedule",
+    "windows": 4240,
+    "duration_ms": 42918,
+    "gaps": 0,
+    "reference_bpm": 136,
+    "reference_source": "https://origin03-www.musicnotes.com/sheetmusic/imagine-dragons/radioactive/MN0126667",
+    "tolerance_bpm": 4,
+    "warmup_ms": 10000,
+    "min_matching_percent": 65,
+    "max_wrong_percent": 1
   }
 ]

@@ -1,0 +1,48 @@
+{
+  "capture": "captures/standalone-radioactive-live",
+  "reference_bpm": 136,
+  "tolerance_bpm": 4,
+  "warmup_ms": 10000,
+  "metadata": {
+    "seconds": 75.015,
+    "raw_samples": 0,
+    "detector_windows": 7160,
+    "window_gaps": 3,
+    "max_window_interval_ms": 212,
+    "led_frames": 2042,
+    "rejected_packets": 21,
+    "missing_audio_packets": 4,
+    "reference_bpm": 136.0,
+    "source": "physical lamp microphone",
+    "mode": "windows"
+  },
+  "windows_sha256": "8541024ec830ea91fcb3f750c1053ff2a9e409ca070861c275c1362ea83d7e06",
+  "tracker_sha256": "ae51bdf8b00ecda81d8f8aa3421560e23036d8e3a0fe7d4acc8badec65494a75",
+  "live": {
+    "evaluated": 1766,
+    "matching_percent": 0.0,
+    "wrong_percent": 93.5,
+    "locked_range": [
+      96,
+      108
+    ]
+  },
+  "replay": {
+    "evaluated": 6170,
+    "matching_percent": 0.0,
+    "wrong_percent": 38.3,
+    "locked_range": [
+      100,
+      108
+    ]
+  },
+  "previous_replay": {
+    "evaluated": 6170,
+    "matching_percent": 0.0,
+    "wrong_percent": 38.8,
+    "locked_range": [
+      100,
+      109
+    ]
+  }
+}

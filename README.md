@@ -88,13 +88,16 @@ for its raw RGB values. The diffuser shape is based on the photos; its light
 spread, brightness, and pixel orientation are an approximation, not a calibrated
 optical model. Raw pixel values are the actual effect output.
 
-**Sound reactive follows the music’s beat.** Play music near the lamp’s microphone
-and allow roughly 5–7 seconds of a clear, steady rhythm. While listening, the lamp
+**Sound reactive estimates the music’s beat.** Play music near the lamp’s microphone
+and allow at least roughly ten seconds of a clear, steady rhythm. While listening, the lamp
 responds to volume; once a tempo is found, it flashes red once per beat. The Sound
 panel shows the detected BPM alongside the microphone level. It can hold time
 through a brief missing beat, then returns to listening after silence or loss of
 a repeating rhythm. Quiet or complex music can take longer or fail to lock, and
-strong subdivisions can produce half/double tempo. The detector runs on the lamp;
+strong subdivisions can produce half/double tempo. A fresh Radioactive passage worked with steady LEDs
+but failed while flashing. Subsequent controlled quiet-room tests found no
+meaningful interference from LED changes; see the
+[step/fade measurements](docs/led-microphone-measurements.md). The detector runs on the lamp;
 the browser can select programs and display their live output.
 
 **See what the microphone hears.** Select Sound reactive to reveal the raw
@@ -263,27 +266,28 @@ so loop speed does not change its rate. There are no serial writes per sample.
 peak-to-peak windows. A half-weight exponential filter smooths the measured
 envelope. Positive changes are divided by the current envelope plus a noise
 offset, making attacks relative to the local volume. These form a smoothed onset
-history of 512 bytes. Mean-subtracted, normalized autocorrelation searches 300–1,000 ms beat
-intervals; one lag is scored per window to spread CPU work across the loop.
-Descending lags compare the same 384-window slice, so changes in the music during
-one scan do not bias competing tempos. Acquisition requires a distinct correlation
-peak above the lag-score background and at least 18/100 correlation. Weak peaks
-need ten confirmations; peaks of at least 35/100 need five, and a clean initial
-peak of at least 55/100 needs three. A failed scan subtracts two confirmations;
-three failures clear them. Including history warmup, initial acquisition takes
-at least roughly 7 seconds, or 12 seconds for weak rhythms, and can take longer.
+history of 512 bytes. Mean-subtracted, normalized autocorrelation compares a common
+256-window slice at delays from 150–2,000 ms. A comb score combines repetition at
+the candidate beat interval and up to four multiples. Seventy-one competing periods
+cover 60–200 BPM; an integer log-evidence model favors gradual changes without
+discarding alternative tempos. A broad tempo preference is deliberately weak enough
+for strong synthetic rhythms across the full range. Three consistent scans acquire
+a beat clock, usually after at least ten seconds of history and analysis.
 
-An established tempo can persist down to 15/100 when still supported, with a
-lower peak-prominence requirement and extra resistance to half/double-tempo
-jumps. Scores below 25/100 can hold the clock but cannot retune its period.
-Correlation at twice an interval reinforces the shorter beat during
-acquisition, helping with alternating strong and weak kicks. A phase clock drives 90 ms fading pulses, aligns gently to
-attacks above the recent onset floor, and continues through missed hits. Three
-failed scans or three seconds without matching attacks release lock; stale history
-cannot reacquire it during silence. Program changes and missing measurement
-windows clear history. All arithmetic is integer, no heap is used, and the same
-detector runs in AVR firmware, WebAssembly and native capture replay. The displayed
-correlation score is a heuristic, not a calibrated probability of correctness.
+The firmware defers analysis into bounded work units: 32 sample pairs, one linear
+transition pass pair, four tempo observations, or a final commit. The loop renders
+due LED frames first and starts analysis only with at least 1 ms before the next
+120 Hz deadline. A full tempo update can span input windows; microphone collection
+continues throughout. A frozen scan endpoint and an overwritten-history check keep
+delayed reads valid. Native replay and the simulator drain the same work immediately.
+
+A phase clock drives 90 ms fading pulses, aligns gently to attacks above the recent
+onset floor, and continues through missed hits. Three unsupported scans or three
+seconds without matching attacks release lock. Program changes and missing input
+windows clear history. All arithmetic is integer and no heap is used. The displayed
+correlation is a heuristic, not a calibrated probability. False beats on room noise
+are currently accepted; wrong-tempo music results remain visible in the regression
+tests. See the [standalone tracker measurements](docs/bpm-standalone.md).
 
 Tests cover regular and missing beats, noisy continuously varying input, offbeats,
 silence, tempo changes, ADC/replay parity and timer rollover. Real microphone
@@ -315,21 +319,21 @@ and drops batches when USB is busy, so it is useful for inspecting the sensor bu
 must not be used as an exact replay of the detector's input. Window capture is only
 about 600 bytes/s and retries busy batches; its timestamps still expose any lost
 windows. Full capture files under `captures/` are ignored by Git and stay local.
-Ten curated [recording fixtures](tests/fixtures/microphone/) are checked in for
-regression tests: nine music captures and one quiet-room capture, containing only
+Twelve curated [recording fixtures](tests/fixtures/microphone/) are checked in for
+regression tests: eleven music captures and one quiet-room capture, containing only
 timestamps and detector input peaks. `scripts/test.py` replays them in firmware
-CI and checks minimum time near the reference BPM, wrong-tempo locks and room-noise
-rejection. Twenty deterministic shuffles of real 50 ms sound bursts must also
-remain unlocked. Three acquisition tests are explicitly marked as expected
-failures: two “Radioactive” passages and one “Have a Cigar” passage currently never
-lock. Their input validation and wrong-tempo limits still run as mandatory checks.
-An unexpected success requires reviewing the improvement and removing the marker;
-these cases must not be described as solved because CI is green. The approximate
-references are 120 and 136 BPM. These captures complement generated tests across
-60–200 BPM; see the [measured limitations](docs/bpm-measurements.md#third-round-radioactive-and-have-a-cigar).
+CI and checks minimum time near the reference BPM, wrong-tempo regression bounds,
+and exact parity between incremental and synchronous processing. Twenty deterministic
+shuffles are retained as noise stress inputs; false beats on them are accepted.
+Six targets remain explicit expected failures: acquisition on the second and third
+“Radioactive” passages and the original 1% wrong-tempo target on all three
+“Radioactive” passages and “Have a Cigar.” The six earlier music recordings retain their original
+passing bounds. An unexpected success requires reviewing and removing the marker;
+a green CI run does not mean every song is solved. The approximate references remain
+120 and 136 BPM. See the [current results and timing checks](docs/bpm-standalone.md).
 
 An isolated [BTrack and audio-feature benchmark](experiments/btrack-benchmark/)
-compares the current detector with a published tracker and preserves three newer
+compares the previous detector with a published tracker and preserves three newer
 feature recordings from regular 4 kHz ADC captures. It includes the newly exposed
 paused-music false positive and is research tooling, not the installed detector.
 The temporary [PCM diagnostic](experiments/microphone-pcm/) pauses LED updates
@@ -530,6 +534,11 @@ of “Isn't She Lovely” while retaining all earlier regression checks, was als
 uploaded and its 14,130 flash bytes verified. It uses 1,172 bytes of static RAM.
 Detection improved but remains intermittent. See
 [measured results and limitations](docs/bpm-measurements.md).
+The subsequent standalone tracker was uploaded and its 14,376 bytes verified;
+it uses 1,461 static SRAM bytes. A hardware timing stress test maintained 120 LED
+frames per second, but the fresh Radioactive music check failed. See the
+[standalone timing and accuracy report](docs/bpm-standalone.md) before treating
+the new detector as reliable on arbitrary music.
 Verify that:
 
 - The lamp starts normally using its separate 5 V supply.

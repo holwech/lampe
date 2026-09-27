@@ -1,0 +1,7 @@
+{
+  "recorded_date": "2026-09-27",
+  "room": "Music paused; user confirmed readiness for quiet-room test",
+  "physical_leds": "User confirmed visibly changing LEDs with separate 5 V supply connected",
+  "adc_source": "A0 on the physical ATmega328P lamp",
+  "normal_firmware_restored_and_verified": true
+}

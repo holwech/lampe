@@ -1,0 +1,100 @@
+{
+  "baseline_commit": "9e0ffd4",
+  "metric": "percent of windows after 10 seconds within approximate reference +/-4 BPM; not beat alignment",
+  "cases": [
+    {
+      "case": "music-01.csv",
+      "near": 99.7,
+      "wrong": 0.0,
+      "baseline_near": 70.3,
+      "input_sha256": "2062badc81e4c0e19952e6aa5510cbf628e546110c18866690b0d13899f49ccf"
+    },
+    {
+      "case": "music-02.csv",
+      "near": 90.8,
+      "wrong": 0.0,
+      "baseline_near": 94.5,
+      "input_sha256": "702d434ad3da8792ab22ec88741554b6cbbe39cdc2682c4c0c939035b70c761a"
+    },
+    {
+      "case": "music-03.csv",
+      "near": 99.7,
+      "wrong": 0.0,
+      "baseline_near": 95.9,
+      "input_sha256": "1f5f90d09d90af163dfa7641a824b33fe2153cc6dd427f420f97d81c728f049c"
+    },
+    {
+      "case": "music-04.csv",
+      "near": 99.7,
+      "wrong": 0.0,
+      "baseline_near": 100,
+      "input_sha256": "54d78003c76fb1c37aeaa9158f68050014d5237a3963b0841c53996589de2135"
+    },
+    {
+      "case": "room-noise.csv",
+      "near": 0.0,
+      "wrong": 0.0,
+      "baseline_near": 0,
+      "input_sha256": "f43aa319788b6aa359e0257c77c22e2b2a22924b148ab572793f01d6405460f4"
+    },
+    {
+      "case": "isnt-she-lovely-01.csv",
+      "near": 93.8,
+      "wrong": 0.0,
+      "baseline_near": 60.0,
+      "input_sha256": "0a204b55c37e6d5b6ccb7a3da228384d6acc58fc111f4ffdf6bbb200dbfa5947"
+    },
+    {
+      "case": "isnt-she-lovely-02.csv",
+      "near": 93.8,
+      "wrong": 0.0,
+      "baseline_near": 83.7,
+      "input_sha256": "8d7726f6392ffd6d18f376827cd274e32f87d783b4639e598a25d147660ea196"
+    },
+    {
+      "case": "radioactive-01.csv",
+      "near": 78.2,
+      "wrong": 9.6,
+      "baseline_near": 0,
+      "input_sha256": "3f9980f2d28f4cb87d8d216b2b87bde8a7094b696ae245b092fdaa437ec61d30"
+    },
+    {
+      "case": "radioactive-02.csv",
+      "near": 22.5,
+      "wrong": 16.6,
+      "baseline_near": 0,
+      "input_sha256": "3e9854ecc56279ade1d2b8c80cdb56ff7ad379ba43ea209d2b98d0d5d09e0c39"
+    },
+    {
+      "case": "have-a-cigar-01.csv",
+      "near": 90.9,
+      "wrong": 8.9,
+      "baseline_near": 0,
+      "input_sha256": "d87ed03abdde8e586a6f674fa29fba4f879f66596a9b17fb19c2138f41e7cc52"
+    },
+    {
+      "case": "have-a-cigar-pcm-01",
+      "near": 60.1,
+      "wrong": 17.2,
+      "baseline_near": 0,
+      "input_sha256": "b5fc5d9ab46195d94bf5c3f12786a10f753793cf23f141d9b30acf098ebf5aae"
+    },
+    {
+      "case": "have-a-cigar-pcm-02",
+      "near": 42.9,
+      "wrong": 14.1,
+      "baseline_near": 0,
+      "input_sha256": "089d3213e31849e641a2e01ba45a7e8550decfb8be28d90563949131bc0097c5"
+    },
+    {
+      "case": "room-noise-pcm-01",
+      "near": 0.0,
+      "wrong": 90.1,
+      "baseline_near": 0,
+      "input_sha256": "1f49e89b2b0a1fb40a7b35c0a49b1c09428c74abe549c25d0ece8dd6f290a67f"
+    }
+  ],
+  "tracker_sha256": "ae51bdf8b00ecda81d8f8aa3421560e23036d8e3a0fe7d4acc8badec65494a75",
+  "warmup_ms": 10000,
+  "tolerance_bpm": 4
+}

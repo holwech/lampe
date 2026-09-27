@@ -1,0 +1,24 @@
+{
+  "source": "physical ATmega328P, synthetic audio stress, LEDs active",
+  "firmware_sha256": "9ec9a2c4a50220c3e4d48fb9f2d1dc71f05b04512bc9d832d0ca9b68464412f6",
+  "tracker_sha256": "ae51bdf8b00ecda81d8f8aa3421560e23036d8e3a0fe7d4acc8badec65494a75",
+  "seconds": 30.0,
+  "reports": 27,
+  "min_frame_us": 8168,
+  "max_frame_us": 8484,
+  "max_work_us": 552,
+  "max_input_us": 444,
+  "late_frames": 0,
+  "analysis_busy_windows": 21,
+  "max_busy_windows_per_report": 2,
+  "recorded_input_windows": 960,
+  "input_window_gaps": 0,
+  "stack_headroom_bytes": 359,
+  "capture_modes": [
+    0,
+    1,
+    2
+  ],
+  "work_calls": 17726,
+  "last_bpm": 122
+}

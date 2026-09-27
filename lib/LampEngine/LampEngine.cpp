@@ -22,10 +22,10 @@ bool LampEngine::pollButton(bool high, uint32_t now) {
     return selectProgram(Programs::next(program_), now);
 }
 
-void LampEngine::sampleAudio(uint16_t reading, uint32_t now) {
+void LampEngine::sampleAudio(uint16_t reading, uint32_t now, bool deferred) {
     if (Programs::usesAudio(program_)) {
         audio_.sample(reading, now);
-        beat_.sample(reading, now);
+        beat_.sample(reading, now, deferred);
     }
 }
 

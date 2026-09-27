@@ -1,5 +1,9 @@
 # Real microphone BPM measurements — 2026-09-26
 
+This is the historical tuning/research record. See the subsequent
+[standalone implementation and live validation](bpm-standalone.md) for the
+currently deployed firmware, timing measurements, and remaining failures.
+
 The first tuning round used the physical lamp, FTDI A50285BI and music with a
 user-supplied approximate reference of 120 BPM. No track identity, exact tempo or
 beat-position annotations were available. These measurements show improvement on
