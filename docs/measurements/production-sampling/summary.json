@@ -1,0 +1,379 @@
+{
+  "alignment": [
+    {
+      "take": "sampling-radioactive-pulsed",
+      "shift_s": -0.2,
+      "envelope_correlation": 0.991
+    },
+    {
+      "take": "sampling-radioactive-steady-repeat",
+      "shift_s": -0.34,
+      "envelope_correlation": 0.9902
+    }
+  ],
+  "takes": [
+    {
+      "condition": "steady",
+      "track": "Radioactive \u2014 Imagine Dragons (Night Visions, Spotify 62yJjFtgkhUrXktIoSjgP2)",
+      "reference_bpm": 136.0,
+      "firmware_sha256": "06366b95cbcfb8935868b9e94aa70258f8dac1be3771cba45ebc354b0d1c8480",
+      "restore_sha256": "2c0b0b78ef3b34d1f1a2439d267afb236625d7056faf526fe00caa03594c195d",
+      "restored": true,
+      "mode": "windows",
+      "host_started_unix_s": 1790494881.746235,
+      "seconds": 90.0,
+      "windows": 8899,
+      "rejected_packets": 0,
+      "missing_packets": 0,
+      "window_gaps": 0,
+      "firmware_dropped": 0,
+      "timing_reports": 90,
+      "late_frames": 0,
+      "max_frame_us": 8412,
+      "max_input_us": 492,
+      "max_work_us": 576,
+      "stack_headroom_bytes": 363,
+      "playback": {
+        "beforePlayUnixMs": 1790494894153,
+        "track": "https://open.spotify.com/track/62yJjFtgkhUrXktIoSjgP2",
+        "startProgressMs": 0,
+        "afterPlayUnixMs": 1790494894361,
+        "beforePauseUnixMs": 1790494974774,
+        "afterPauseUnixMs": 1790494974826,
+        "volume": 1
+      },
+      "analyzed_song_seconds": [
+        15,
+        70
+      ],
+      "take": "sampling-radioactive-steady",
+      "frames_per_report_range": [
+        120,
+        121
+      ],
+      "min_frame_us": 8260,
+      "mean_window_interval_ms": 10.12631,
+      "window_interval_ms_counts": {
+        "10": 4817,
+        "11": 548,
+        "12": 60,
+        "13": 6
+      },
+      "largest_sample_gap_us": 2960,
+      "sample_count_range": [
+        10,
+        35
+      ],
+      "count_p05_median_p95": [
+        16.0,
+        23.0,
+        27.0
+      ],
+      "min_gap_us_p05_median_p95": [
+        216.0,
+        216.0,
+        224.0
+      ],
+      "max_gap_us_p05_median_p95": [
+        1528.0,
+        1696.0,
+        2544.0
+      ],
+      "peak_p05_median_p95": [
+        17.0,
+        64.0,
+        169.0
+      ],
+      "busy_samples_p05_median_p95": [
+        7.0,
+        8.0,
+        9.0
+      ],
+      "adc_range": [
+        333,
+        666
+      ],
+      "adc_clipped_windows": 0,
+      "bpm": {
+        "matching_percent": 72.3,
+        "wrong_percent": 27.7,
+        "locked_range": [
+          137,
+          142
+        ]
+      },
+      "replay_bpm": {
+        "matching_percent": 82.9,
+        "wrong_percent": 6.8,
+        "locked_range": [
+          135,
+          141
+        ]
+      },
+      "live_replay_bpm_disagreement_percent": 94.9,
+      "live_replay_onset_disagreements": 0,
+      "coarse_work_budget_probe": {
+        "8": {
+          "live_agreement_within_1_bpm_percent": 20.7
+        },
+        "12": {
+          "live_agreement_within_1_bpm_percent": 49.8
+        },
+        "16": {
+          "live_agreement_within_1_bpm_percent": 59.1
+        },
+        "28": {
+          "live_agreement_within_1_bpm_percent": 18.5
+        }
+      },
+      "source_sha256": {
+        "sampling.csv": "6187b605538bfb65c6979059094c50ebf4332c6ad7d5fd2037790db1884f5011",
+        "windows.csv": "450f3c501c7e785f3544e6935c3fc74893d3caf5d86229663fb5cb65e4553f92",
+        "timing.csv": "ab1683fc95f97750f23a64f7f8b52c53354affe2fb8001961d68d04804cc4ee4",
+        "serial.bin": "a94a83d1de517b8322c6cc69e3375a0e0b73adcff5c2ac3681423a6e21226fe4"
+      }
+    },
+    {
+      "condition": "pulsed",
+      "track": "Radioactive \u2014 Imagine Dragons (Night Visions, Spotify 62yJjFtgkhUrXktIoSjgP2)",
+      "reference_bpm": 136.0,
+      "firmware_sha256": "ffbac9ceb5a5710d1a7a712e6dec2f45d9732de3c528aacc7aa62bc1d84b3cbb",
+      "restore_sha256": "2c0b0b78ef3b34d1f1a2439d267afb236625d7056faf526fe00caa03594c195d",
+      "restored": true,
+      "mode": "windows",
+      "host_started_unix_s": 1790495024.447287,
+      "seconds": 90.0,
+      "windows": 8884,
+      "rejected_packets": 0,
+      "missing_packets": 0,
+      "window_gaps": 0,
+      "firmware_dropped": 0,
+      "timing_reports": 90,
+      "late_frames": 0,
+      "max_frame_us": 8412,
+      "max_input_us": 508,
+      "max_work_us": 560,
+      "stack_headroom_bytes": 363,
+      "playback": {
+        "beforePlayUnixMs": 1790495037023,
+        "track": "https://open.spotify.com/track/62yJjFtgkhUrXktIoSjgP2",
+        "startProgressMs": 0,
+        "afterPlayUnixMs": 1790495037265,
+        "beforePauseUnixMs": 1790495118201,
+        "afterPauseUnixMs": 1790495121399,
+        "volume": 1
+      },
+      "analyzed_song_seconds": [
+        15,
+        70
+      ],
+      "take": "sampling-radioactive-pulsed",
+      "frames_per_report_range": [
+        120,
+        121
+      ],
+      "min_frame_us": 8260,
+      "mean_window_interval_ms": 10.148,
+      "window_interval_ms_counts": {
+        "10": 4738,
+        "11": 567,
+        "12": 107,
+        "13": 7
+      },
+      "largest_sample_gap_us": 3040,
+      "sample_count_range": [
+        10,
+        36
+      ],
+      "count_p05_median_p95": [
+        16.0,
+        24.0,
+        27.0
+      ],
+      "min_gap_us_p05_median_p95": [
+        216.0,
+        216.0,
+        224.0
+      ],
+      "max_gap_us_p05_median_p95": [
+        1544.0,
+        1728.0,
+        2568.0
+      ],
+      "peak_p05_median_p95": [
+        17.0,
+        64.0,
+        168.09999999999945
+      ],
+      "busy_samples_p05_median_p95": [
+        7.0,
+        8.0,
+        9.0
+      ],
+      "adc_range": [
+        351,
+        676
+      ],
+      "adc_clipped_windows": 0,
+      "bpm": {
+        "matching_percent": 66.0,
+        "wrong_percent": 21.8,
+        "locked_range": [
+          60,
+          143
+        ]
+      },
+      "replay_bpm": {
+        "matching_percent": 60.8,
+        "wrong_percent": 28.1,
+        "locked_range": [
+          60,
+          143
+        ]
+      },
+      "live_replay_bpm_disagreement_percent": 25.2,
+      "live_replay_onset_disagreements": 0,
+      "coarse_work_budget_probe": {
+        "8": {
+          "live_agreement_within_1_bpm_percent": 77.6
+        },
+        "12": {
+          "live_agreement_within_1_bpm_percent": 99.9
+        },
+        "16": {
+          "live_agreement_within_1_bpm_percent": 51.6
+        },
+        "28": {
+          "live_agreement_within_1_bpm_percent": 97.9
+        }
+      },
+      "source_sha256": {
+        "sampling.csv": "334dd47a5a8bb802db9c73847c04c7254fdae8c1f8cf2c6409b89b0eb699b596",
+        "windows.csv": "78c3e238209127a161975dd313c7008b9ddccd908491712560401a53a648f3d7",
+        "timing.csv": "2f4e8a0c95d16d505722004094b7052c17fcd7a85f945e578e16a6fc03745410",
+        "serial.bin": "fde9ac9d2ec0646393fe49d8001dabd93e935710514f1e260c5a8cd3f7d43191"
+      }
+    },
+    {
+      "condition": "steady",
+      "track": "Radioactive \u2014 Imagine Dragons (Night Visions, Spotify 62yJjFtgkhUrXktIoSjgP2)",
+      "reference_bpm": 136.0,
+      "firmware_sha256": "06366b95cbcfb8935868b9e94aa70258f8dac1be3771cba45ebc354b0d1c8480",
+      "restore_sha256": "2c0b0b78ef3b34d1f1a2439d267afb236625d7056faf526fe00caa03594c195d",
+      "restored": true,
+      "mode": "windows",
+      "host_started_unix_s": 1790495211.456116,
+      "seconds": 95.0,
+      "windows": 9398,
+      "rejected_packets": 0,
+      "missing_packets": 0,
+      "window_gaps": 0,
+      "firmware_dropped": 0,
+      "timing_reports": 95,
+      "late_frames": 0,
+      "max_frame_us": 8408,
+      "max_input_us": 488,
+      "max_work_us": 564,
+      "stack_headroom_bytes": 363,
+      "playback": {
+        "beforePlayUnixMs": 1790495221357,
+        "track": "https://open.spotify.com/track/62yJjFtgkhUrXktIoSjgP2",
+        "startProgressMs": 0,
+        "afterPlayUnixMs": 1790495221449,
+        "beforePauseUnixMs": 1790495292801,
+        "afterPauseUnixMs": 1790495292833,
+        "volume": 1
+      },
+      "analyzed_song_seconds": [
+        15,
+        70
+      ],
+      "take": "sampling-radioactive-steady-repeat",
+      "frames_per_report_range": [
+        120,
+        121
+      ],
+      "min_frame_us": 8256,
+      "mean_window_interval_ms": 10.12744,
+      "window_interval_ms_counts": {
+        "10": 4831,
+        "11": 512,
+        "12": 81,
+        "13": 6
+      },
+      "largest_sample_gap_us": 2944,
+      "sample_count_range": [
+        11,
+        34
+      ],
+      "count_p05_median_p95": [
+        16.0,
+        24.0,
+        27.0
+      ],
+      "min_gap_us_p05_median_p95": [
+        216.0,
+        216.0,
+        224.0
+      ],
+      "max_gap_us_p05_median_p95": [
+        1512.0,
+        1684.0,
+        2536.0
+      ],
+      "peak_p05_median_p95": [
+        17.0,
+        64.0,
+        168.0
+      ],
+      "busy_samples_p05_median_p95": [
+        7.0,
+        8.0,
+        9.0
+      ],
+      "adc_range": [
+        340,
+        700
+      ],
+      "adc_clipped_windows": 0,
+      "bpm": {
+        "matching_percent": 82.3,
+        "wrong_percent": 0.0,
+        "locked_range": [
+          136,
+          140
+        ]
+      },
+      "replay_bpm": {
+        "matching_percent": 67.2,
+        "wrong_percent": 15.7,
+        "locked_range": [
+          110,
+          138
+        ]
+      },
+      "live_replay_bpm_disagreement_percent": 88.5,
+      "live_replay_onset_disagreements": 0,
+      "coarse_work_budget_probe": {
+        "8": {
+          "live_agreement_within_1_bpm_percent": 62.6
+        },
+        "12": {
+          "live_agreement_within_1_bpm_percent": 67.1
+        },
+        "16": {
+          "live_agreement_within_1_bpm_percent": 39.0
+        },
+        "28": {
+          "live_agreement_within_1_bpm_percent": 22.5
+        }
+      },
+      "source_sha256": {
+        "sampling.csv": "094784966e6323c7bf7c48fc080b70081f40318117811cc8b6f61f31556ce98e",
+        "windows.csv": "c7cad1ced9402206729fe6a69909dec35e5c199c6fa0c358e878e6ec140800f3",
+        "timing.csv": "bea2e356c3276cb30410a25eb79b8acfdc32f3466745a95605453bd3c01b1850",
+        "serial.bin": "b2a6c660367a5b375982a9ab344c159132c55f6bf8d7c4d9cd544a35ba39cd6d"
+      }
+    }
+  ]
+}

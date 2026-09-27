@@ -22,6 +22,7 @@ jobs:
         run: |
           uv run --locked python scripts/test.py
           uv run --locked python experiments/led-microphone/test_capture.py
+          uv run --locked python experiments/production-sampling/test_capture.py
       - name: Build AVR firmware
         run: uv run --locked pio run --environment nanoatmega328
       - name: Check uploader with a simulated ATmega328P

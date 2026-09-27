@@ -94,10 +94,11 @@ responds to volume; once a tempo is found, it flashes red once per beat. The Sou
 panel shows the detected BPM alongside the microphone level. It can hold time
 through a brief missing beat, then returns to listening after silence or loss of
 a repeating rhythm. Quiet or complex music can take longer or fail to lock, and
-strong subdivisions can produce half/double tempo. A fresh Radioactive passage worked with steady LEDs
-but failed while flashing. Subsequent controlled quiet-room tests found no
-meaningful interference from LED changes; see the
-[step/fade measurements](docs/led-microphone-measurements.md). The detector runs on the lamp;
+strong subdivisions can produce half/double tempo. Controlled quiet-room and
+same-song tests found closely matching microphone input under steady and flashing
+LEDs. Tracking still varies between runs, and timing-aware replay needs work; see
+the [step/fade measurements](docs/led-microphone-measurements.md) and
+[production-loop comparison](docs/production-sampling-measurements.md). The detector runs on the lamp;
 the browser can select programs and display their live output.
 
 **See what the microphone hears.** Select Sound reactive to reveal the raw
@@ -280,6 +281,9 @@ due LED frames first and starts analysis only with at least 1 ms before the next
 120 Hz deadline. A full tempo update can span input windows; microphone collection
 continues throughout. A frozen scan endpoint and an overwritten-history check keep
 delayed reads valid. Native replay and the simulator drain the same work immediately.
+This differs from hardware scheduling: measured onset values replay exactly but
+BPM results can diverge. The [production sampling audit](docs/production-sampling-measurements.md)
+records the actual window intervals, ADC counts and timing margins for that work.
 
 A phase clock drives 90 ms fading pulses, aligns gently to attacks above the recent
 onset floor, and continues through missed hits. Three unsupported scans or three

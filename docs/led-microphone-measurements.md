@@ -78,6 +78,11 @@ cannot establish submillisecond settling or completely rule out coupling.
 
 ## What this suggests doing next
 
+The follow-up [same-passage production-loop comparison](production-sampling-measurements.md)
+is now complete. It found nearly identical input envelopes with steady and pulsed
+LEDs, substantial variation between two steady takes, and a live/replay scheduling
+gap. Its report gives the current next steps.
+
 Do not add a long microphone blanking interval or slow the light fades on the
 strength of the earlier correlation. This measurement gives neither change a
 demonstrated benefit; blanking could remove actual musical attacks.
