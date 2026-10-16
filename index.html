@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#edece7" />
+    <title>Lampe Studio</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23222b26'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23c7ef8c' stroke-width='4'/%3E%3C/svg%3E"
+    />
+    <script type="module" crossorigin src="./assets/index-CP42ml5f.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-roK_v7xU.css">
+  </head>
+  <body>
+    <svg
+      class="icon-definitions"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <symbol id="icon-power" viewBox="0 0 24 24">
+        <path d="M12 2v10M7 5a8 8 0 1 0 10 0" />
+      </symbol>
+      <symbol id="icon-reset" viewBox="0 0 24 24">
+        <path d="M3 4v6h6M3 10a9 9 0 1 1 1 8" />
+      </symbol>
+    </svg>
+    <div id="app">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Lampe Studio home"
+          >lampe <span class="brand-studio">studio</span></a
+        >
+        <div class="mode-switch" role="group" aria-label="Source">
+          <button id="sim-mode" aria-pressed="true">Simulator</button>
+          <button id="live-mode" aria-pressed="false">Live lamp</button>
+        </div>
+      </header>
+      <main>
+        <div id="notice" class="notice" role="status">Loading…</div>
+        <div id="live-info" class="live-info" hidden>
+          <span
+            ><svg class="icon" aria-hidden="true">
+              <use href="#icon-power" /></svg
+            >Bluetooth · Lampe-Mini</span
+          >
+          <a class="bluetooth-help" href="https://bluefy.app/guide.html" target="_blank" rel="noopener">iPhone: open in Bluefy</a>
+          <button
+            id="connect"
+            class="primary"
+            title="Choose the nearby lamp over Bluetooth"
+          >
+            Connect lamp
+          </button>
+        </div>
+        <p id="secure-app" class="notice" hidden>Bluetooth needs HTTPS. <a href="https://holwech.github.io/lampe/">Open the secure Bluetooth app</a>.</p>
+        <div class="workspace">
+          <section class="viewer-panel" aria-label="3D lamp preview">
+            <div class="stage" id="stage">
+              <div class="stage-top">
+                <span id="source-label" class="source-label" hidden
+                  ><i></i><span id="connection-status">Offline</span></span
+                >
+              </div>
+              <canvas
+                id="lamp-canvas"
+                aria-label="Interactive 3D model of Lampe Mini. Drag to rotate and scroll to zoom."
+              ></canvas>
+              <div id="stage-message" class="stage-message" hidden></div>
+              <div class="stage-tools">
+                <button
+                  id="diffuser"
+                  aria-pressed="true"
+                  aria-label="Diffuser on"
+                  title="Toggle diffuser"
+                >
+                  <span class="toggle-track" aria-hidden="true"></span>Diffuser
+                </button>
+              </div>
+            </div>
+            <section class="pixels" aria-label="LED inspector">
+              <div id="led-strip" class="led-strip"></div>
+              <div
+                class="pixel-detail"
+                title="Raw LED values, before global brightness"
+              >
+                <span id="pixel-name">Pixel 00</span
+                ><code id="pixel-rgb">R 000 G 000 B 000</code
+                ><code id="pixel-hex">#000000</code>
+              </div>
+            </section>
+          </section>
+          <aside class="controls" aria-label="Lamp controls">
+            <section class="programs-section">
+              <h2>Programs</h2>
+              <div class="program-tabs" role="tablist" aria-label="Program groups">
+                <button id="fixed-tab" role="tab" aria-selected="true" aria-controls="programs-fixed">Fixed</button>
+                <button id="audio-tab" role="tab" aria-selected="false" aria-controls="programs-audio" tabindex="-1">Sound reactive</button>
+              </div>
+              <div id="programs">
+                <div id="programs-fixed" class="programs" role="tabpanel" aria-labelledby="fixed-tab" tabindex="0"></div>
+                <div id="programs-audio" class="programs" role="tabpanel" aria-labelledby="audio-tab" tabindex="0" hidden></div>
+              </div>
+            </section>
+            <section id="brightness-section">
+              <div class="brightness-heading">
+                <label class="slider-label" for="brightness">Brightness
+                  <output id="brightness-value" for="brightness" aria-live="off">—</output>
+                </label>
+                <button id="brightness-reset" class="brightness-reset" aria-label="Reset brightness to startup default" disabled>
+                  <svg class="icon" aria-hidden="true"><use href="#icon-reset" /></svg>
+                </button>
+              </div>
+              <input id="brightness" type="range" min="0" max="255" step="1" value="100" disabled />
+            </section>
+            <section id="audio-section" class="audio-section" hidden>
+              <div class="section-line">
+                <h2>Sound</h2>
+                <div class="sound-readouts">
+                  <output id="audio-value" aria-live="off" aria-label="Audio response">0%</output>
+                  <output id="beat-value" aria-label="Detected tempo">Listening…</output>
+                </div>
+              </div>
+              <div
+                class="meter"
+                role="meter"
+                aria-label="Audio envelope"
+                aria-valuemin="0"
+                aria-valuemax="255"
+                aria-valuenow="0"
+              >
+                <span id="audio-meter"></span>
+              </div>
+              <div id="audio-source" class="audio-controls">
+                <label for="audio-mode" class="sr-only"
+                  >Simulated sound source</label
+                >
+                <select id="audio-mode" disabled>
+                  <option value="pulse">Pulse</option>
+                  <option value="steady">Steady</option>
+                  <option value="silence">Silence</option>
+                </select>
+              </div>
+              <div id="tempo-input">
+                <label class="slider-label" for="audio-tempo">Pulse tempo
+                  <output id="audio-tempo-value" aria-live="off">120 BPM</output>
+                </label>
+                <input id="audio-tempo" type="range" min="60" max="200" step="1" value="120" />
+              </div>
+              <div id="audio-input">
+                <label class="slider-label" for="audio-level"
+                  ><span>Input level</span
+                  ><output aria-live="off" id="audio-level-value"
+                    >45%</output
+                  ></label
+                >
+                <input
+                  id="audio-level"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="45"
+                  disabled
+                />
+              </div>
+            </section>
+          </aside>
+          <section id="microphone-panel" class="microphone-panel" aria-label="Microphone analysis" hidden>
+            <div class="section-line">
+              <div class="capture-heading"><h2>What the lamp hears</h2><span id="capture-status">Waiting for microphone…</span></div>
+              <button id="save-audio" class="capture-save" disabled title="Download the last five seconds as CSV">Save capture</button>
+            </div>
+            <div class="audio-plots">
+              <figure>
+                <figcaption><span>Microphone waveform</span><span class="capture-metrics"><span id="mic-clipping" hidden>Clipping</span><output id="mic-range">—</output></span></figcaption>
+                <canvas id="waveform" role="img" aria-label="Microphone waveform"></canvas>
+              </figure>
+              <figure>
+                <figcaption><span>Rhythm</span><span class="plot-legend"><span>Sound attacks</span><span>Beat flashes</span></span></figcaption>
+                <canvas id="rhythm" role="img" aria-label="Sound attacks and detected beats"></canvas>
+              </figure>
+            </div>
+          </section>
+        </div>
+        <section id="firmware-section" class="firmware-panel" hidden>
+          <h2>Firmware update</h2>
+          <p>Choose the lamp’s firmware.bin and enter its upload password. Keep this page open and stay close to the lamp. Lighting pauses during the update.</p>
+          <div class="firmware-fields">
+            <label>Firmware file <input id="firmware-file" type="file" accept=".bin,application/octet-stream" /></label>
+            <label>Upload password <input id="firmware-password" type="password" autocomplete="off" /></label>
+            <button id="firmware-upload" class="primary" disabled>Update over Bluetooth</button>
+            <button id="firmware-cancel" hidden>Cancel update</button>
+          </div>
+          <progress id="firmware-progress" value="0" max="100" aria-label="Firmware upload progress"></progress>
+          <output id="firmware-status" role="status">Use the password from your private device settings.</output>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
